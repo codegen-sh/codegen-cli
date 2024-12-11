@@ -11,10 +11,9 @@ dependencies = [
     "algoliasearch",
     "rich",
 ]
-[project.entry-points]
-console_scripts = [
-    "codegen=codegen.cli:main",
-]
+[project.scripts]
+codegen = "codegen.cli:main"
+
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
