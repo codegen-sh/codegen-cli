@@ -8,6 +8,8 @@ setup(
         "click",
         "requests",
         "pathlib",
+        "algoliasearch",
+        "rich",
     ],
     entry_points={
         "console_scripts": [
