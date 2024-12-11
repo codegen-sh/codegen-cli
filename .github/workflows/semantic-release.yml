@@ -13,4 +13,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          additional-packages: "conventional-changelog-conventionalcommits"
+          additional-packages: "conventional-changelog-conventionalcommits@4.6.3"
