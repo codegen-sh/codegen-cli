@@ -1,0 +1,38 @@
+name: Cache Warm-Up
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Run at the top of every hour
+  workflow_dispatch:
+
+jobs:
+  warm-up-cache:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check if on main branch
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Not on main branch. Exiting."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main # Ensure we're operating on the 'main' branch
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION: "0.0.0"
+
+      - name: Setup-pre-commit
+        run: uv tool install pre-commit --with pre-commit-uv --force-reinstall
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: pre-commit install-hooks
+        shell: bash

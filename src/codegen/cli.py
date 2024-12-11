@@ -1,4 +1,7 @@
+import asyncio  # noqa: D100
 import json
+import webbrowser
+
 import click
 import requests
 from http.cookies import SimpleCookie
@@ -12,55 +15,31 @@ from pathlib import Path
 from typing import Optional
 import jwt
 from dotenv import load_dotenv
-
 from codegen.authorization import TokenManager
-
 from .config import save_token, get_token
 from algoliasearch.search.client import SearchClient
-from rich.console import Console
-from rich.table import Table
+from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
 
 load_dotenv()
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
 AUTH_URL = "http://localhost:8000/login"
 
+
+AUTH_URL = "https://codegen.sh/login"
+
 ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
 ALGOLIA_INDEX_NAME = "prod_knowledge"
-SUPABASE_ANON_PUBLIC="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXJna2lwcm5seHF1dnZqb2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE2NzE2MjMsImV4cCI6MjAzNzI0NzYyM30.yqgLr6op-Tjttpy_bvSBOA0DM-cqT_xMKWu_fakW5fY"
-SUPABASE_URL="https://wtmrgkiprnlxquvvjoka.supabase.co"
 
 class AuthError(Exception):
+    """Error raised if authed user cannot be established."""
+
     pass
-
-
-def get_cookies() -> dict:
-    """Get cookies with auth token if it exists"""
-    token = get_token()
-    if not token:
-        raise AuthError("Not authenticated. Please run 'codegen login' first.")
-    return {"__authSession": token}
-
-
-def get_auth_details() -> tuple[RequestsCookieJar, dict]:
-    """Get both cookies and headers with auth token"""
-    token = get_token()
-    if not token:
-        raise AuthError("Not authenticated. Please run 'codegen login' first.")
-
-    cookies = RequestsCookieJar()
-    cookies.set("__authSession", token, path="/", secure=True)
-
-    return (
-        cookies,
-        {"Authorization": f"Bearer {token}"},
-    )
-
 
 @click.group()
 def main():
-    """Codegen CLI - Transform your code with AI"""
+    """Codegen CLI - Transform your code with AI."""
     pass
 
 
@@ -105,7 +84,6 @@ def login(token: str):
         exit(1)
 
 
-
 @main.command()
 @click.argument("code", required=True)
 @click.option(
@@ -123,10 +101,12 @@ def login(token: str):
     type=int,
 )
 def run(code: str, repo_id: int, codemod_id: int):
-    """Run code transformation on the provided Python code"""
+    """Run code transformation on the provided Python code."""
     try:
-        cookies, headers = get_auth_details()
-
+        auth_token = get_token()
+        if not auth_token:
+            raise AuthError("Not authenticated. Please run 'codegen login' first.")
+        
         # Constructing payload to match the frontend's structure
         payload = {
             "code": code,
@@ -138,15 +118,13 @@ def run(code: str, repo_id: int, codemod_id: int):
             "includeGraphviz": False,
         }
 
-        click.echo(f"Sending request to {API_ENDPOINT}")
-        click.echo(f"Cookies: {cookies}")
-        click.echo(f"Headers: {headers}")
+        click.echo(f"Sending request to {RUN_CM_ON_STRING_ENDPOINT}")
+        click.echo(f"Auth token: {auth_token}")
         click.echo(f"Payload: {payload}")
 
         response = requests.post(
-            API_ENDPOINT,
-            cookies=cookies,
-            headers=headers,
+            RUN_CM_ON_STRING_ENDPOINT,
+            headers={"Authorization": f"Bearer {auth_token}"},
             json=payload,
         )
 
@@ -154,31 +132,27 @@ def run(code: str, repo_id: int, codemod_id: int):
             result = response.json()
             # Assuming the response structure matches what we need
             if result.get("success"):
-                click.echo(
-                    result.get("transformed_code", "No transformed code returned")
-                )
+                click.echo(result.get("transformed_code", "No transformed code returned"))
             else:
-                click.echo(
-                    f"Error: {result.get('error', 'Unknown error occurred')}", err=True
-                )
+                click.echo(f"Error: {result.get('error', 'Unknown error occurred')}", err=True)
         else:
             click.echo(f"Error: HTTP {response.status_code}", err=True)
             try:
                 error_json = response.json()
                 click.echo(f"Error details: {error_json}", err=True)
-            except:
+            except Exception:
                 click.echo(f"Raw response: {response.text}", err=True)
 
     except AuthError as e:
         click.echo(str(e), err=True)
         return 1
     except requests.exceptions.RequestException as e:
-        click.echo(f"Error connecting to server: {str(e)}", err=True)
+        click.echo(f"Error connecting to server: {e!s}", err=True)
         return 1
 
 
 def format_api_doc(hit: dict, index: int) -> None:
-    """Format and print an API documentation entry"""
+    """Format and print an API documentation entry."""
     click.echo("─" * 80)  # Separator line
     click.echo(f"\n[{index}] {hit['fullname']}")
 
@@ -197,7 +171,7 @@ def format_api_doc(hit: dict, index: int) -> None:
 
 
 def format_example(hit: dict, index: int) -> None:
-    """Format and print an example entry"""
+    """Format and print an example entry."""
     click.echo("─" * 80)  # Separator line
 
     # Title with emoji if available
@@ -250,7 +224,7 @@ def format_example(hit: dict, index: int) -> None:
     type=click.Choice(["api", "example"], case_sensitive=False),
 )
 def docs_search(query: str, page: int, hits: int, doctype: str | None):
-    """Search Codegen documentation"""
+    """Search Codegen documentation."""
     try:
         # Run the async search in the event loop
         results = asyncio.run(async_docs_search(query, page, hits, doctype))
@@ -262,9 +236,7 @@ def docs_search(query: str, page: int, hits: int, doctype: str | None):
         total_hits = results.get("nbHits", 0)
         total_pages = results.get("nbPages", 0)
         doctype_str = f" ({doctype} only)" if doctype else ""
-        click.echo(
-            f"\nFound {total_hits} results for '{query}'{doctype_str} ({total_pages} pages)"
-        )
+        click.echo(f"\nFound {total_hits} results for '{query}'{doctype_str} ({total_pages} pages)")
         click.echo(f"Showing page {page + 1} of {total_pages}\n")
 
         # Print each hit with appropriate formatting
@@ -280,27 +252,17 @@ def docs_search(query: str, page: int, hits: int, doctype: str | None):
             # Navigation help with doctype if specified
             doctype_param = f" -d {doctype}" if doctype else ""
             if page > 0:
-                click.echo(
-                    "\nPrevious page: codegen docs-search -p {}{} '{}'".format(
-                        page - 1, doctype_param, query
-                    )
-                )
+                click.echo(f"\nPrevious page: codegen docs-search -p {page - 1}{doctype_param} '{query}'")
             if page + 1 < total_pages:
-                click.echo(
-                    "Next page: codegen docs-search -p {}{} '{}'".format(
-                        page + 1, doctype_param, query
-                    )
-                )
+                click.echo(f"Next page: codegen docs-search -p {page + 1}{doctype_param} '{query}'")
 
     except Exception as e:
-        click.echo(f"Error searching docs: {str(e)}", err=True)
+        click.echo(f"Error searching docs: {e!s}", err=True)
         return 1
 
 
-async def async_docs_search(
-    query: str, page: int, hits_per_page: int, doctype: str | None
-):
-    """Async function to perform the actual search"""
+async def async_docs_search(query: str, page: int, hits_per_page: int, doctype: str | None):
+    """Async function to perform the actual search."""
     client = SearchClient(ALGOLIA_APP_ID, ALGOLIA_SEARCH_KEY)
 
     try:

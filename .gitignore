@@ -1,17 +1,10 @@
-*.pyc
-__pycache__/
-*.egg-info/
-.env
-.vscode/
-.DS_Store
-dist/
-build/
-.pytest_cache/
-.coverage
-
+src/codegen/__init__.py
+.python-version
+**.egg-info
+**/__pycache__
+.venv
+**/.vscode/settings.json
+**/.vscode/launch.json
 
 # env files
 .env
-
-
-

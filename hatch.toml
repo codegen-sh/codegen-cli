@@ -1,0 +1,16 @@
+[envs.default.env-vars]
+HATCH_ENV_TYPE_VIRTUAL_UV_PATH = "uv"
+[envs.default.extra-scripts]
+pip = "{env:HATCH_UV} pip {args}"
+
+[version]
+source = "vcs"
+fallback-version = "0.0.0"
+[build.hooks.vcs]
+version-file = "src/codegen/__init__.py"
+[metadata.hooks.vcs]
+Homepage = "https://github.com/codegen-sh/codegen-cli"
+source_archive = "https://github.com/codegen-sh/codegen-cli/archive/{commit_hash}.zip"
+[build.targets.wheel]
+macos-max-compat = false
+packages=["src/codegen"]
