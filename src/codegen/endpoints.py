@@ -1,1 +1,6 @@
-RUN_CM_ON_STRING_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
+from codegen.env import MODAL_WORKSPACE
+
+
+RUN_CM_ON_STRING_ENDPOINT = (
+    f"https://{MODAL_WORKSPACE}--run-sandbox-cm-on-string.modal.run"
+)
