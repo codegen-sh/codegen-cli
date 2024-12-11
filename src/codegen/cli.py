@@ -6,9 +6,11 @@ import click
 import requests
 from algoliasearch.search.client import SearchClient
 
+from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
+
 from .config import get_token, save_token
 
-API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
+
 AUTH_URL = "https://codegen.sh/login"
 
 ALGOLIA_APP_ID = "Q48PJS245N"
@@ -99,13 +101,13 @@ def run(code: str, repo_id: int, codemod_id: int):
             "includeGraphviz": False,
         }
 
-        click.echo(f"Sending request to {API_ENDPOINT}")
+        click.echo(f"Sending request to {RUN_CM_ON_STRING_ENDPOINT}")
         click.echo(f"Cookies: {cookies}")
         click.echo(f"Headers: {headers}")
         click.echo(f"Payload: {payload}")
 
         response = requests.post(
-            API_ENDPOINT,
+            RUN_CM_ON_STRING_ENDPOINT,
             cookies=cookies,
             headers=headers,
             json=payload,
