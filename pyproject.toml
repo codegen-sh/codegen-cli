@@ -1,11 +1,10 @@
 [project]
 name = "codegen-sh"
-version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = ["click", "requests", "pathlib", "algoliasearch", "rich"]
-
+dynamic = ["version", "urls"]
 [project.scripts]
 codegen = "codegen.cli:main"
 
