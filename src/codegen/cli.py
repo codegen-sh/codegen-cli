@@ -1,24 +1,16 @@
-import asyncio  # noqa: D100
+import asyncio
 import json
-import webbrowser
+import os
 
 import click
 import requests
-from http.cookies import SimpleCookie
-from requests.cookies import RequestsCookieJar
-import asyncio
-from typing import Optional
-import os
-import json
-import click
-from pathlib import Path
-from typing import Optional
-import jwt
-from dotenv import load_dotenv
-from codegen.authorization import TokenManager
-from .config import save_token, get_token
 from algoliasearch.search.client import SearchClient
+from dotenv import load_dotenv
+
+from codegen.authorization import TokenManager
 from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
+
+from .config import get_token
 
 load_dotenv()
 
@@ -32,10 +24,12 @@ ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
 ALGOLIA_INDEX_NAME = "prod_knowledge"
 
+
 class AuthError(Exception):
     """Error raised if authed user cannot be established."""
 
     pass
+
 
 @click.group()
 def main():
@@ -56,15 +50,14 @@ def logout():
     click.echo("Successfully logged out")
 
 
-
 @main.command()
-@click.option('--token', required=False, help='JWT token for authentication')
+@click.option("--token", required=False, help="JWT token for authentication")
 def login(token: str):
     """Store authentication token."""
     _token = token
     if not _token:
-        _token = os.environ.get('CODEGEN_USER_ACCESS_TOKEN')
-        
+        _token = os.environ.get("CODEGEN_USER_ACCESS_TOKEN")
+
     if not _token:
         click.echo("Error: Token must be provided via --token option or CODEGEN_USER_ACCESS_TOKEN environment variable", err=True)
         exit(1)
@@ -75,12 +68,12 @@ def login(token: str):
     if token_value:
         click.echo("Already authenticated. Use 'codegen logout' to clear the token.")
         exit(1)
-    
+
     try:
         token_manager.save_token(_token)
         click.echo("Successfully stored authentication token")
     except ValueError as e:
-        click.echo(f"Error: {str(e)}", err=True)
+        click.echo(f"Error: {e!s}", err=True)
         exit(1)
 
 
@@ -106,7 +99,7 @@ def run(code: str, repo_id: int, codemod_id: int):
         auth_token = get_token()
         if not auth_token:
             raise AuthError("Not authenticated. Please run 'codegen login' first.")
-        
+
         # Constructing payload to match the frontend's structure
         payload = {
             "code": code,
