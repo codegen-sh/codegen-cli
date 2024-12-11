@@ -11,3 +11,6 @@ def get_modal_workspace():
             return "codegen-sh-develop"
         case _:
             raise ValueError(f"Invalid environment: {ENV}")
+
+
+MODAL_WORKSPACE = get_modal_workspace()
