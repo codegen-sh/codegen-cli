@@ -1,14 +1,12 @@
+import asyncio
 import json
+import webbrowser
+
 import click
 import requests
-import webbrowser
-import asyncio
-from typing import Optional
-
-from .config import save_token, get_token
 from algoliasearch.search.client import SearchClient
-from rich.console import Console
-from rich.table import Table
+
+from .config import get_token, save_token
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
 AUTH_URL = "https://codegen.sh/login"
@@ -129,7 +127,7 @@ def run(code: str, repo_id: int, codemod_id: int):
             try:
                 error_json = response.json()
                 click.echo(f"Error details: {error_json}", err=True)
-            except:
+            except Exception:
                 click.echo(f"Raw response: {response.text}", err=True)
 
     except AuthError as e:
