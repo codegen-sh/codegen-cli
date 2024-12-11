@@ -140,6 +140,56 @@ def run(code: str, repo_id: int, codemod_id: int):
         return 1
 
 
+def format_api_doc(hit: dict, index: int) -> None:
+    """Format and print an API documentation entry"""
+    click.echo("─" * 80)  # Separator line
+    click.echo(f"\n[{index}] {hit['fullname']}")
+
+    if hit.get("description"):
+        click.echo("\nDescription:")
+        click.echo(hit["description"].strip())
+
+    # Print additional API-specific details
+    click.echo("\nDetails:")
+    click.echo(f"Type: {hit.get('level', 'N/A')} ({hit.get('docType', 'N/A')})")
+    click.echo(f"Language: {hit.get('language', 'N/A')}")
+    if hit.get("className"):
+        click.echo(f"Class: {hit['className']}")
+    click.echo(f"Path: {hit.get('path', 'N/A')}")
+    click.echo()
+
+
+def format_example(hit: dict, index: int) -> None:
+    """Format and print an example entry"""
+    click.echo("─" * 80)  # Separator line
+
+    # Title with emoji if available
+    title = f"\n[{index}] {hit['name']}"
+    if hit.get("emoji"):
+        title = f"{title} {hit['emoji']}"
+    click.echo(title)
+
+    if hit.get("docstring"):
+        click.echo("\nDescription:")
+        click.echo(hit["docstring"].strip())
+
+    if hit.get("source"):
+        click.echo("\nSource:")
+        click.echo("```")
+        click.echo(hit["source"].strip())
+        click.echo("```")
+
+    # Additional metadata
+    if hit.get("language") or hit.get("user_name"):
+        click.echo("\nMetadata:")
+        if hit.get("language"):
+            click.echo(f"Language: {hit['language']}")
+        if hit.get("user_name"):
+            click.echo(f"Author: {hit['user_name']}")
+
+    click.echo()
+
+
 @main.command()
 @click.argument("query")
 @click.option(
@@ -156,11 +206,17 @@ def run(code: str, repo_id: int, codemod_id: int):
     default=5,
     type=int,
 )
-def docs_search(query: str, page: int, hits: int):
+@click.option(
+    "--doctype",
+    "-d",
+    help="Filter by documentation type (api or example)",
+    type=click.Choice(["api", "example"], case_sensitive=False),
+)
+def docs_search(query: str, page: int, hits: int, doctype: str | None):
     """Search Codegen documentation"""
     try:
         # Run the async search in the event loop
-        results = asyncio.run(async_docs_search(query, page, hits))
+        results = asyncio.run(async_docs_search(query, page, hits, doctype))
         results = json.loads(results)
         results = results["results"][0]
         hits_list = results["hits"]
@@ -168,36 +224,35 @@ def docs_search(query: str, page: int, hits: int):
         # Print search stats
         total_hits = results.get("nbHits", 0)
         total_pages = results.get("nbPages", 0)
-        click.echo(f"\nFound {total_hits} results for '{query}' ({total_pages} pages)")
+        doctype_str = f" ({doctype} only)" if doctype else ""
+        click.echo(
+            f"\nFound {total_hits} results for '{query}'{doctype_str} ({total_pages} pages)"
+        )
         click.echo(f"Showing page {page + 1} of {total_pages}\n")
 
-        # Print each hit with better formatting
+        # Print each hit with appropriate formatting
         for i, hit in enumerate(hits_list, 1):
-            click.echo("─" * 80)  # Separator line
-            click.echo(f"\n[{i}] {hit['name']}")
-            if hit.get("docstring"):
-                click.echo("\nDescription:")
-                click.echo(hit["docstring"].strip())
-            if hit.get("source"):
-                click.echo("\nSource:")
-                click.echo("```")
-                click.echo(hit["source"].strip())
-                click.echo("```")
-            click.echo()  # Extra newline for readability
+            if hit.get("type") == "doc":
+                format_api_doc(hit, i)
+            else:
+                format_example(hit, i)
 
         if hits_list:
             click.echo("─" * 80)  # Final separator
 
-            # Navigation help
+            # Navigation help with doctype if specified
+            doctype_param = f" -d {doctype}" if doctype else ""
             if page > 0:
                 click.echo(
-                    "\nPrevious page: codegen docs-search -p {} '{}'".format(
-                        page - 1, query
+                    "\nPrevious page: codegen docs-search -p {}{} '{}'".format(
+                        page - 1, doctype_param, query
                     )
                 )
             if page + 1 < total_pages:
                 click.echo(
-                    "Next page: codegen docs-search -p {} '{}'".format(page + 1, query)
+                    "Next page: codegen docs-search -p {}{} '{}'".format(
+                        page + 1, doctype_param, query
+                    )
                 )
 
     except Exception as e:
@@ -205,21 +260,30 @@ def docs_search(query: str, page: int, hits: int):
         return 1
 
 
-async def async_docs_search(query: str, page: int, hits_per_page: int):
+async def async_docs_search(
+    query: str, page: int, hits_per_page: int, doctype: str | None
+):
     """Async function to perform the actual search"""
     client = SearchClient(ALGOLIA_APP_ID, ALGOLIA_SEARCH_KEY)
 
     try:
+        # Build the search params
+        search_params = {
+            "indexName": ALGOLIA_INDEX_NAME,
+            "query": query,
+            "hitsPerPage": hits_per_page,
+            "page": page,
+        }
+
+        # Add filters based on doctype
+        if doctype == "api":
+            search_params["filters"] = "type:doc"
+        elif doctype == "example":
+            search_params["filters"] = "type:skill_implementation"
+
         response = await client.search(
             search_method_params={
-                "requests": [
-                    {
-                        "indexName": ALGOLIA_INDEX_NAME,
-                        "query": query,
-                        "hitsPerPage": hits_per_page,
-                        "page": page,
-                    },
-                ],
+                "requests": [search_params],
             },
         )
         return response.to_json()
