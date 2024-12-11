@@ -24,6 +24,7 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
+      - run: uv sync --frozen
       - name: Setup-pre-commit
         run: uv tool install pre-commit --with pre-commit-uv --force-reinstall
       - uses: actions/cache@v4
