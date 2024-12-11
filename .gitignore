@@ -3,3 +3,5 @@ src/codegen/__init__.py
 **.egg-info
 **/__pycache__
 .venv
+**/.vscode/settings.json
+**/.vscode/launch.json
