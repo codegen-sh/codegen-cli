@@ -1,14 +1,22 @@
-import asyncio  # noqa: D100
+import asyncio
 import json
-import webbrowser
+import os
 
 import click
 import requests
 from algoliasearch.search.client import SearchClient
+from dotenv import load_dotenv
 
+from codegen.authorization import TokenManager
 from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
 
-from .config import get_token, save_token
+from .config import get_token
+
+load_dotenv()
+
+API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
+AUTH_URL = "http://localhost:8000/login"
+
 
 AUTH_URL = "https://codegen.sh/login"
 
@@ -23,51 +31,50 @@ class AuthError(Exception):
     pass
 
 
-def get_cookies() -> dict:
-    """Get cookies with auth token if it exists."""
-    token = get_token()
-    if not token:
-        raise AuthError("Not authenticated. Please run 'codegen login' first.")
-    return {"__authSession": token}
-
-
-def get_auth_details() -> tuple[requests.cookies.RequestsCookieJar, dict]:
-    """Get both cookies and headers with auth token."""
-    token = get_token()
-    if not token:
-        raise AuthError("Not authenticated. Please run 'codegen login' first.")
-
-    cookies = requests.cookies.RequestsCookieJar()
-    cookies.set("__authSession", token, path="/", secure=True)
-
-    return (
-        cookies,
-        {"Authorization": f"Bearer {token}"},
-    )
-
-
 @click.group()
 def main():
     """Codegen CLI - Transform your code with AI."""
     pass
 
 
-@main.command()
-def login():
-    """Authenticate with Codegen through the web interface."""
-    click.echo(f"Opening {AUTH_URL} in your browser...")
-    webbrowser.open(AUTH_URL)
-    token = click.prompt("Please paste your token here", type=str)
-    save_token(token)
-    click.echo("Successfully authenticated!")
+@click.group()
+def cli():
+    pass
 
 
 @main.command()
-@click.argument("token")
-def auth(token: str):
-    """Directly save an authentication token."""
-    save_token(token)
-    click.echo("Successfully authenticated!")
+def logout():
+    """Clear stored authentication token."""
+    token_manager = TokenManager()
+    token_manager.clear_token()
+    click.echo("Successfully logged out")
+
+
+@main.command()
+@click.option("--token", required=False, help="JWT token for authentication")
+def login(token: str):
+    """Store authentication token."""
+    _token = token
+    if not _token:
+        _token = os.environ.get("CODEGEN_USER_ACCESS_TOKEN")
+
+    if not _token:
+        click.echo("Error: Token must be provided via --token option or CODEGEN_USER_ACCESS_TOKEN environment variable", err=True)
+        exit(1)
+
+    token_manager = TokenManager()
+
+    token_value = token_manager.get_token()
+    if token_value:
+        click.echo("Already authenticated. Use 'codegen logout' to clear the token.")
+        exit(1)
+
+    try:
+        token_manager.save_token(_token)
+        click.echo("Successfully stored authentication token")
+    except ValueError as e:
+        click.echo(f"Error: {e!s}", err=True)
+        exit(1)
 
 
 @main.command()
@@ -89,7 +96,9 @@ def auth(token: str):
 def run(code: str, repo_id: int, codemod_id: int):
     """Run code transformation on the provided Python code."""
     try:
-        cookies, headers = get_auth_details()
+        auth_token = get_token()
+        if not auth_token:
+            raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
         # Constructing payload to match the frontend's structure
         payload = {
@@ -103,14 +112,12 @@ def run(code: str, repo_id: int, codemod_id: int):
         }
 
         click.echo(f"Sending request to {RUN_CM_ON_STRING_ENDPOINT}")
-        click.echo(f"Cookies: {cookies}")
-        click.echo(f"Headers: {headers}")
+        click.echo(f"Auth token: {auth_token}")
         click.echo(f"Payload: {payload}")
 
         response = requests.post(
             RUN_CM_ON_STRING_ENDPOINT,
-            cookies=cookies,
-            headers=headers,
+            headers={"Authorization": f"Bearer {auth_token}"},
             json=payload,
         )
 
