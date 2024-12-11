@@ -10,7 +10,6 @@ def ensure_config_dir():
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-
 def load_config() -> dict:
     """Load the config file or return empty dict if it doesn't exist"""
     if not CONFIG_FILE.exists():
