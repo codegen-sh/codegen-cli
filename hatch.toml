@@ -13,3 +13,4 @@ Homepage = "https://github.com/codegen-sh/codegen-cli"
 source_archive = "https://github.com/codegen-sh/codegen-cli/archive/{commit_hash}.zip"
 [build.targets.wheel]
 macos-max-compat = false
+packages=["src/codegen"]
