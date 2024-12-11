@@ -24,3 +24,27 @@ cache-keys = [{ git = { commit = true } }]
 [tool.ruff]
 line-length = 200
 lint.select = ["F", "E", "W", "I", "UP", "D", "RUF"]
+lint.ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "D203",
+    "D205",
+    "D213",
+    "D400",
+    "D401",
+    "D402",
+    "D404",
+    "D415",
+    "D417",
+    "E712", # https://github.com/astral-sh/ruff/issues/4560
+    "F841",
+    "F842",
+    "RUF012",
+    "RUF007",
+]
