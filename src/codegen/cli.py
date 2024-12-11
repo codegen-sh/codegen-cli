@@ -7,10 +7,9 @@ import requests
 from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
-from codegen.authorization import TokenManager
+from codegen.authorization import TokenManager, get_current_token
 from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
 
-from .config import get_token
 
 load_dotenv()
 
@@ -48,6 +47,11 @@ def logout():
     token_manager = TokenManager()
     token_manager.clear_token()
     click.echo("Successfully logged out")
+
+
+@main.command()
+def auth():
+    print("token is ", get_current_token())
 
 
 @main.command()
@@ -96,7 +100,7 @@ def login(token: str):
 def run(code: str, repo_id: int, codemod_id: int):
     """Run code transformation on the provided Python code."""
     try:
-        auth_token = get_token()
+        auth_token = get_current_token()
         if not auth_token:
             raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
