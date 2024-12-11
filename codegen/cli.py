@@ -1,22 +1,35 @@
 import json
 import click
 import requests
-import webbrowser
+from http.cookies import SimpleCookie
+from requests.cookies import RequestsCookieJar
 import asyncio
 from typing import Optional
+import os
+import json
+import click
+from pathlib import Path
+from typing import Optional
+import jwt
+from dotenv import load_dotenv
+
+from codegen.authorization import TokenManager
 
 from .config import save_token, get_token
 from algoliasearch.search.client import SearchClient
 from rich.console import Console
 from rich.table import Table
 
+load_dotenv()
+
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
-AUTH_URL = "https://codegen.sh/login"
+AUTH_URL = "http://localhost:8000/login"
 
 ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
 ALGOLIA_INDEX_NAME = "prod_knowledge"
-
+SUPABASE_ANON_PUBLIC="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXJna2lwcm5seHF1dnZqb2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE2NzE2MjMsImV4cCI6MjAzNzI0NzYyM30.yqgLr6op-Tjttpy_bvSBOA0DM-cqT_xMKWu_fakW5fY"
+SUPABASE_URL="https://wtmrgkiprnlxquvvjoka.supabase.co"
 
 class AuthError(Exception):
     pass
@@ -30,13 +43,13 @@ def get_cookies() -> dict:
     return {"__authSession": token}
 
 
-def get_auth_details() -> tuple[requests.cookies.RequestsCookieJar, dict]:
+def get_auth_details() -> tuple[RequestsCookieJar, dict]:
     """Get both cookies and headers with auth token"""
     token = get_token()
     if not token:
         raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-    cookies = requests.cookies.RequestsCookieJar()
+    cookies = RequestsCookieJar()
     cookies.set("__authSession", token, path="/", secure=True)
 
     return (
@@ -51,22 +64,46 @@ def main():
     pass
 
 
-@main.command()
-def login():
-    """Authenticate with Codegen through the web interface"""
-    click.echo(f"Opening {AUTH_URL} in your browser...")
-    webbrowser.open(AUTH_URL)
-    token = click.prompt("Please paste your token here", type=str)
-    save_token(token)
-    click.echo("Successfully authenticated!")
+@click.group()
+def cli():
+    pass
 
 
 @main.command()
-@click.argument("token")
-def auth(token: str):
-    """Directly save an authentication token"""
-    save_token(token)
-    click.echo("Successfully authenticated!")
+def logout():
+    """Clear stored authentication token."""
+    token_manager = TokenManager()
+    token_manager.clear_token()
+    click.echo("Successfully logged out")
+
+
+
+@main.command()
+@click.option('--token', required=False, help='JWT token for authentication')
+def login(token: str):
+    """Store authentication token."""
+    _token = token
+    if not _token:
+        _token = os.environ.get('CODEGEN_USER_ACCESS_TOKEN')
+        
+    if not _token:
+        click.echo("Error: Token must be provided via --token option or CODEGEN_USER_ACCESS_TOKEN environment variable", err=True)
+        exit(1)
+
+    token_manager = TokenManager()
+
+    token_value = token_manager.get_token()
+    if token_value:
+        click.echo("Already authenticated. Use 'codegen logout' to clear the token.")
+        exit(1)
+    
+    try:
+        token_manager.save_token(_token)
+        click.echo("Successfully stored authentication token")
+    except ValueError as e:
+        click.echo(f"Error: {str(e)}", err=True)
+        exit(1)
+
 
 
 @main.command()

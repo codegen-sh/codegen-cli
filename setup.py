@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "click",
-        "requests",
+        "requests>=2.25.0",
         "pathlib",
         "algoliasearch",
         "rich",
