@@ -8,9 +8,9 @@ import requests
 from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
-from codegen.authorization import TokenManager, get_current_token
-from codegen.constants import ProgrammingLanguage
-from codegen.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
+from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
+from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.utils.constants import ProgrammingLanguage
 
 load_dotenv()
 
@@ -177,7 +177,7 @@ def run(codemod_path: Path, repo_id: int):
     )
 
     if response.status_code == 200:
-        click.echo(response.text)
+        print(response.text)
     else:
         click.echo(f"Error: HTTP {response.status_code}", err=True)
         try:
