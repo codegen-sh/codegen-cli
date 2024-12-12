@@ -9,7 +9,7 @@ from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
 from codegen.authorization import TokenManager, get_current_token
-from codegen.endpoints import RUN_CODEMOD_ENDPOINT
+from codegen.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 
 load_dotenv()
 
@@ -22,8 +22,8 @@ AUTH_URL = "https://codegen.sh/login"
 ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
 ALGOLIA_INDEX_NAME = "prod_knowledge"
-CODEMODS_FOLDER = Path.cwd() / "codemod"
 CODEGEN_FOLDER = Path.cwd() / ".codegen"
+CODEMODS_FOLDER = CODEGEN_FOLDER / "codemod"
 # language=python
 SAMPLE_CODEMOD = """
 # grab codebase content
@@ -68,7 +68,7 @@ def init():
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
     SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
-
+    populate_docs(CODEGEN_FOLDER / "docs")
     print(
         f"Initialized codegen folder at {CODEGEN_FOLDER} and codemods folder at {CODEMODS_FOLDER}.",
         f"Please add your codemods to {CODEMODS_FOLDER} and run codegen-cli run to run them. See {SAMPLE_CODEMOD_PATH} for an example.",
@@ -77,6 +77,11 @@ def init():
         "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
         sep="\n",
     )
+
+
+def populate_docs(dest: Path):
+    response = requests.get(DOCS_ENDPOINT)
+    print(response.text)
 
 
 @main.command()
