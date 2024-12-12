@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from pathlib import Path
 
 import click
 import requests
@@ -21,6 +22,26 @@ AUTH_URL = "https://codegen.sh/login"
 ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
 ALGOLIA_INDEX_NAME = "prod_knowledge"
+CODEMODS_FOLDER = Path.cwd() / "codemod"
+CODEGEN_FOLDER = Path.cwd() / ".codegen"
+# language=python
+SAMPLE_CODEMOD = """
+# grab codebase content
+file = codebase.files[0] # or .get_file("test.py")
+function = codebase.functions[0] # or .get_symbol("my_func")
+
+# print logs
+print(f'# of files: {len(codebase.files)}')
+print(f'# of functions: {len(codebase.functions)}')
+
+# make edits
+file.edit('🌈' + file.content) # edit contents
+function.rename('new_name') # rename
+function.set_docstring('new docstring') # set docstring
+
+# ... etc.
+
+"""
 
 
 class AuthError(Exception):
@@ -38,6 +59,23 @@ def main():
 @click.group()
 def cli():
     pass
+
+
+@main.command()
+def init():
+    """Initialize the codegen folder"""
+    CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
+    CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
+    SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
+    SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
+
+    print(
+        f"Initialized codegen folder at {CODEGEN_FOLDER} and codemods folder at {CODEMODS_FOLDER}.",
+        f"Please add your codemods to {CODEMODS_FOLDER} and run codegen-cli run to run them. See {SAMPLE_CODEMOD_PATH} for an example.",
+        "Please use absolute path for all arguments.",
+        "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
+        sep="\n",
+    )
 
 
 @main.command()
