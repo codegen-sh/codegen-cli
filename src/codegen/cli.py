@@ -145,7 +145,7 @@ def login(token: str):
 
 
 @main.command()
-@click.argument("codemod_path", required=True, type=click.Path(exists=True))
+@click.argument("codemod_path", required=True, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--repo-id",
     "-r",
@@ -156,43 +156,35 @@ def login(token: str):
 def run(codemod_path: Path, repo_id: int):
     """Run code transformation on the provided Python code."""
     print(f"Run codemod_path={codemod_path} repo_id={repo_id} ...")
-    try:
-        auth_token = get_current_token()
-        if not auth_token:
-            raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-        # Constructing payload to match the frontend's structure
-        payload = {
-            "repo_id": repo_id,
-            "codemod_source": codemod_path.read_text(),
-        }
+    # TODO: add back in once login works
+    # auth_token = get_current_token()
+    # if not auth_token:
+    #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-        click.echo(f"Sending request to {RUN_CODEMOD_ENDPOINT}")
-        click.echo(f"Auth token: {auth_token}")
-        click.echo(f"Payload: {payload}")
+    # Constructing payload to match the frontend's structure
+    payload = {
+        "repo_id": repo_id,
+        "codemod_source": codemod_path.read_text(),
+    }
 
-        response = requests.post(
-            RUN_CODEMOD_ENDPOINT,
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json=payload,
-        )
+    print(f"Sending request to {RUN_CODEMOD_ENDPOINT} ...")
+    print(f"Payload: {json.dumps(payload, indent=4)}")
 
-        if response.status_code == 200:
-            click.echo(response.text)
-        else:
-            click.echo(f"Error: HTTP {response.status_code}", err=True)
-            try:
-                error_json = response.json()
-                click.echo(f"Error details: {error_json}", err=True)
-            except Exception:
-                click.echo(f"Raw response: {response.text}", err=True)
+    response = requests.post(
+        RUN_CODEMOD_ENDPOINT,
+        json=payload,
+    )
 
-    except AuthError as e:
-        click.echo(str(e), err=True)
-        return 1
-    except requests.exceptions.RequestException as e:
-        click.echo(f"Error connecting to server: {e!s}", err=True)
-        return 1
+    if response.status_code == 200:
+        click.echo(response.text)
+    else:
+        click.echo(f"Error: HTTP {response.status_code}", err=True)
+        try:
+            error_json = response.json()
+            click.echo(f"Error details: {error_json}", err=True)
+        except Exception:
+            click.echo(f"Raw response: {response.text}", err=True)
 
 
 def format_api_doc(hit: dict, index: int) -> None:
