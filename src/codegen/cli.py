@@ -9,6 +9,7 @@ from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
 from codegen.authorization import TokenManager, get_current_token
+from codegen.constants import ProgrammingLanguage
 from codegen.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 
 load_dotenv()
@@ -23,7 +24,7 @@ ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
 ALGOLIA_INDEX_NAME = "prod_knowledge"
 CODEGEN_FOLDER = Path.cwd() / ".codegen"
-CODEMODS_FOLDER = CODEGEN_FOLDER / "codemod"
+CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
 # language=python
 SAMPLE_CODEMOD = """
 # grab codebase content
@@ -68,20 +69,39 @@ def init():
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
     SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
-    populate_docs(CODEGEN_FOLDER / "docs")
-    print(
-        f"Initialized codegen folder at {CODEGEN_FOLDER} and codemods folder at {CODEMODS_FOLDER}.",
-        f"Please add your codemods to {CODEMODS_FOLDER} and run codegen-cli run to run them. See {SAMPLE_CODEMOD_PATH} for an example.",
-        "You can run the sample codemod with codegen-cli run --codemod {SAMPLE_CODEMOD_PATH}.",
-        "Please use absolute path for all arguments.",
-        "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
-        sep="\n",
+    DOCS_FOLDER = CODEGEN_FOLDER / "docs"
+    DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
+    populate_docs(DOCS_FOLDER)
+    click.echo(
+        "\n".join(
+            [
+                "Initialized codegen-cli",
+                f"codegen_folder: {CODEGEN_FOLDER}",
+                f"codemods_folder: {CODEMODS_FOLDER}",
+                f"docs_folder: {DOCS_FOLDER}",
+                f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
+                "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
+                f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
+                "Please use absolute path for all arguments.",
+                "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
+            ]
+        ),
     )
 
 
 def populate_docs(dest: Path):
-    response = requests.get(DOCS_ENDPOINT)
-    print(response.text)
+    dest.mkdir(parents=True, exist_ok=True)
+    for language in ProgrammingLanguage:
+        auth_token = get_current_token()
+        if not auth_token:
+            raise AuthError("Not authenticated. Please run 'codegen login' first.")
+        click.echo(f"Sending request to {DOCS_ENDPOINT}")
+        response = requests.post(
+            DOCS_ENDPOINT,
+            json={"language": language.value.lower()},
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+        (dest / f"{language.value}.mdx").write_text(response.json()["docs"])
 
 
 @main.command()
