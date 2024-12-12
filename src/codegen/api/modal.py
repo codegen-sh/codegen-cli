@@ -1,4 +1,4 @@
-from codegen.env import ENV
+from codegen.utils.env import ENV
 
 
 def get_modal_workspace():
