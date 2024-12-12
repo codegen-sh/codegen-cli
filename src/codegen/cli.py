@@ -153,7 +153,7 @@ def login(token: str):
     required=True,
     type=int,
 )
-@click.option(  # Add new web option
+@click.option(
     "--web",
     is_flag=True,
     help="Return a web link to the diff",
