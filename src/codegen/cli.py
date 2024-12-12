@@ -145,7 +145,7 @@ def login(token: str):
 
 
 @main.command()
-@click.argument("code", required=True)
+@click.argument("codemod_path", required=True, type=click.Path(exists=True))
 @click.option(
     "--repo-id",
     "-r",
@@ -153,9 +153,9 @@ def login(token: str):
     required=True,
     type=int,
 )
-def run(code: str, repo_id: int):
+def run(codemod_path: Path, repo_id: int):
     """Run code transformation on the provided Python code."""
-    print(f"Run code={code} repo_id={repo_id} ...")
+    print(f"Run codemod_path={codemod_path} repo_id={repo_id} ...")
     try:
         auth_token = get_current_token()
         if not auth_token:
@@ -164,7 +164,7 @@ def run(code: str, repo_id: int):
         # Constructing payload to match the frontend's structure
         payload = {
             "repo_id": repo_id,
-            "codemod_source": code,
+            "codemod_source": codemod_path.read_text(),
         }
 
         click.echo(f"Sending request to {RUN_CODEMOD_ENDPOINT}")
