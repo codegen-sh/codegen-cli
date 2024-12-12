@@ -9,3 +9,6 @@ src/codegen/__init__.py
 # env files
 .env
 .codegen
+**/.ruff_cache
+**/.pytest_cache
+**/.mypy_cache
