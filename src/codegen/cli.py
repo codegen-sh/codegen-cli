@@ -196,7 +196,12 @@ def login(token: str):
     required=True,
     type=int,
 )
-def run(codemod_path: Path, repo_id: int):
+@click.option(
+    "--web",
+    is_flag=True,
+    help="Return a web link to the diff",
+)
+def run(codemod_path: Path, repo_id: int, web: bool = False):
     """Run code transformation on the provided Python code."""
     print(f"Run codemod_path={codemod_path} repo_id={repo_id} ...")
 
@@ -209,6 +214,7 @@ def run(codemod_path: Path, repo_id: int):
     payload = {
         "repo_id": repo_id,
         "codemod_source": codemod_path.read_text(),
+        "web": web,
     }
 
     print(f"Sending request to {RUN_CODEMOD_ENDPOINT} ...")
