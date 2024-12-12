@@ -72,6 +72,7 @@ def init():
     print(
         f"Initialized codegen folder at {CODEGEN_FOLDER} and codemods folder at {CODEMODS_FOLDER}.",
         f"Please add your codemods to {CODEMODS_FOLDER} and run codegen-cli run to run them. See {SAMPLE_CODEMOD_PATH} for an example.",
+        "You can run the sample codemod with codegen-cli run --codemod {SAMPLE_CODEMOD_PATH}.",
         "Please use absolute path for all arguments.",
         "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
         sep="\n",
