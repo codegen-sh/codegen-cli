@@ -8,7 +8,7 @@ from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
 from codegen.authorization import TokenManager, get_current_token
-from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
+from codegen.endpoints import RUN_CODEMOD_ENDPOINT
 
 load_dotenv()
 
@@ -105,21 +105,16 @@ def run(code: str, repo_id: int, codemod_id: int):
 
         # Constructing payload to match the frontend's structure
         payload = {
-            "code": code,
             "repo_id": repo_id,
-            "codemod_id": codemod_id,
             "codemod_source": "string",
-            "source": "cli",
-            "template_context": {},
-            "includeGraphviz": False,
         }
 
-        click.echo(f"Sending request to {RUN_CM_ON_STRING_ENDPOINT}")
+        click.echo(f"Sending request to {RUN_CODEMOD_ENDPOINT}")
         click.echo(f"Auth token: {auth_token}")
         click.echo(f"Payload: {payload}")
 
         response = requests.post(
-            RUN_CM_ON_STRING_ENDPOINT,
+            RUN_CODEMOD_ENDPOINT,
             headers={"Authorization": f"Bearer {auth_token}"},
             json=payload,
         )

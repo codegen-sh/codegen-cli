@@ -1,3 +1,3 @@
 from codegen.modal import MODAL_WORKSPACE
 
-RUN_CM_ON_STRING_ENDPOINT = f"https://{MODAL_WORKSPACE}--run-sandbox-cm-on-string.modal.run"
+RUN_CODEMOD_ENDPOINT = f"https://{MODAL_WORKSPACE}--run-codemod-cli.modal.run"
