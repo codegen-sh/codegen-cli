@@ -10,7 +10,9 @@ from dotenv import load_dotenv
 
 from codegen.authorization import TokenManager, get_current_token
 from codegen.constants import ProgrammingLanguage
-from codegen.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
+from codegen.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT
+from codegen.models import SkillOutput
+from codegen.skills import format_skill
 
 load_dotenv()
 
@@ -70,8 +72,11 @@ def init():
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
     SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
+    SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
+    SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
     populate_docs(DOCS_FOLDER)
+    populate_skills(SKILLS_FOLDER)
     click.echo(
         "\n".join(
             [
@@ -79,6 +84,7 @@ def init():
                 f"codegen_folder: {CODEGEN_FOLDER}",
                 f"codemods_folder: {CODEMODS_FOLDER}",
                 f"docs_folder: {DOCS_FOLDER}",
+                f"skills_folder: {SKILLS_FOLDER}",
                 f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
                 "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
                 f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
@@ -91,17 +97,53 @@ def init():
 
 def populate_docs(dest: Path):
     dest.mkdir(parents=True, exist_ok=True)
-    for language in ProgrammingLanguage:
-        auth_token = get_current_token()
-        if not auth_token:
-            raise AuthError("Not authenticated. Please run 'codegen login' first.")
-        click.echo(f"Sending request to {DOCS_ENDPOINT}")
+    auth_token = get_current_token()
+    if not auth_token:
+        raise AuthError("Not authenticated. Please run 'codegen login' first.")
+    click.echo(f"Sending request to {DOCS_ENDPOINT}")
+    response = requests.get(
+        DOCS_ENDPOINT,
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    if response.status_code == 200:
+        click.echo("Successfully fetched docs")
+        for file, content in response.json().items():
+            dest_file = dest / file
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            dest_file.write_text(content)
+    else:
+        click.echo(f"Error: HTTP {response.status_code}", err=True)
+        try:
+            error_json = response.json()
+            click.echo(f"Error details: {error_json}", err=True)
+        except Exception:
+            click.echo(f"Raw response: {response.text}", err=True)
+
+
+def populate_skills(dest: Path):
+    auth_token = get_current_token()
+    if not auth_token:
+        raise AuthError("Not authenticated. Please run 'codegen login' first.")
+    for language in [ProgrammingLanguage.PYTHON, ProgrammingLanguage.TYPESCRIPT]:
+        dest.mkdir(parents=True, exist_ok=True)
+        click.echo(f"Sending request to {SKILLS_ENDPOINT}")
         response = requests.post(
-            DOCS_ENDPOINT,
-            json={"language": language.value.lower()},
+            SKILLS_ENDPOINT,
             headers={"Authorization": f"Bearer {auth_token}"},
+            json={"language": language.value.upper(), "organization_id": 11},
         )
-        (dest / f"{language.value}.mdx").write_text(response.json()["docs"])
+        if response.status_code == 200:
+            for skill in response.json():
+                model = SkillOutput(**skill)
+                formatted_skill = format_skill(model)
+                (dest / f"{model.name}.py").write_text(formatted_skill)
+        else:
+            click.echo(f"Error: HTTP {response.status_code}", err=True)
+            try:
+                error_json = response.json()
+                click.echo(f"Error details: {error_json}", err=True)
+            except Exception:
+                click.echo(f"Raw response: {response.text}", err=True)
 
 
 @main.command()
