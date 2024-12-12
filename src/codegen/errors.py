@@ -1,5 +1,6 @@
-import click
 import functools
+
+import click
 
 
 class AuthError(Exception):
