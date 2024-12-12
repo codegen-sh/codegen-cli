@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from codegen.authorization import TokenManager, get_current_token
 from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
 
+from tracker.tracker import PostHogTracker, track_command
+
 load_dotenv()
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
@@ -19,8 +21,10 @@ AUTH_URL = "http://localhost:8000/login"
 AUTH_URL = "https://codegen.sh/login"
 
 ALGOLIA_APP_ID = "Q48PJS245N"
-ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
+ALGOLIA_SEARCH_KEY = os.environ.get("ALGOLIA_SEARCH_KEY")
 ALGOLIA_INDEX_NAME = "prod_knowledge"
+
+tracker = PostHogTracker()
 
 
 class AuthError(Exception):
@@ -41,6 +45,7 @@ def cli():
 
 
 @main.command()
+@track_command(tracker)
 def logout():
     """Clear stored authentication token."""
     token_manager = TokenManager()
@@ -49,11 +54,13 @@ def logout():
 
 
 @main.command()
+@track_command(tracker)
 def auth():
     print("token is ", get_current_token())
 
 
 @main.command()
+@track_command(tracker)
 @click.option("--token", required=False, help="JWT token for authentication")
 def login(token: str):
     """Store authentication token."""
@@ -81,6 +88,7 @@ def login(token: str):
 
 
 @main.command()
+@track_command(tracker)
 @click.argument("code", required=True)
 @click.option(
     "--repo-id",
@@ -198,6 +206,7 @@ def format_example(hit: dict, index: int) -> None:
 
 
 @main.command()
+@track_command(tracker)
 @click.argument("query")
 @click.option(
     "--page",
