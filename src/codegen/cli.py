@@ -100,7 +100,7 @@ def run(code: str, repo_id: int):
         # Constructing payload to match the frontend's structure
         payload = {
             "repo_id": repo_id,
-            "codemod_source": "string",
+            "codemod_source": code,
         }
 
         click.echo(f"Sending request to {RUN_CODEMOD_ENDPOINT}")
