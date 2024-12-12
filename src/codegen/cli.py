@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 
 from codegen.authorization import TokenManager, get_current_token
 from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
-
 from tracker.tracker import PostHogTracker, track_command
 
 load_dotenv()
