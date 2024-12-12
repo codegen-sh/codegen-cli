@@ -10,6 +10,10 @@ from dotenv import load_dotenv
 
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.authorization import TokenManager, get_current_token
+from codegen.constants import ProgrammingLanguage
+from codegen.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
+from codegen.errors import AuthError, handle_auth_error
 from codegen.utils.constants import ProgrammingLanguage
 
 load_dotenv()
@@ -45,12 +49,6 @@ function.set_docstring('new docstring') # set docstring
 """
 
 
-class AuthError(Exception):
-    """Error raised if authed user cannot be established."""
-
-    pass
-
-
 @click.group()
 def main():
     """Codegen CLI - Transform your code with AI."""
@@ -63,6 +61,7 @@ def cli():
 
 
 @main.command()
+@handle_auth_error
 def init():
     """Initialize the codegen folder"""
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
