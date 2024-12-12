@@ -89,15 +89,9 @@ def login(token: str):
     required=True,
     type=int,
 )
-@click.option(
-    "--codemod-id",
-    "-c",
-    help="Codemod ID to run",
-    required=True,
-    type=int,
-)
-def run(code: str, repo_id: int, codemod_id: int):
+def run(code: str, repo_id: int):
     """Run code transformation on the provided Python code."""
+    print(f"Run code={code} repo_id={repo_id} ...")
     try:
         auth_token = get_current_token()
         if not auth_token:
@@ -120,12 +114,7 @@ def run(code: str, repo_id: int, codemod_id: int):
         )
 
         if response.status_code == 200:
-            result = response.json()
-            # Assuming the response structure matches what we need
-            if result.get("success"):
-                click.echo(result.get("transformed_code", "No transformed code returned"))
-            else:
-                click.echo(f"Error: {result.get('error', 'Unknown error occurred')}", err=True)
+            click.echo(response.text)
         else:
             click.echo(f"Error: HTTP {response.status_code}", err=True)
             try:
