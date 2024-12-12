@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import shutil
 from pathlib import Path
 
 import click
@@ -96,6 +97,7 @@ def init():
 
 
 def populate_docs(dest: Path):
+    shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
     auth_token = get_current_token()
     if not auth_token:
@@ -121,11 +123,12 @@ def populate_docs(dest: Path):
 
 
 def populate_skills(dest: Path):
+    shutil.rmtree(dest, ignore_errors=True)
+    dest.mkdir(parents=True, exist_ok=True)
     auth_token = get_current_token()
     if not auth_token:
         raise AuthError("Not authenticated. Please run 'codegen login' first.")
     for language in [ProgrammingLanguage.PYTHON, ProgrammingLanguage.TYPESCRIPT]:
-        dest.mkdir(parents=True, exist_ok=True)
         click.echo(f"Sending request to {SKILLS_ENDPOINT}")
         response = requests.post(
             SKILLS_ENDPOINT,
@@ -135,8 +138,10 @@ def populate_skills(dest: Path):
         if response.status_code == 200:
             for skill in response.json():
                 model = SkillOutput(**skill)
+                dest_file = dest / language.value / f"{model.name}.py"
+                dest_file.parent.mkdir(parents=True, exist_ok=True)
                 formatted_skill = format_skill(model)
-                (dest / f"{model.name}.py").write_text(formatted_skill)
+                dest_file.write_text(formatted_skill)
         else:
             click.echo(f"Error: HTTP {response.status_code}", err=True)
             try:
