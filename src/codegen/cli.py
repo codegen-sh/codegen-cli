@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 from pathlib import Path
+import functools
 
 import click
 import requests
@@ -51,6 +52,20 @@ class AuthError(Exception):
     pass
 
 
+def handle_auth_error(f):
+    """Decorator to handle authentication errors gracefully."""
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except AuthError:
+            click.echo("[🔴Error]: Not authenticated. Please run 'codegen login' first.", err=True)
+            exit(1)
+
+    return wrapper
+
+
 @click.group()
 def main():
     """Codegen CLI - Transform your code with AI."""
@@ -63,6 +78,7 @@ def cli():
 
 
 @main.command()
+@handle_auth_error
 def init():
     """Initialize the codegen folder"""
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
