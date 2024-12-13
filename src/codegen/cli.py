@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import shutil
 from pathlib import Path
 
 import click
@@ -8,11 +9,13 @@ import requests
 from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
-from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
+from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.diff.pretty_print import pretty_print_diff
 from codegen.errors import AuthError, handle_auth_error
+from codegen.skills import format_skill
 from codegen.utils.constants import ProgrammingLanguage
+from codegen.utils.models import SkillOutput
 from tracker.tracker import PostHogTracker, track_command
 
 load_dotenv()
@@ -71,8 +74,11 @@ def init():
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
     SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
+    SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
+    SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
     populate_docs(DOCS_FOLDER)
+    populate_skills(SKILLS_FOLDER)
     click.echo(
         "\n".join(
             [
@@ -80,6 +86,7 @@ def init():
                 f"codegen_folder: {CODEGEN_FOLDER}",
                 f"codemods_folder: {CODEMODS_FOLDER}",
                 f"docs_folder: {DOCS_FOLDER}",
+                f"skills_folder: {SKILLS_FOLDER}",
                 f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
                 "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
                 f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
@@ -91,18 +98,58 @@ def init():
 
 
 def populate_docs(dest: Path):
+    shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
-    for language in ProgrammingLanguage:
-        auth_token = get_current_token()
-        if not auth_token:
-            raise AuthError("Not authenticated. Please run 'codegen login' first.")
-        click.echo(f"Sending request to {DOCS_ENDPOINT}")
+    auth_token = get_current_token()
+    if not auth_token:
+        raise AuthError("Not authenticated. Please run 'codegen login' first.")
+    click.echo(f"Sending request to {DOCS_ENDPOINT}")
+    response = requests.get(
+        DOCS_ENDPOINT,
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    if response.status_code == 200:
+        click.echo("Successfully fetched docs")
+        for file, content in response.json().items():
+            dest_file = dest / file
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            dest_file.write_text(content)
+    else:
+        click.echo(f"Error: HTTP {response.status_code}", err=True)
+        try:
+            error_json = response.json()
+            click.echo(f"Error details: {error_json}", err=True)
+        except Exception:
+            click.echo(f"Raw response: {response.text}", err=True)
+
+
+def populate_skills(dest: Path):
+    shutil.rmtree(dest, ignore_errors=True)
+    dest.mkdir(parents=True, exist_ok=True)
+    auth_token = get_current_token()
+    if not auth_token:
+        raise AuthError("Not authenticated. Please run 'codegen login' first.")
+    for language in [ProgrammingLanguage.PYTHON, ProgrammingLanguage.TYPESCRIPT]:
+        click.echo(f"Sending request to {SKILLS_ENDPOINT}")
         response = requests.post(
-            DOCS_ENDPOINT,
-            json={"language": language.value.lower()},
+            SKILLS_ENDPOINT,
             headers={"Authorization": f"Bearer {auth_token}"},
+            json={"language": language.value.upper()},
         )
-        (dest / f"{language.value}.mdx").write_text(response.json()["docs"])
+        if response.status_code == 200:
+            for skill in response.json():
+                model = SkillOutput(**skill)
+                dest_file = dest / language.value / f"{model.name}.py"
+                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                formatted_skill = format_skill(model)
+                dest_file.write_text(formatted_skill)
+        else:
+            click.echo(f"Error: HTTP {response.status_code}", err=True)
+            try:
+                error_json = response.json()
+                click.echo(f"Error details: {error_json}", err=True)
+            except Exception:
+                click.echo(f"Raw response: {response.text}", err=True)
 
 
 @main.command()
