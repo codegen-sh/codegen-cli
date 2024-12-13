@@ -8,13 +8,12 @@ import requests
 from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
-from codegen.authorization import TokenManager, get_current_token
-from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
-from tracker.tracker import PostHogTracker, track_command
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.authorization import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
 from codegen.utils.constants import ProgrammingLanguage
+from tracker.tracker import PostHogTracker, track_command
 
 load_dotenv()
 
