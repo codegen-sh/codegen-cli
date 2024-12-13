@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 
 
-def get_git_folder(path: os.PathLike) -> Path | None:
+def get_git_folder(path: os.PathLike | None = None) -> Path | None:
+    if path is None:
+        path = Path.cwd()
     path = Path(path)
     while path != path.root:
         if (path / ".git").exists():
