@@ -5,7 +5,7 @@ import os
 import click
 from algoliasearch.search.client import SearchClient
 
-from codegen.analytics.posthog_tracker import track_command
+from codegen.analytics.tracker import track_command
 
 ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = os.environ.get("ALGOLIA_SEARCH_KEY")

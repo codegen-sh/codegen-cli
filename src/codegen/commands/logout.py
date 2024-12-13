@@ -1,6 +1,6 @@
 import click
 
-from codegen.analytics.posthog_tracker import track_command
+from codegen.analytics.tracker import track_command
 from codegen.auth.token_manager import TokenManager
 
 

@@ -1,21 +1,13 @@
 import json
 import os
 import platform
-import time
 import uuid
-from contextlib import contextmanager
-from functools import wraps
 from pathlib import Path
 from typing import Any
 
 import posthog
 
-from codegen.analytics.constants import POSTHOG_TRACKER
-
-
-def print_debug_message(message):
-    if os.environ.get("DEBUG"):
-        print(message)
+from codegen.analytics.utils import print_debug_message
 
 
 class PostHogTracker:
@@ -87,34 +79,3 @@ class PostHogTracker:
             print("Failed to send event to PostHog")
             print(e)
             pass
-
-
-@contextmanager
-def track_command_execution(command_name: str):
-    """Context manager to track command execution time and success."""
-    start_time = time.time()
-    success = True
-    try:
-        yield
-    except BaseException:
-        success = False
-        raise
-    finally:
-        duration = time.time() - start_time
-        print_debug_message(f"Command {command_name} took {duration:.2f} seconds")
-        POSTHOG_TRACKER.capture_event(f"cli_command_{command_name}", {"duration": duration, "success": success, "command": command_name})
-        print_debug_message(f"Command {command_name} execution tracked")
-
-
-def track_command():
-    """Decorator to track command execution."""
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            with track_command_execution(func.__name__):
-                return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
