@@ -12,9 +12,9 @@ from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
 from codegen.skills import format_skill
 from codegen.utils.constants import ProgrammingLanguage
+from codegen.utils.git.repo import get_git_repo
+from codegen.utils.git.url import get_git_organization_and_repo
 
-CODEGEN_FOLDER = Path.cwd() / ".codegen"
-CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
 SAMPLE_CODEMOD = """
 # grab codebase content
 file = codebase.files[0] # or .get_file("test.py")
@@ -36,8 +36,10 @@ function.set_docstring('new docstring') # set docstring
 
 @click.command(name="init")
 @track_command()
+@click.option("--repo-name", type=str, help="The name of the repository")
+@click.option("--organization-name", type=str, help="The name of the organization")
 @handle_auth_error
-def init_command():
+def init_command(repo_name: str | None = None, organization_name: str | None = None):
     """Initialize the codegen folder"""
     # First check authentication
     success = _init_auth()
@@ -47,6 +49,13 @@ def init_command():
 
     token = get_current_token()
     # Continue with folder setup
+    repo = get_git_repo()
+    if not repo:
+        click.echo("No git repository found. Please run this command in a git repository.")
+        return
+    REPO_PATH = Path(repo.path)
+    CODEGEN_FOLDER = REPO_PATH / ".codegen"
+    CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
@@ -54,12 +63,21 @@ def init_command():
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
     SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
+    if not organization_name or not repo_name:
+        cwd_org, cwd_repo = get_git_organization_and_repo(repo)
+        organization_name = organization_name or cwd_org
+        repo_name = repo_name or cwd_repo
+    click.echo(f"Organization name: {organization_name}")
+    click.echo(f"Repo name: {repo_name}")
+    if not organization_name or not repo_name:
+        click.echo("No git remote found. Please run this command in a git repository.")
+        return
 
     # Only populate docs if we have authentication
     if token:
         SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
         populate_docs(DOCS_FOLDER)
-        populate_skills(SKILLS_FOLDER)
+        populate_skills(SKILLS_FOLDER, organization_name, repo_name)
         click.echo(
             "\n".join(
                 [
@@ -127,7 +145,7 @@ def populate_docs(dest: Path):
             click.echo(f"Raw response: {response.text}", err=True)
 
 
-def populate_skills(dest: Path):
+def populate_skills(dest: Path, organization_name: str, repo_name: str):
     shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
     auth_token = get_current_token()
@@ -138,7 +156,11 @@ def populate_skills(dest: Path):
         response = requests.post(
             SKILLS_ENDPOINT,
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"language": language.value.upper()},
+            json={
+                "language": language.value.upper(),
+                "organization_name": organization_name,
+                "repo_name": repo_name,
+            },
         )
 
         if response.status_code == 200:
