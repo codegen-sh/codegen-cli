@@ -129,7 +129,7 @@ def populate_skills(dest: Path):
         response = requests.post(
             SKILLS_ENDPOINT,
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"language": language.value.upper(), "organization_id": 11},
+            json={"language": language.value.upper()},
         )
         if response.status_code == 200:
             for skill in response.json():
