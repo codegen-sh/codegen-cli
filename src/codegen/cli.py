@@ -12,9 +12,9 @@ from dotenv import load_dotenv
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
-from codegen.models import SkillOutput
 from codegen.skills import format_skill
 from codegen.utils.constants import ProgrammingLanguage
+from codegen.utils.models import SkillOutput
 
 load_dotenv()
 

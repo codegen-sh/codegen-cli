@@ -1,4 +1,4 @@
-from codegen.models import SkillOutput
+from codegen.utils.models import SkillOutput
 
 
 def format_section(title: str, content: str | None) -> str:

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from codegen.constants import ProgrammingLanguage
+from codegen.utils.constants import ProgrammingLanguage
 
 
 class SkillOutput(BaseModel):
