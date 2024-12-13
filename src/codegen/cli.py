@@ -16,7 +16,6 @@ from codegen.errors import AuthError, handle_auth_error
 from codegen.run.process_response import run_200_handler
 from codegen.skills import format_skill
 from codegen.utils.constants import ProgrammingLanguage
-from codegen.utils.env import ENV
 from tracker.tracker import PostHogTracker, track_command
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
@@ -55,13 +54,11 @@ tracker = PostHogTracker()
 @click.group()
 def main():
     """Codegen CLI - Transform your code with AI."""
-    print(ENV)
     pass
 
 
 @click.group()
 def cli():
-    print(ENV)
     pass
 
 

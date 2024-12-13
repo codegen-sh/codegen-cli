@@ -3,6 +3,7 @@ from enum import StrEnum
 
 from dotenv import load_dotenv
 
+# NOTE: load_dotenv here to ensure it's loaded before ENV is accessed
 load_dotenv()
 
 
