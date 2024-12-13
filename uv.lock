@@ -56,7 +56,7 @@ wheels = [
 
 [[package]]
 name = "algoliasearch"
-version = "4.11.0"
+version = "4.11.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -66,9 +66,9 @@ dependencies = [
     { name = "requests" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bd/61/342a13970fe5ed41645118eb5cf23295cbfbdfd324c7c20fcfb9cb097916/algoliasearch-4.11.0.tar.gz", hash = "sha256:20c37f85384b4822065f1f1838cda9d40234196b56ffd8051160c81ff516acbc", size = 329934 }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/c1/0d8c254d82cc8e0913d9c41a62ae69b3bdef19c80576e4464184b464f4af/algoliasearch-4.11.1.tar.gz", hash = "sha256:34973ca80529ad4c84df2d0b94170e7d1d159f04de1b0894e82887841f0deed9", size = 329927 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/96/26117d06681b699b2abceceef9a6fe721a54c411b4b1b14693445c3125b8/algoliasearch-4.11.0-py3-none-any.whl", hash = "sha256:a3f7f47d3156f626db21d0ea3f3a26012060f0d41e74049df8a4710570a3d868", size = 819736 },
+    { url = "https://files.pythonhosted.org/packages/67/68/751e692d898d19ce3653d9d63b8eeedacb7e4499790a298cb21f9c8383e7/algoliasearch-4.11.1-py3-none-any.whl", hash = "sha256:9fc217c2b5cc9c663e08df5ed51a88fef00db84556e66d47894dcfa9be504713", size = 819752 },
 ]
 
 [[package]]
@@ -101,15 +101,6 @@ wheels = [
 [[package]]
 name = "backoff"
 version = "2.2.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/47/d7/5bbeb12c44d7c4f2fb5b56abce497eb5ed9f34d85701de869acedd602619/backoff-2.2.1.tar.gz", hash = "sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba", size = 17001 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/73/b6e24bd22e6720ca8ee9a85a0c4a2971af8497d8f3193fa05390cbd46e09/backoff-2.2.1-py3-none-any.whl", hash = "sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8", size = 15148 },
-]
-
-[[package]]
-name = "cattrs"
-version = "24.1.2"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/47/d7/5bbeb12c44d7c4f2fb5b56abce497eb5ed9f34d85701de869acedd602619/backoff-2.2.1.tar.gz", hash = "sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba", size = 17001 }
 wheels = [
@@ -163,7 +154,7 @@ wheels = [
 
 [[package]]
 name = "codegen-sh"
-version = "1.1.1.dev14+gb495d96"
+version = "1.1.1.dev17+g767e665"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
@@ -291,22 +282,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ac/aa/9b065a76b9af472437a0059f77e8f962fe350438b927cb80184c32f075eb/pathlib-1.0.1.tar.gz", hash = "sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f", size = 49298 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/78/f9/690a8600b93c332de3ab4a344a4ac34f00c8f104917061f779db6a918ed6/pathlib-1.0.1-py3-none-any.whl", hash = "sha256:f35f95ab8b0f59e6d354090350b44a80a80635d22efdedfa84c7ad1cf0a74147", size = 14363 },
-]
-
-[[package]]
-name = "posthog"
-version = "3.7.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "backoff" },
-    { name = "monotonic" },
-    { name = "python-dateutil" },
-    { name = "requests" },
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/77/a0/7607d4fd7c52b086671d8618e76cb5b9a642311fd6f352ebd7eb035319f2/posthog-3.7.4.tar.gz", hash = "sha256:19384bd09d330f9787a7e2446aba14c8057ece56144970ea2791072d4e40cd36", size = 50174 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/f2/5ee24cd69e2120bf87356c02ace0438b4e4fb78229fddcbf6f1c6be377d5/posthog-3.7.4-py2.py3-none-any.whl", hash = "sha256:21c18c6bf43b2de303ea4cd6e95804cc0f24c20cb2a96a8fd09da2ed50b62faa", size = 54777 },
 ]
 
 [[package]]
