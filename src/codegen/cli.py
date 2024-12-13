@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+
+from codegen.api.webapp_routes import USER_SECRETS_ROUTE
+load_dotenv()
+
 import asyncio
 import json
 import os
@@ -6,15 +11,15 @@ from pathlib import Path
 import click
 import requests
 from algoliasearch.search.client import SearchClient
-from dotenv import load_dotenv
 
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
 from codegen.utils.constants import ProgrammingLanguage
+from codegen.utils.env import ENV, Environment
+from codegen.utils.url import get_domain
 from tracker.tracker import PostHogTracker, track_command
 
-load_dotenv()
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
 AUTH_URL = "http://localhost:8000/login"
@@ -65,13 +70,27 @@ def cli():
 @handle_auth_error
 def init():
     """Initialize the codegen folder"""
+    # First check authentication
+    success = _init_auth()
+    if not success:
+        click.echo("Failed to authenticate. Please try again.")
+        return
+
+    token = get_current_token()
+    # Continue with folder setup
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
     SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-    populate_docs(DOCS_FOLDER)
+    
+    # Only populate docs if we have authentication
+    if token:
+        populate_docs(DOCS_FOLDER)
+    else:
+        click.echo("Skipping docs population - authentication required")
+    
     click.echo(
         "\n".join(
             [
@@ -89,6 +108,28 @@ def init():
     )
 
 
+def _init_auth():
+    token_manager = TokenManager()
+    token = token_manager.get_token()
+    if not token:
+        click.echo("No authentication token found.")
+        if click.confirm("Would you like to authenticate now?"):
+            
+            click.echo(f"You can find your authentication token at {USER_SECRETS_ROUTE}")
+            
+            token = click.prompt("Please enter your authentication token", type=str)
+            try:
+                token_manager.save_token(token)
+                click.echo("Successfully stored authentication token")
+            except ValueError as e:
+                click.echo(f"Error saving token: {e!s}", err=True)
+                return False
+        else:
+            click.echo("Skipping authentication. Some features may be limited.")
+            return False
+    return True
+    
+
 def populate_docs(dest: Path):
     dest.mkdir(parents=True, exist_ok=True)
     for language in ProgrammingLanguage:
@@ -101,7 +142,9 @@ def populate_docs(dest: Path):
             json={"language": language.value.lower()},
             headers={"Authorization": f"Bearer {auth_token}"},
         )
-        (dest / f"{language.value}.mdx").write_text(response.json()["docs"])
+        body = response.json()
+        click.echo(f"Response: {body}")
+        (dest / f"{language.value}.mdx").write_text(body["docs"])
 
 
 @main.command()
@@ -111,12 +154,6 @@ def logout():
     token_manager = TokenManager()
     token_manager.clear_token()
     click.echo("Successfully logged out")
-
-
-@main.command()
-@track_command(tracker)
-def auth():
-    print("token is ", get_current_token())
 
 
 @main.command()

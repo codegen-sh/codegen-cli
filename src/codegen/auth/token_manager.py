@@ -6,6 +6,8 @@ from pathlib import Path
 import jwt
 import jwt.exceptions
 
+from codegen.errors import AuthError
+
 # todo: move to config file
 CONFIG_DIR = "~/.config/codegen"
 
