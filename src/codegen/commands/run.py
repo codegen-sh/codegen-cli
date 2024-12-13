@@ -62,7 +62,7 @@ def run_command(codemod_path: Path, repo_path: Path, web: bool = False):
         click.echo(f"{response.status_code}", err=True)
         try:
             error_json = response.json()
-            click.echo(f"Details: {error_json}", err=True)
+            click.echo(f"Details: {json.dumps(error_json, indent=4)}", err=True)
         except Exception:
             click.echo(f"Details: {response.text}", err=True)
 
