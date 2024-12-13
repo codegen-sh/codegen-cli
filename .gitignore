@@ -10,3 +10,7 @@ src/codegen/__init__.py
 .env
 .idea
 .config.json
+.codegen
+**/.ruff_cache
+**/.pytest_cache
+**/.mypy_cache
