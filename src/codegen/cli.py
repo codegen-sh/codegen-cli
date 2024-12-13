@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 
 from codegen.api.webapp_routes import USER_SECRETS_ROUTE
+
 load_dotenv()
 
 import asyncio
@@ -16,10 +17,7 @@ from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
 from codegen.utils.constants import ProgrammingLanguage
-from codegen.utils.env import ENV, Environment
-from codegen.utils.url import get_domain
 from tracker.tracker import PostHogTracker, track_command
-
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
 AUTH_URL = "http://localhost:8000/login"
@@ -84,13 +82,13 @@ def init():
     SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-    
+
     # Only populate docs if we have authentication
     if token:
         populate_docs(DOCS_FOLDER)
     else:
         click.echo("Skipping docs population - authentication required")
-    
+
     click.echo(
         "\n".join(
             [
@@ -114,9 +112,8 @@ def _init_auth():
     if not token:
         click.echo("No authentication token found.")
         if click.confirm("Would you like to authenticate now?"):
-            
             click.echo(f"You can find your authentication token at {USER_SECRETS_ROUTE}")
-            
+
             token = click.prompt("Please enter your authentication token", type=str)
             try:
                 token_manager.save_token(token)
@@ -128,7 +125,7 @@ def _init_auth():
             click.echo("Skipping authentication. Some features may be limited.")
             return False
     return True
-    
+
 
 def populate_docs(dest: Path):
     dest.mkdir(parents=True, exist_ok=True)
