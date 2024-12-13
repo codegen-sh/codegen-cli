@@ -3,11 +3,10 @@ from rich.json import JSON
 
 from codegen.api.schemas import RunCodemodOutput
 from codegen.rich.pretty_print import pretty_print_output
-from codegen.utils.schema import safe_parse_json
 
 
 def run_200_handler(payload: dict, response: Response):
-    run_output = safe_parse_json(response.json(), RunCodemodOutput)
+    run_output = RunCodemodOutput.model_validate(response.json())
     if not run_output:
         print(f"422 UnprocessableEntity: {JSON(response.text)}")
         return
