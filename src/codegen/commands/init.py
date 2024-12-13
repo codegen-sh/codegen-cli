@@ -3,6 +3,7 @@ from pathlib import Path
 
 import click
 import requests
+from pygit2.repository import Repository
 
 from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import DOCS_ENDPOINT, SKILLS_ENDPOINT
@@ -53,7 +54,8 @@ def init_command(repo_name: str | None = None, organization_name: str | None = N
     if not repo:
         click.echo("No git repository found. Please run this command in a git repository.")
         return
-    REPO_PATH = Path(repo.path)
+    modify_gitignore(repo)
+    REPO_PATH = Path(repo.workdir)
     CODEGEN_FOLDER = REPO_PATH / ".codegen"
     CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
@@ -72,7 +74,6 @@ def init_command(repo_name: str | None = None, organization_name: str | None = N
     if not organization_name or not repo_name:
         click.echo("No git remote found. Please run this command in a git repository.")
         return
-
     # Only populate docs if we have authentication
     if token:
         SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
@@ -96,6 +97,17 @@ def init_command(repo_name: str | None = None, organization_name: str | None = N
         )
     else:
         click.echo("Skipping docs population - authentication required")
+
+
+def add_to_gitignore_if_not_present(gitignore: Path, line: str):
+    if line not in gitignore.read_text():
+        gitignore.write_text(gitignore.read_text() + "\n" + line)
+
+
+def modify_gitignore(repo: Repository):
+    gitignore_path = Path(repo.workdir) / ".gitignore"
+    add_to_gitignore_if_not_present(gitignore_path, ".codegen/docs")
+    add_to_gitignore_if_not_present(gitignore_path, ".codegen/skills")
 
 
 def _init_auth():
@@ -146,6 +158,7 @@ def populate_docs(dest: Path):
 
 
 def populate_skills(dest: Path, organization_name: str, repo_name: str):
+    skills = 0
     shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
     auth_token = get_current_token()
@@ -170,6 +183,8 @@ def populate_skills(dest: Path, organization_name: str, repo_name: str):
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
                 formatted_skill = format_skill(model)
                 dest_file.write_text(formatted_skill)
+                click.echo(f"Populated {dest_file}")
+                skills += 1
         else:
             click.echo(f"Error: HTTP {response.status_code}", err=True)
             try:
@@ -177,3 +192,4 @@ def populate_skills(dest: Path, organization_name: str, repo_name: str):
                 click.echo(f"Error details: {error_json}", err=True)
             except Exception:
                 click.echo(f"Raw response: {response.text}", err=True)
+    click.echo(f"Populated {skills} skills")
