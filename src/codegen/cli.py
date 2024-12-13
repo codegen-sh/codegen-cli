@@ -15,12 +15,12 @@ import requests
 from algoliasearch.search.client import SearchClient
 
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT
+from codegen.api.schemas import SkillOutput
 from codegen.auth.token_manager import TokenManager, get_current_token
-from codegen.diff.pretty_print import pretty_print_diff
 from codegen.errors import AuthError, handle_auth_error
+from codegen.run.process_output import run_200_handler
 from codegen.skills import format_skill
 from codegen.utils.constants import ProgrammingLanguage
-from codegen.utils.models import SkillOutput
 from tracker.tracker import PostHogTracker, track_command
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
@@ -251,7 +251,7 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     # if not auth_token:
     #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-    # Constructing payload to match the frontend's structure
+    # TODO: also validate the input payload
     payload = {
         "repo_id": repo_id,
         "codemod_source": codemod_path.read_text(),
@@ -267,11 +267,7 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     )
 
     if response.status_code == 200:
-        res = response.json()
-        if web:
-            print(res)
-        else:
-            pretty_print_diff(response.json())
+        run_200_handler(payload, response)
     else:
         click.echo(f"Error: HTTP {response.status_code}", err=True)
         try:

@@ -57,3 +57,7 @@ lint.ignore = [
     "RUF012",
     "RUF007",
 ]
+
+lint.exclude = [
+    "*.ipynb",
+] # disable just linting for notebooks (allow for formatting)
