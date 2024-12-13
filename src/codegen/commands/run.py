@@ -75,9 +75,5 @@ def run_200_handler(payload: dict, response: Response):
     if not run_output.success:
         click.echo(f"500 InternalServerError: {run_output.observation}")
         return
-    if payload.get("web"):
-        # TODO: also open in the browser
-        click.echo(run_output.web_link)
-        return
 
     pretty_print_output(run_output)
