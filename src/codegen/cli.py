@@ -12,6 +12,7 @@ from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
 from codegen.utils.constants import ProgrammingLanguage
+from tracker.tracker import PostHogTracker, track_command
 
 load_dotenv()
 
@@ -22,7 +23,7 @@ AUTH_URL = "http://localhost:8000/login"
 AUTH_URL = "https://codegen.sh/login"
 
 ALGOLIA_APP_ID = "Q48PJS245N"
-ALGOLIA_SEARCH_KEY = "14f93aa799ce73ab86b93083edbeb981"
+ALGOLIA_SEARCH_KEY = os.environ.get("ALGOLIA_SEARCH_KEY")
 ALGOLIA_INDEX_NAME = "prod_knowledge"
 CODEGEN_FOLDER = Path.cwd() / ".codegen"
 CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
@@ -45,6 +46,8 @@ function.set_docstring('new docstring') # set docstring
 
 """
 
+tracker = PostHogTracker()
+
 
 @click.group()
 def main():
@@ -58,6 +61,7 @@ def cli():
 
 
 @main.command()
+@track_command(tracker)
 @handle_auth_error
 def init():
     """Initialize the codegen folder"""
@@ -101,6 +105,7 @@ def populate_docs(dest: Path):
 
 
 @main.command()
+@track_command(tracker)
 def logout():
     """Clear stored authentication token."""
     token_manager = TokenManager()
@@ -109,11 +114,13 @@ def logout():
 
 
 @main.command()
+@track_command(tracker)
 def auth():
     print("token is ", get_current_token())
 
 
 @main.command()
+@track_command(tracker)
 @click.option("--token", required=False, help="JWT token for authentication")
 def login(token: str):
     """Store authentication token."""
@@ -141,6 +148,7 @@ def login(token: str):
 
 
 @main.command()
+@track_command(tracker)
 @click.argument("codemod_path", required=True, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--repo-id",
@@ -240,6 +248,7 @@ def format_example(hit: dict, index: int) -> None:
 
 
 @main.command()
+@track_command(tracker)
 @click.argument("query")
 @click.option(
     "--page",
