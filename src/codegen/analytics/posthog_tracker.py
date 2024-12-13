@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import Any
 
 import posthog
-from dotenv import load_dotenv
 
-load_dotenv()
+from codegen.analytics.constants import POSTHOG_TRACKER
 
 
 def print_debug_message(message):
@@ -91,7 +90,7 @@ class PostHogTracker:
 
 
 @contextmanager
-def track_command_execution(tracker: PostHogTracker, command_name: str):
+def track_command_execution(command_name: str):
     """Context manager to track command execution time and success."""
     start_time = time.time()
     success = True
@@ -103,17 +102,17 @@ def track_command_execution(tracker: PostHogTracker, command_name: str):
     finally:
         duration = time.time() - start_time
         print_debug_message(f"Command {command_name} took {duration:.2f} seconds")
-        tracker.capture_event(f"cli_command_{command_name}", {"duration": duration, "success": success, "command": command_name})
+        POSTHOG_TRACKER.capture_event(f"cli_command_{command_name}", {"duration": duration, "success": success, "command": command_name})
         print_debug_message(f"Command {command_name} execution tracked")
 
 
-def track_command(tracker: PostHogTracker):
+def track_command():
     """Decorator to track command execution."""
 
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            with track_command_execution(tracker, func.__name__):
+            with track_command_execution(func.__name__):
                 return func(*args, **kwargs)
 
         return wrapper
