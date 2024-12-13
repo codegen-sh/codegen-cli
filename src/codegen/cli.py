@@ -219,7 +219,7 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     # if not auth_token:
     #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-    # Constructing payload to match the frontend's structure
+    # TODO: also validate the input payload
     payload = {
         "repo_id": repo_id,
         "codemod_source": codemod_path.read_text(),
