@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
 from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.diff.pretty_print import pretty_print_diff
 from codegen.errors import AuthError, handle_auth_error
 from codegen.utils.constants import ProgrammingLanguage
 
@@ -179,7 +180,7 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     )
 
     if response.status_code == 200:
-        print(response.text)
+        pretty_print_diff(response.text)
     else:
         click.echo(f"Error: HTTP {response.status_code}", err=True)
         try:
