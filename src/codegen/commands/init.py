@@ -89,8 +89,6 @@ def init_command(repo_name: str | None = None, organization_name: str | None = N
                     "Initialized codegen-cli",
                     f"codegen_folder: {CODEGEN_FOLDER}",
                     f"codemods_folder: {CODEMODS_FOLDER}",
-                    f"docs_folder: {DOCS_FOLDER}",
-                    f"skills_folder: {SKILLS_FOLDER}",
                     f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
                     "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
                     f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
@@ -147,7 +145,7 @@ def populate_docs(dest: Path):
         headers={"Authorization": f"Bearer {auth_token}"},
     )
     if response.status_code == 200:
-        click.echo("Successfully fetched docs")
+        click.echo(f"Successfully fetched docs in {dest}")
         for file, content in response.json().items():
             dest_file = dest / file
             dest_file.parent.mkdir(parents=True, exist_ok=True)
@@ -186,7 +184,6 @@ def populate_skills(dest: Path, repo_full_name: str):
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
                 formatted_skill = format_skill(model)
                 dest_file.write_text(formatted_skill)
-                click.echo(f"Populated {dest_file}")
                 skills += 1
         else:
             click.echo(f"Error: HTTP {response.status_code}", err=True)
@@ -195,4 +192,4 @@ def populate_skills(dest: Path, repo_full_name: str):
                 click.echo(f"Error details: {error_json}", err=True)
             except Exception:
                 click.echo(f"Raw response: {response.text}", err=True)
-    click.echo(f"Populated {skills} skills")
+    click.echo(f"Populated {skills} skills to {dest}")
