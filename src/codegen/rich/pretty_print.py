@@ -9,10 +9,10 @@ from codegen.api.schemas import RunCodemodOutput
 def pretty_print_output(output: RunCodemodOutput):
     console = Console()
     if output.logs:
-        console.print(Rule(title="Logs", align="left"))
+        console.print(Rule(title="LOGS"))
         pretty_print_logs(output.logs)
     if output.observation:
-        console.print(Rule(title="Diff", align="left"))
+        console.print(Rule(title="DIFF"))
         pretty_print_diff(output.observation)
 
 
