@@ -1,9 +1,8 @@
-import os
-
 import click
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.token_manager import TokenManager
+from codegen.env.global_env import global_env
 
 
 @click.command(name="login")
@@ -13,7 +12,7 @@ def login_command(token: str):
     """Store authentication token."""
     _token = token
     if not _token:
-        _token = os.environ.get("CODEGEN_USER_ACCESS_TOKEN")
+        _token = global_env.CODEGEN_USER_ACCESS_TOKEN
 
     if not _token:
         click.echo("Error: Token must be provided via --token option or CODEGEN_USER_ACCESS_TOKEN environment variable", err=True)

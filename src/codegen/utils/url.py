@@ -1,6 +1,7 @@
 from enum import Enum
 
-from codegen.utils.env import ENV, Environment
+from codegen.env.enums import Environment
+from codegen.env.global_env import global_env
 
 
 class DomainRegistry(Enum):
@@ -11,11 +12,13 @@ class DomainRegistry(Enum):
 
 def get_domain() -> str:
     """Get the appropriate domain based on the current environment."""
-    if ENV == Environment.STAGING.value:
-        return DomainRegistry.STAGING.value
-    elif ENV == Environment.PRODUCTION.value:
-        return DomainRegistry.PRODUCTION.value
-    return DomainRegistry.LOCAL.value
+    match global_env.ENV:
+        case Environment.PRODUCTION:
+            return DomainRegistry.PRODUCTION.value
+        case Environment.STAGING:
+            return DomainRegistry.STAGING.value
+        case _:
+            return DomainRegistry.LOCAL.value
 
 
 def generate_webapp_url(path: str = "", params: dict | None = None, protocol: str = "https") -> str:

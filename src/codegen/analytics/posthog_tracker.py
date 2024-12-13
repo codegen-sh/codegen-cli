@@ -1,5 +1,4 @@
 import json
-import os
 import platform
 import uuid
 from pathlib import Path
@@ -8,6 +7,7 @@ from typing import Any
 import posthog
 
 from codegen.analytics.utils import print_debug_message
+from codegen.env.global_env import global_env
 
 
 class PostHogTracker:
@@ -22,8 +22,8 @@ class PostHogTracker:
     def _initialize_posthog(self):
         """Initialize PostHog with the given API key and host."""
         # posthog.api_key = api_key
-        posthog.project_api_key = os.environ.get("POSTHOG_PROJECT_API_KEY")
-        posthog.personal_api_key = os.environ.get("POSTHOG_API_KEY")
+        posthog.project_api_key = global_env.POSTHOG_PROJECT_API_KEY
+        posthog.personal_api_key = global_env.POSTHOG_API_KEY
         posthog.host = "https://us.i.posthog.com"
 
     def _initialize_config(self):
