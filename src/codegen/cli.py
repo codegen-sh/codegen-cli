@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from pathlib import Path
 
 import click
 import requests
@@ -10,6 +11,10 @@ from dotenv import load_dotenv
 from codegen.authorization import TokenManager, get_current_token
 from codegen.endpoints import RUN_CM_ON_STRING_ENDPOINT
 from tracker.tracker import PostHogTracker, track_command
+from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT
+from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.errors import AuthError, handle_auth_error
+from codegen.utils.constants import ProgrammingLanguage
 
 load_dotenv()
 
@@ -22,14 +27,28 @@ AUTH_URL = "https://codegen.sh/login"
 ALGOLIA_APP_ID = "Q48PJS245N"
 ALGOLIA_SEARCH_KEY = os.environ.get("ALGOLIA_SEARCH_KEY")
 ALGOLIA_INDEX_NAME = "prod_knowledge"
+CODEGEN_FOLDER = Path.cwd() / ".codegen"
+CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
+# language=python
+SAMPLE_CODEMOD = """
+# grab codebase content
+file = codebase.files[0] # or .get_file("test.py")
+function = codebase.functions[0] # or .get_symbol("my_func")
+
+# print logs
+print(f'# of files: {len(codebase.files)}')
+print(f'# of functions: {len(codebase.functions)}')
+
+# make edits
+file.edit('🌈' + file.content) # edit contents
+function.rename('new_name') # rename
+function.set_docstring('new docstring') # set docstring
+
+# ... etc.
+
+"""
 
 tracker = PostHogTracker()
-
-
-class AuthError(Exception):
-    """Error raised if authed user cannot be established."""
-
-    pass
 
 
 @click.group()
@@ -41,6 +60,50 @@ def main():
 @click.group()
 def cli():
     pass
+
+
+@main.command()
+@track_command(tracker)
+@handle_auth_error
+def init():
+    """Initialize the codegen folder"""
+    CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
+    CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
+    SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
+    SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
+    DOCS_FOLDER = CODEGEN_FOLDER / "docs"
+    DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
+    populate_docs(DOCS_FOLDER)
+    click.echo(
+        "\n".join(
+            [
+                "Initialized codegen-cli",
+                f"codegen_folder: {CODEGEN_FOLDER}",
+                f"codemods_folder: {CODEMODS_FOLDER}",
+                f"docs_folder: {DOCS_FOLDER}",
+                f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
+                "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
+                f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
+                "Please use absolute path for all arguments.",
+                "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
+            ]
+        ),
+    )
+
+
+def populate_docs(dest: Path):
+    dest.mkdir(parents=True, exist_ok=True)
+    for language in ProgrammingLanguage:
+        auth_token = get_current_token()
+        if not auth_token:
+            raise AuthError("Not authenticated. Please run 'codegen login' first.")
+        click.echo(f"Sending request to {DOCS_ENDPOINT}")
+        response = requests.post(
+            DOCS_ENDPOINT,
+            json={"language": language.value.lower()},
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+        (dest / f"{language.value}.mdx").write_text(response.json()["docs"])
 
 
 @main.command()
@@ -88,7 +151,7 @@ def login(token: str):
 
 @main.command()
 @track_command(tracker)
-@click.argument("code", required=True)
+@click.argument("codemod_path", required=True, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--repo-id",
     "-r",
@@ -97,61 +160,43 @@ def login(token: str):
     type=int,
 )
 @click.option(
-    "--codemod-id",
-    "-c",
-    help="Codemod ID to run",
-    required=True,
-    type=int,
+    "--web",
+    is_flag=True,
+    help="Return a web link to the diff",
 )
-def run(code: str, repo_id: int, codemod_id: int):
+def run(codemod_path: Path, repo_id: int, web: bool = False):
     """Run code transformation on the provided Python code."""
-    try:
-        auth_token = get_current_token()
-        if not auth_token:
-            raise AuthError("Not authenticated. Please run 'codegen login' first.")
+    print(f"Run codemod_path={codemod_path} repo_id={repo_id} ...")
 
-        # Constructing payload to match the frontend's structure
-        payload = {
-            "code": code,
-            "repo_id": repo_id,
-            "codemod_id": codemod_id,
-            "codemod_source": "string",
-            "source": "cli",
-            "template_context": {},
-            "includeGraphviz": False,
-        }
+    # TODO: add back in once login works
+    # auth_token = get_current_token()
+    # if not auth_token:
+    #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-        click.echo(f"Sending request to {RUN_CM_ON_STRING_ENDPOINT}")
-        click.echo(f"Auth token: {auth_token}")
-        click.echo(f"Payload: {payload}")
+    # Constructing payload to match the frontend's structure
+    payload = {
+        "repo_id": repo_id,
+        "codemod_source": codemod_path.read_text(),
+        "web": web,
+    }
 
-        response = requests.post(
-            RUN_CM_ON_STRING_ENDPOINT,
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json=payload,
-        )
+    print(f"Sending request to {RUN_CODEMOD_ENDPOINT} ...")
+    print(f"Payload: {json.dumps(payload, indent=4)}")
 
-        if response.status_code == 200:
-            result = response.json()
-            # Assuming the response structure matches what we need
-            if result.get("success"):
-                click.echo(result.get("transformed_code", "No transformed code returned"))
-            else:
-                click.echo(f"Error: {result.get('error', 'Unknown error occurred')}", err=True)
-        else:
-            click.echo(f"Error: HTTP {response.status_code}", err=True)
-            try:
-                error_json = response.json()
-                click.echo(f"Error details: {error_json}", err=True)
-            except Exception:
-                click.echo(f"Raw response: {response.text}", err=True)
+    response = requests.post(
+        RUN_CODEMOD_ENDPOINT,
+        json=payload,
+    )
 
-    except AuthError as e:
-        click.echo(str(e), err=True)
-        return 1
-    except requests.exceptions.RequestException as e:
-        click.echo(f"Error connecting to server: {e!s}", err=True)
-        return 1
+    if response.status_code == 200:
+        print(response.text)
+    else:
+        click.echo(f"Error: HTTP {response.status_code}", err=True)
+        try:
+            error_json = response.json()
+            click.echo(f"Error details: {error_json}", err=True)
+        except Exception:
+            click.echo(f"Raw response: {response.text}", err=True)
 
 
 def format_api_doc(hit: dict, index: int) -> None:
