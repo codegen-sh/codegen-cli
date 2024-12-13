@@ -188,7 +188,11 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     )
 
     if response.status_code == 200:
-        pretty_print_diff(response.json())
+        res = response.json()
+        if web:
+            print(res)
+        else:
+            pretty_print_diff(response.json())
     else:
         click.echo(f"Error: HTTP {response.status_code}", err=True)
         try:
