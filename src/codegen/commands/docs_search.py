@@ -1,14 +1,14 @@
 import asyncio
 import json
-import os
 
 import click
 from algoliasearch.search.client import SearchClient
 
 from codegen.analytics.decorators import track_command
+from codegen.env.global_env import global_env
 
 ALGOLIA_APP_ID = "Q48PJS245N"
-ALGOLIA_SEARCH_KEY = os.environ.get("ALGOLIA_SEARCH_KEY")
+ALGOLIA_SEARCH_KEY = global_env.ALGOLIA_SEARCH_KEY
 ALGOLIA_INDEX_NAME = "prod_knowledge"
 
 

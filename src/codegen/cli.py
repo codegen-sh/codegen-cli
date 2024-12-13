@@ -5,13 +5,13 @@ from codegen.commands.init import init_command
 from codegen.commands.login import login_command
 from codegen.commands.logout import logout_command
 from codegen.commands.run import run_command
-from codegen.utils.env import ENV
+from codegen.env.global_env import global_env
 
 
 @click.group()
 def main():
     """Codegen CLI - Transform your code with AI."""
-    print(f"ENV: {ENV}")
+    print(f"ENV: {global_env.ENV}")
 
 
 # projects
