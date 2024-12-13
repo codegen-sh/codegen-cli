@@ -1,4 +1,5 @@
 import json
+import webbrowser
 from pathlib import Path
 
 import click
@@ -75,5 +76,8 @@ def run_200_handler(payload: dict, response: Response):
     if not run_output.success:
         click.echo(f"500 InternalServerError: {run_output.observation}")
         return
+
+    if payload.get("web") and run_output.web_link:
+        webbrowser.open_new(run_output.web_link)
 
     pretty_print_output(run_output)
