@@ -187,7 +187,10 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     )
 
     if response.status_code == 200:
-        print(response.text)
+        response_data = response.json()  # Parse JSON response
+        print(response.text)  # Keep original output
+        if "slug" in response_data:
+            print(f"<http://codegen.sh/visualize/{response_data['slug']}|codegen.sh/visualize/{response_data['slug']}>")
     else:
         click.echo(f"Error: HTTP {response.status_code}", err=True)
         try:
