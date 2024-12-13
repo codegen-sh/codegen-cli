@@ -94,20 +94,20 @@ def init():
         populate_docs(DOCS_FOLDER)
         populate_skills(SKILLS_FOLDER)
         click.echo(
-          "\n".join(
-              [
-                  "Initialized codegen-cli",
-                  f"codegen_folder: {CODEGEN_FOLDER}",
-                  f"codemods_folder: {CODEMODS_FOLDER}",
-                  f"docs_folder: {DOCS_FOLDER}",
-                  f"skills_folder: {SKILLS_FOLDER}",
-                  f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
-                  "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
-                  f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
-                  "Please use absolute path for all arguments.",
-                  "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
-              ]
-          ),
+            "\n".join(
+                [
+                    "Initialized codegen-cli",
+                    f"codegen_folder: {CODEGEN_FOLDER}",
+                    f"codemods_folder: {CODEMODS_FOLDER}",
+                    f"docs_folder: {DOCS_FOLDER}",
+                    f"skills_folder: {SKILLS_FOLDER}",
+                    f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
+                    "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
+                    f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
+                    "Please use absolute path for all arguments.",
+                    "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
+                ]
+            ),
         )
     else:
         click.echo("Skipping docs population - authentication required")
