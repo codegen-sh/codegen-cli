@@ -8,6 +8,9 @@ from codegen.api.schemas import RunCodemodOutput
 
 def pretty_print_output(output: RunCodemodOutput):
     console = Console()
+    if output.web_link:
+        console.print(Rule(title="VIEW IN UI"))
+        console.print(output.web_link)
     if output.logs:
         console.print(Rule(title="LOGS"))
         pretty_print_logs(output.logs)
