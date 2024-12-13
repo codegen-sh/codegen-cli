@@ -41,7 +41,6 @@ class PostHogTracker:
         if Path(self.config_file).is_file():
             with open(self.config_file) as f:
                 self.config = json.load(f)
-                print(f"Existing config {self.config}")
         else:
             # Create new config with defaults
             self.config = {"telemetry_enabled": False, "distinct_id": str(uuid.uuid4())}
