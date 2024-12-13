@@ -188,7 +188,7 @@ wheels = [
 
 [[package]]
 name = "codegen-sh"
-version = "0.0.0"
+version = "1.3.1.dev9+g66af34c.d20241213"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
@@ -196,6 +196,7 @@ dependencies = [
     { name = "giturlparse" },
     { name = "pathlib" },
     { name = "posthog" },
+    { name = "pydantic" },
     { name = "pygit2" },
     { name = "pyjwt" },
     { name = "python-dotenv" },
@@ -218,6 +219,7 @@ requires-dist = [
     { name = "giturlparse" },
     { name = "pathlib" },
     { name = "posthog" },
+    { name = "pydantic", specifier = ">=2.10.3" },
     { name = "pygit2", specifier = ">=1.16.0" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "python-dotenv", specifier = ">=1.0.1" },

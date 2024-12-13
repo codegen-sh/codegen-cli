@@ -10,8 +10,8 @@ from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import RUN_CODEMOD_ENDPOINT
 from codegen.api.schemas import RunCodemodOutput
 from codegen.rich.pretty_print import pretty_print_output
+from codegen.utils.config import get_config
 from codegen.utils.git.repo import get_git_repo
-from codegen.utils.git.url import get_repo_full_name
 
 
 @click.command(name="run")
@@ -42,8 +42,9 @@ def run_command(codemod_path: Path, repo_path: Path, web: bool = False):
     if not git_repo:
         click.echo(f"400 BadRequest: No git repository found at {repo_path}")
 
+    config = get_config(repo_path / ".codegen")
     payload = {
-        "repo_full_name": get_repo_full_name(git_repo),
+        "repo_full_name": config.repo_full_name,
         "codemod_source": codemod_path.read_text(),
         "web": web,
     }

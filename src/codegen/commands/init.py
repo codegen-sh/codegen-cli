@@ -12,6 +12,7 @@ from codegen.api.webapp_routes import USER_SECRETS_ROUTE
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
 from codegen.skills import format_skill
+from codegen.utils.config import get_config, write_config
 from codegen.utils.constants import ProgrammingLanguage
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_git_organization_and_repo
@@ -65,20 +66,23 @@ def init_command(repo_name: str | None = None, organization_name: str | None = N
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
     SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-    if not organization_name or not repo_name:
+    config = get_config(CODEGEN_FOLDER)
+    if organization_name is not None:
+        config.organization_name = organization_name
+    if repo_name is not None:
+        config.repo_name = repo_name
+    if not config.organization_name or not config.repo_name:
         cwd_org, cwd_repo = get_git_organization_and_repo(repo)
-        organization_name = organization_name or cwd_org
-        repo_name = repo_name or cwd_repo
-    click.echo(f"Organization name: {organization_name}")
-    click.echo(f"Repo name: {repo_name}")
-    if not organization_name or not repo_name:
-        click.echo("No git remote found. Please run this command in a git repository.")
-        return
+        config.organization_name = config.organization_name or cwd_org
+        config.repo_name = config.repo_name or cwd_repo
+    write_config(config, CODEGEN_FOLDER)
+    click.echo(f"Organization name: {config.organization_name}")
+    click.echo(f"Repo name: {config.repo_name}")
     # Only populate docs if we have authentication
     if token:
         SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
         populate_docs(DOCS_FOLDER)
-        populate_skills(SKILLS_FOLDER, organization_name, repo_name)
+        populate_skills(SKILLS_FOLDER, config.repo_full_name)
         click.echo(
             "\n".join(
                 [
@@ -157,7 +161,7 @@ def populate_docs(dest: Path):
             click.echo(f"Raw response: {response.text}", err=True)
 
 
-def populate_skills(dest: Path, organization_name: str, repo_name: str):
+def populate_skills(dest: Path, repo_full_name: str):
     skills = 0
     shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
@@ -171,8 +175,7 @@ def populate_skills(dest: Path, organization_name: str, repo_name: str):
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "language": language.value.upper(),
-                "organization_name": organization_name,
-                "repo_name": repo_name,
+                "repo_full_name": repo_full_name,
             },
         )
 
