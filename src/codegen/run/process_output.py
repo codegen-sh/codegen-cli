@@ -1,15 +1,14 @@
 from requests import Response
-from rich.json import JSON
 
 from codegen.api.schemas import RunCodemodOutput
-from codegen.rich.pretty_print import pretty_print_output
+from codegen.diff.pretty_print import pretty_print_diff
 from codegen.utils.schema import safe_parse_json
 
 
 def run_200_handler(payload: dict, response: Response):
     run_output = safe_parse_json(response.json(), RunCodemodOutput)
     if not run_output:
-        print(f"422 UnprocessableEntity: {JSON(response.text)}")
+        print(f"422 UnprocessableEntity: {response.json()}")
         return
     if not run_output.success:
         print(f"500 InternalServerError: {run_output.observation}")
@@ -19,4 +18,4 @@ def run_200_handler(payload: dict, response: Response):
         print(run_output.web_link)
         return
 
-    pretty_print_output(run_output)
+    pretty_print_diff(run_output.observation)

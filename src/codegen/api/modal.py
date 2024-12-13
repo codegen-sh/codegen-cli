@@ -1,13 +1,13 @@
-from codegen.utils.env import ENV
+from codegen.utils.env import ENV, Environment
 
 
 def get_modal_workspace():
     match ENV:
-        case "production":
+        case Environment.PRODUCTION:
             return "codegen-sh"
-        case "staging":
+        case Environment.STAGING:
             return "codegen-sh-staging"
-        case "develop":
+        case Environment.DEVELOP:
             return "codegen-sh-develop"
         case _:
             raise ValueError(f"Invalid environment: {ENV}")
