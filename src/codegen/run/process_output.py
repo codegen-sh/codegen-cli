@@ -18,4 +18,4 @@ def run_200_handler(payload: dict, response: Response):
         print(run_output.web_link)
         return
 
-    pretty_print_diff(run_output.logs)
+    pretty_print_diff(run_output.observation)
