@@ -1,5 +1,5 @@
-from dulwich.repo import Repo
+from pygit2.repository import Repository
 
 
-def get_git_url(repo: Repo) -> str:
-    return repo
+def get_git_url(repo: Repository) -> str:
+    return repo.remotes[0].url

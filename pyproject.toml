@@ -13,7 +13,7 @@ dependencies = [
     "pyjwt>=2.10.1",
     "posthog",
     "giturlparse",
-    "dulwich",
+    "pygit2>=1.16.0",
 ]
 dynamic = ["version", "urls"]
 [project.scripts]
