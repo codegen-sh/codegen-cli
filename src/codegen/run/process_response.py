@@ -3,7 +3,7 @@ from rich.json import JSON
 
 from codegen.api.schemas import RunCodemodOutput
 from codegen.rich.pretty_print import pretty_print_output
-from codegen.utils.pydantic_utils import safe_parse_json
+from codegen.utils.schema import safe_parse_json
 
 
 def run_200_handler(payload: dict, response: Response):
