@@ -1,25 +1,27 @@
-import asyncio
-import json
-import os
-import shutil
-from pathlib import Path
-
-import click
-import requests
-from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
-from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT
-from codegen.auth.jwt import decode_jwt
-from codegen.auth.token_manager import TokenManager, get_current_token
-from codegen.diff.pretty_print import pretty_print_diff
-from codegen.errors import AuthError, handle_auth_error
-from codegen.skills import format_skill
-from codegen.utils.constants import ProgrammingLanguage
-from codegen.utils.models import SkillOutput
-from tracker.tracker import PostHogTracker, track_command
-
 load_dotenv()
+
+import asyncio  # noqa: E402
+import json  # noqa: E402
+import os  # noqa: E402
+import shutil  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+import click  # noqa: E402
+import requests  # noqa: E402
+from algoliasearch.search.client import SearchClient  # noqa: E402
+
+from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT  # noqa: E402
+from codegen.api.schemas import SkillOutput  # noqa: E402
+from codegen.api.webapp_routes import USER_SECRETS_ROUTE  # noqa: E402
+from codegen.auth.jwt import decode_jwt  # noqa: E402
+from codegen.auth.token_manager import TokenManager, get_current_token  # noqa: E402
+from codegen.errors import AuthError, handle_auth_error  # noqa: E402
+from codegen.run.process_output import run_200_handler  # noqa: E402
+from codegen.skills import format_skill  # noqa: E402
+from codegen.utils.constants import ProgrammingLanguage  # noqa: E402
+from tracker.tracker import PostHogTracker, track_command  # noqa: E402
 
 API_ENDPOINT = "https://codegen-sh--run-sandbox-cm-on-string.modal.run"
 AUTH_URL = "http://localhost:8000/login"
@@ -70,6 +72,14 @@ def cli():
 @handle_auth_error
 def init():
     """Initialize the codegen folder"""
+    # First check authentication
+    success = _init_auth()
+    if not success:
+        click.echo("Failed to authenticate. Please try again.")
+        return
+
+    token = get_current_token()
+    # Continue with folder setup
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
@@ -77,25 +87,51 @@ def init():
     DOCS_FOLDER = CODEGEN_FOLDER / "docs"
     SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-    SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
-    populate_docs(DOCS_FOLDER)
-    populate_skills(SKILLS_FOLDER)
-    click.echo(
-        "\n".join(
-            [
-                "Initialized codegen-cli",
-                f"codegen_folder: {CODEGEN_FOLDER}",
-                f"codemods_folder: {CODEMODS_FOLDER}",
-                f"docs_folder: {DOCS_FOLDER}",
-                f"skills_folder: {SKILLS_FOLDER}",
-                f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
-                "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
-                f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
-                "Please use absolute path for all arguments.",
-                "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
-            ]
-        ),
-    )
+
+    # Only populate docs if we have authentication
+    if token:
+        SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
+        populate_docs(DOCS_FOLDER)
+        populate_skills(SKILLS_FOLDER)
+        click.echo(
+            "\n".join(
+                [
+                    "Initialized codegen-cli",
+                    f"codegen_folder: {CODEGEN_FOLDER}",
+                    f"codemods_folder: {CODEMODS_FOLDER}",
+                    f"docs_folder: {DOCS_FOLDER}",
+                    f"skills_folder: {SKILLS_FOLDER}",
+                    f"sample_codemod: {SAMPLE_CODEMOD_PATH}",
+                    "Please add your codemods to the codemods folder and run codegen run to run them. See the sample codemod for an example.",
+                    f"You can run the sample codemod with codegen run --codemod {SAMPLE_CODEMOD_PATH}.",
+                    "Please use absolute path for all arguments.",
+                    "Codemods are written in python using the graph_sitter library. Use the docs_search command to find examples and documentation.",
+                ]
+            ),
+        )
+    else:
+        click.echo("Skipping docs population - authentication required")
+
+
+def _init_auth():
+    token_manager = TokenManager()
+    token = token_manager.get_token()
+    if not token:
+        click.echo("No authentication token found.")
+        if click.confirm("Would you like to authenticate now?"):
+            click.echo(f"You can find your authentication token at {USER_SECRETS_ROUTE}")
+
+            token = click.prompt("Please enter your authentication token", type=str)
+            try:
+                token_manager.save_token(token)
+                click.echo("Successfully stored authentication token")
+            except ValueError as e:
+                click.echo(f"Error saving token: {e!s}", err=True)
+                return False
+        else:
+            click.echo("Skipping authentication. Some features may be limited.")
+            return False
+    return True
 
 
 def populate_docs(dest: Path):
@@ -138,6 +174,7 @@ def populate_skills(dest: Path):
             headers={"Authorization": f"Bearer {auth_token}"},
             json={"language": language.value.upper(), "user_id": decoded_token["user_metadata"]["provider_id"]},
         )
+
         if response.status_code == 200:
             for skill in response.json():
                 model = SkillOutput(**skill)
@@ -161,12 +198,6 @@ def logout():
     token_manager = TokenManager()
     token_manager.clear_token()
     click.echo("Successfully logged out")
-
-
-@main.command()
-@track_command(tracker)
-def auth():
-    print("token is ", get_current_token())
 
 
 @main.command()
@@ -221,7 +252,7 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     # if not auth_token:
     #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
 
-    # Constructing payload to match the frontend's structure
+    # TODO: also validate the input payload
     payload = {
         "repo_id": repo_id,
         "codemod_source": codemod_path.read_text(),
@@ -237,11 +268,7 @@ def run(codemod_path: Path, repo_id: int, web: bool = False):
     )
 
     if response.status_code == 200:
-        res = response.json()
-        if web:
-            print(res)
-        else:
-            pretty_print_diff(response.json())
+        run_200_handler(payload, response)
     else:
         click.echo(f"Error: HTTP {response.status_code}", err=True)
         try:
