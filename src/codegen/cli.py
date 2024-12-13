@@ -10,6 +10,7 @@ from algoliasearch.search.client import SearchClient
 from dotenv import load_dotenv
 
 from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_ENDPOINT
+from codegen.auth.jwt import decode_jwt
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.diff.pretty_print import pretty_print_diff
 from codegen.errors import AuthError, handle_auth_error
@@ -131,10 +132,11 @@ def populate_skills(dest: Path):
         raise AuthError("Not authenticated. Please run 'codegen login' first.")
     for language in [ProgrammingLanguage.PYTHON, ProgrammingLanguage.TYPESCRIPT]:
         click.echo(f"Sending request to {SKILLS_ENDPOINT}")
+        decoded_token = decode_jwt(auth_token)
         response = requests.post(
             SKILLS_ENDPOINT,
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"language": language.value.upper()},
+            json={"language": language.value.upper(), "user_id": decoded_token["user_metadata"]["provider_id"]},
         )
         if response.status_code == 200:
             for skill in response.json():
