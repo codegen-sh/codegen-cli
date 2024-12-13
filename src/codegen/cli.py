@@ -18,7 +18,7 @@ from codegen.api.endpoints import DOCS_ENDPOINT, RUN_CODEMOD_ENDPOINT, SKILLS_EN
 from codegen.api.schemas import SkillOutput
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError, handle_auth_error
-from codegen.run.process_output import run_200_handler
+from codegen.run.process_response import run_200_handler
 from codegen.skills import format_skill
 from codegen.utils.constants import ProgrammingLanguage
 from tracker.tracker import PostHogTracker, track_command
