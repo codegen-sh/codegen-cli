@@ -12,6 +12,7 @@ def get_git_url(repo: Repository) -> str:
 
 
 def get_repo_full_name_from_url(git_url: str) -> str:
+    git_url = git_url.replace(".git", "")
     url_parts = urlparse(git_url).path.strip("/").split("/")
     if len(url_parts) < 2:
         return None
