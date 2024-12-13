@@ -8,6 +8,20 @@ from codegen.analytics.utils import print_debug_message
 POSTHOG_TRACKER = PostHogTracker()
 
 
+def track_command():
+    """Decorator to track command execution."""
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            with track_command_execution(func.__name__):
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 @contextmanager
 def track_command_execution(command_name: str):
     """Context manager to track command execution time and success."""
@@ -23,17 +37,3 @@ def track_command_execution(command_name: str):
         print_debug_message(f"Command {command_name} took {duration:.2f} seconds")
         POSTHOG_TRACKER.capture_event(f"cli_command_{command_name}", {"duration": duration, "success": success, "command": command_name})
         print_debug_message(f"Command {command_name} execution tracked")
-
-
-def track_command():
-    """Decorator to track command execution."""
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            with track_command_execution(func.__name__):
-                return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator

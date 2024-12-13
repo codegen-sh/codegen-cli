@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 import requests
 
-from codegen.analytics.tracker import track_command
+from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import RUN_CODEMOD_ENDPOINT
 from codegen.run.process_response import run_200_handler
 

@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 import requests
 
-from codegen.analytics.tracker import track_command
+from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import DOCS_ENDPOINT, SKILLS_ENDPOINT
 from codegen.api.schemas import SkillOutput
 from codegen.api.webapp_routes import USER_SECRETS_ROUTE
