@@ -17,8 +17,8 @@ from codegen.utils.git.url import get_repo_full_name
 
 @click.command(name="run")
 @track_command()
-@click.argument("codemod_path", required=False, type=click.Path(exists=True, path_type=Path))
-@click.argument("repo_path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.argument("codemod_path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.argument("repo_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--web",
     is_flag=True,
