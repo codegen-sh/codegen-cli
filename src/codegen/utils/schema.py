@@ -9,3 +9,6 @@ class SafeBaseModel(BaseModel):
         except Exception as e:
             print(e)
             return None
+
+    def __str__(self) -> str:
+        return self.model_dump_json(indent=4)
