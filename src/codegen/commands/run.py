@@ -29,6 +29,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
 
     Arguments:
         codemod_path: Path to the codemod file to execute
+        repo_path (optional): Path to the repository to run the codemod on. Defaults to the current working directory.
 
     """
     click.echo(f"Run codemod_path={codemod_path} repo_path={repo_path} ...")
