@@ -76,23 +76,6 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
             click.echo(f"Details: {response.text}", err=True)
 
 
-observation = '''
-diff --git a/codegen-backend/app/utils/csv_utils.py b/codegen-backend/app/utils/csv_utils.py
-index 3cd4fd366f7a67a8e294ad3a4e6c6139305067d0..6f268a82218a74f652ded2ace909842f75a9ef54 100644
---- a/codegen-backend/app/utils/csv_utils.py
-+++ b/codegen-backend/app/utils/csv_utils.py
-@@ -1,8 +1,3 @@
--def list_to_comma_separated(items: list[str]) -> str:
--    """Given a list of items, returns a comma separated string of the items"""
--    return ",".join(items)
--
--
- def comma_separated_to_list(comma_separated: str) -> list[str]:
-     """Given a comma separated string, returns a list of the comma separated items.
-     Strips whitespace from each item, drops any items that are whitespace only
-'''
-
-
 def run_200_handler(git_repo: Repository, web: bool, apply_local: bool, response: Response):
     run_output = RunCodemodOutput.model_validate(response.json())
     if not run_output:
