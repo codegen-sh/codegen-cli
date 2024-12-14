@@ -3,6 +3,7 @@ from pathlib import Path
 
 import click
 import requests
+from pygit2.repository import Repository
 from requests import Response
 
 from codegen.analytics.decorators import track_command
@@ -10,6 +11,7 @@ from codegen.api.endpoints import RUN_CODEMOD_ENDPOINT
 from codegen.api.schemas import RunCodemodInput, RunCodemodOutput
 from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
+from codegen.utils.git.patch import apply_patch
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
 
@@ -23,7 +25,12 @@ from codegen.utils.git.url import get_repo_full_name
     is_flag=True,
     help="Return a web link to the diff",
 )
-def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = False):
+@click.option(
+    "--apply-local",
+    is_flag=True,
+    help="Applies the generated diff to the repository",
+)
+def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code.
 
     Arguments:
@@ -56,7 +63,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
         )
 
         if response.status_code == 200:
-            run_200_handler(run_input, response)
+            run_200_handler(git_repo=git_repo, web=web, apply_local=apply_local, response=response)
         elif response.status_code == 500:
             raise ServerError("The server encountered an error while processing your request")
         else:
@@ -72,7 +79,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
         raise click.ClickException(f"Network error: {e!s}")
 
 
-def run_200_handler(run_input: RunCodemodInput, response: Response):
+def run_200_handler(git_repo: Repository, web: bool, apply_local: bool, response: Response):
     try:
         run_output = RunCodemodOutput.model_validate(response.json())
         if not run_output:
@@ -80,10 +87,14 @@ def run_200_handler(run_input: RunCodemodInput, response: Response):
         if not run_output.success:
             raise ServerError(run_output.observation or "Unknown server error occurred")
 
-        if run_input.web and run_output.web_link:
+        pretty_print_output(run_output)
+
+        if web and run_output.web_link:
             webbrowser.open_new(run_output.web_link)
 
-        pretty_print_output(run_output)
+        if apply_local and run_output.observation:
+            apply_patch(git_repo, f"\n{run_output.observation}\n")
+            click.echo(f"Diff applied to {git_repo.path}")
 
     except ValueError as e:
         raise click.ClickException(f"Failed to process server response: {e!s}")
