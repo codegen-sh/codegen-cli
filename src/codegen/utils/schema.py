@@ -1,9 +1,11 @@
+from typing import Self
+
 from pydantic import BaseModel
 
 
 class SafeBaseModel(BaseModel):
     @classmethod
-    def model_validate(cls, data: dict) -> "SafeBaseModel":
+    def model_validate(cls, data: dict) -> "Self":
         try:
             return super().model_validate(data)
         except Exception as e:

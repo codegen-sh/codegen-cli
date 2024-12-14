@@ -4,6 +4,8 @@ from pathlib import Path
 
 import click
 import requests
+from pygit2 import Diff
+from pygit2.repository import Repository
 from requests import Response
 from rich.json import JSON
 
@@ -24,7 +26,12 @@ from codegen.utils.git.url import get_repo_full_name
     is_flag=True,
     help="Return a web link to the diff",
 )
-def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = False):
+@click.option(
+    "--apply-local",
+    is_flag=True,
+    help="Applies the generated diff to the repository",
+)
+def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code.
 
     Arguments:
@@ -59,7 +66,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
     )
 
     if response.status_code == 200:
-        run_200_handler(run_input, response)
+        run_200_handler(git_repo=git_repo, web=web, apply_local=apply_local, response=response)
     else:
         click.echo(f"{response.status_code}", err=True)
         try:
@@ -69,7 +76,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
             click.echo(f"Details: {response.text}", err=True)
 
 
-def run_200_handler(run_input: RunCodemodInput, response: Response):
+def run_200_handler(git_repo: Repository, web: bool, apply_local: bool, response: Response):
     run_output = RunCodemodOutput.model_validate(response.json())
     if not run_output:
         click.echo(f"422 UnprocessableEntity: {JSON(response.text)}")
@@ -78,7 +85,12 @@ def run_200_handler(run_input: RunCodemodInput, response: Response):
         click.echo(f"500 InternalServerError: {run_output.observation}")
         return
 
-    if run_input.web and run_output.web_link:
+    pretty_print_output(run_output)
+
+    if web and run_output.web_link:
         webbrowser.open_new(run_output.web_link)
 
-    pretty_print_output(run_output)
+    if apply_local and run_output.observation:
+        click.echo(f"Applying diff to {git_repo.path} ...")
+        patch = Diff.parse_diff(run_output.observation)
+        git_repo.apply(patch)
