@@ -31,6 +31,11 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
         (optional) repo_path: Path to the repository to run the codemod on. Defaults to the current working directory.
 
     """
+    # TODO: add back in once login works
+    # auth_token = get_current_token()
+    # if not auth_token:
+    #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
+
     repo_path = repo_path or Path.cwd()
     git_repo = get_git_repo(repo_path)
     if not git_repo:
