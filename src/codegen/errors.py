@@ -1,4 +1,5 @@
 import functools
+
 import click
 from rich.console import Console
 from rich.panel import Panel
@@ -31,7 +32,7 @@ def format_error_message(error):
     elif isinstance(error, ServerError):
         return "[red]Server Error:[/red] The server encountered an error. Please try again later."
     else:
-        return f"[red]Error:[/red] {str(error)}"
+        return f"[red]Error:[/red] {error!s}"
 
 
 def handle_auth_error(f):

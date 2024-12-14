@@ -1,11 +1,9 @@
-import json
 import webbrowser
 from pathlib import Path
 
 import click
 import requests
 from requests import Response
-from rich.json import JSON
 
 from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import RUN_CODEMOD_ENDPOINT
@@ -31,6 +29,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
     Arguments:
         (required) codemod_path: Path to the codemod file to execute
         (optional) repo_path: Path to the repository to run the codemod on. Defaults to the current working directory.
+
     """
     repo_path = repo_path or Path.cwd()
     git_repo = get_git_repo(repo_path)
@@ -65,7 +64,7 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
             raise click.ClickException(f"Error ({response.status_code}): {error_msg}")
 
     except requests.RequestException as e:
-        raise click.ClickException(f"Network error: {str(e)}")
+        raise click.ClickException(f"Network error: {e!s}")
 
 
 def run_200_handler(run_input: RunCodemodInput, response: Response):
@@ -82,4 +81,4 @@ def run_200_handler(run_input: RunCodemodInput, response: Response):
         pretty_print_output(run_output)
 
     except ValueError as e:
-        raise click.ClickException(f"Failed to process server response: {str(e)}")
+        raise click.ClickException(f"Failed to process server response: {e!s}")
