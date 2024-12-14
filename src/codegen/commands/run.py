@@ -28,8 +28,8 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
     """Run code transformation on the provided Python code.
 
     Arguments:
-        codemod_path: Path to the codemod file to execute
-        repo_path (optional): Path to the repository to run the codemod on. Defaults to the current working directory.
+        (required) codemod_path: Path to the codemod file to execute
+        (optional) repo_path: Path to the repository to run the codemod on. Defaults to the current working directory.
 
     """
     click.echo(f"Run codemod_path={codemod_path} repo_path={repo_path} ...")
