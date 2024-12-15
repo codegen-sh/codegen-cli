@@ -2,18 +2,15 @@ import shutil
 from pathlib import Path
 
 import click
-import requests
 from rich.console import Console
 from rich.status import Status
 
 from codegen.analytics.decorators import track_command
-from codegen.api.endpoints import DOCS_ENDPOINT
-from codegen.api.schemas import SkillOutput
+from codegen.api.client import API
+from codegen.api.schemas import SerializedExample
 from codegen.auth.decorator import requires_auth
 from codegen.auth.session import CodegenSession
-from codegen.errors import ServerError
-from codegen.skills import format_skill
-from codegen.utils.constants import ProgrammingLanguage
+from codegen.utils.formatters.examples import format_example
 
 ###########################################################################
 # STRING FORMATTING
@@ -71,22 +68,8 @@ examples/
 
 
 ###########################################################################
-# FETCH ROUTINES
+# POPULATE FOLDERS
 ###########################################################################
-
-
-def fetch_docs(session: CodegenSession, status: Status) -> dict[str, str]:
-    """Fetch docs with status updates"""
-    status.update("Fetching documentation and examples...")
-    response = requests.get(
-        DOCS_ENDPOINT,
-        headers={"Authorization": f"Bearer {session.token}"},
-        json={"repo_full_name": session.repo_name, "language": ProgrammingLanguage.PYTHON.value.upper()},
-    )
-    if response.status_code == 200:
-        return response.json()
-    else:
-        raise ServerError(f"Error: HTTP {response.status_code}")
 
 
 def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
@@ -103,7 +86,7 @@ def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
         dest_file.write_text(content)
 
 
-def populate_examples(dest: Path, examples: list[dict], status: Status):
+def populate_examples(dest: Path, examples: list[SerializedExample], status: Status):
     """Populate the skills folder with skills for the current repository."""
     status.update("Populating example codemods...")
     # Remove existing examples
@@ -111,11 +94,10 @@ def populate_examples(dest: Path, examples: list[dict], status: Status):
     dest.mkdir(parents=True, exist_ok=True)
 
     for example in examples:
-        model = SkillOutput(**example)
-        dest_file = dest / f"{model.name}.py"
+        dest_file = dest / f"{example.name}.py"
         dest_file.parent.mkdir(parents=True, exist_ok=True)
-        formatted_skill = format_skill(model)
-        dest_file.write_text(formatted_skill)
+        formatted = format_example(example)
+        dest_file.write_text(formatted)
 
 
 ###########################################################################
@@ -149,10 +131,10 @@ def init_command(session: CodegenSession):
         gitignore_path = CODEGEN_FOLDER / ".gitignore"
         gitignore_path.write_text(GITIGNORE_CONTENT.strip())
 
-        # Populate folders
-        docs = fetch_docs(session, status)
-        populate_api_docs(DOCS_FOLDER, docs["docs"], status)
-        populate_examples(EXAMPLES_FOLDER, docs["examples"], status)  # Updated folder path
+        status.update("Fetching docs & examples...")
+        response = API.get_docs()
+        populate_api_docs(DOCS_FOLDER, response.docs, status)
+        populate_examples(EXAMPLES_FOLDER, response.examples, status)  # Updated folder path
 
         status.update("Done! 🎉")
 
