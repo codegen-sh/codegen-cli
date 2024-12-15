@@ -9,11 +9,13 @@ from codegen.api.schemas import RunCodemodOutput
 def pretty_print_output(output: RunCodemodOutput):
     console = Console()
     if output.web_link:
-        console.print(Rule(title="VIEW IN UI"))
-        console.print(output.web_link)
+        console.print("• [blue underline]" + output.web_link + "[/blue underline]\n")
     if output.logs:
         console.print(Rule(title="LOGS"))
         pretty_print_logs(output.logs)
+    if output.error:
+        console.print(Rule(title="ERROR", style="red"))
+        console.print(output.error)
     if output.observation:
         console.print(Rule(title="DIFF"))
         pretty_print_diff(output.observation)

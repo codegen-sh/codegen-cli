@@ -6,6 +6,8 @@ import requests
 from pygit2.repository import Repository
 from requests import Response
 from rich.console import Console
+from rich import box
+from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import RUN_CODEMOD_ENDPOINT
@@ -39,34 +41,40 @@ def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_
     )
 
     console = Console()
-    with console.status("Running codemod...", spinner="dots", spinner_style="purple") as status:
-        # Print details below the spinner
-        console.print()  # Add blank line after spinner
-        console.print(f"Repo: {session.repo_name}")
-        console.print(f"Codemod: {codemod_path.relative_to(Path.cwd())}\n")
+    status = Status("Running codemod...", spinner="dots", spinner_style="purple")
+    status.start()
 
-        try:
-            response = requests.post(
-                RUN_CODEMOD_ENDPOINT,
-                json=run_input.model_dump(),
-            )
+    # Print details below the spinner
+    console.print()  # Add blank line after spinner
+    console.print(f"Repo: {session.repo_name}")
+    console.print(f"Codemod: {codemod_path.relative_to(Path.cwd())}\n")
 
-            if response.status_code == 200:
-                status.update("Processing results...")
-                run_200_handler(git_repo=session.git_repo, web=web, apply_local=apply_local, response=response)
-            elif response.status_code == 500:
-                raise ServerError("The server encountered an error while processing your request")
-            else:
-                error_msg = "Unknown error occurred"
-                try:
-                    error_json = response.json()
-                    error_msg = error_json.get("detail", error_json)
-                except Exception:
-                    error_msg = response.text
-                raise click.ClickException(f"Error ({response.status_code}): {error_msg}")
+    try:
+        response = requests.post(
+            RUN_CODEMOD_ENDPOINT,
+            json=run_input.model_dump(),
+        )
 
-        except requests.RequestException as e:
-            raise click.ClickException(f"Network error: {e!s}")
+        if response.status_code == 200:
+            status.stop()
+            console.print("✓ Codemod run complete", style="green")
+            run_200_handler(git_repo=session.git_repo, web=web, apply_local=apply_local, response=response)
+        elif response.status_code == 500:
+            raise ServerError("The server encountered an error while processing your request")
+        else:
+            error_msg = "Unknown error occurred"
+            try:
+                error_json = response.json()
+                error_msg = error_json.get("detail", error_json)
+            except Exception:
+                error_msg = response.text
+            raise click.ClickException(f"Error ({response.status_code}): {error_msg}")
+
+    except requests.RequestException as e:
+        status.stop()
+        raise click.ClickException(f"Network error: {e!s}")
+    finally:
+        status.stop()
 
 
 def run_200_handler(git_repo: Repository, web: bool, apply_local: bool, response: Response):

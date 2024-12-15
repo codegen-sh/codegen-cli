@@ -13,6 +13,7 @@ class RunCodemodOutput(SafeBaseModel):
     web_link: str | None = None
     logs: str | None = None
     observation: str | None = None
+    error: str | None = None
 
 
 class SkillOutput(SafeBaseModel):
