@@ -7,7 +7,7 @@ from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.client import API
-from codegen.auth.decorator import requires_auth
+from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
@@ -17,6 +17,7 @@ from codegen.utils.git.patch import apply_patch
 @click.command(name="run")
 @track_command()
 @requires_auth
+@requires_init
 @click.argument("codemod_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.argument("repo_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.option("--web", is_flag=True, help="Return a web link to the diff")

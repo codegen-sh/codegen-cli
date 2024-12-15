@@ -1,8 +1,13 @@
 import functools
 from collections.abc import Callable
+from pathlib import Path
+
+import click
+from rich.status import Status
 
 from codegen.auth.session import CodegenSession
 from codegen.errors import AuthError
+from codegen.utils.init import initialize_codegen
 
 
 def requires_auth(f: Callable) -> Callable:
@@ -25,5 +30,25 @@ def requires_auth(f: Callable) -> Callable:
             return f(*args, session=session, **kwargs)
         except ValueError as e:
             raise AuthError("Not authenticated. Please run 'codegen login' first.") from e
+
+    return wrapper
+
+
+def requires_init(f: Callable) -> Callable:
+    """Decorator that ensures codegen has been initialized."""
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        session = kwargs.get("session")
+        if not session:
+            raise ValueError("@requires_init must be used after @requires_auth")
+
+        codegen_dir = Path.cwd() / ".codegen"
+        if not codegen_dir.exists():
+            click.echo("Codegen not initialized. Running init command first...")
+            with Status("[bold]Initializing Codegen...", spinner="dots", spinner_style="purple") as status:
+                initialize_codegen(status)
+
+        return f(*args, **kwargs)
 
     return wrapper
