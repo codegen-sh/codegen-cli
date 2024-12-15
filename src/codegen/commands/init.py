@@ -2,7 +2,6 @@ import shutil
 from pathlib import Path
 
 import click
-import requests
 from rich.console import Console
 from rich.status import Status
 
@@ -11,9 +10,7 @@ from codegen.api.client import API
 from codegen.api.schemas import SerializedExample
 from codegen.auth.decorator import requires_auth
 from codegen.auth.session import CodegenSession
-from codegen.errors import ServerError
 from codegen.utils.formatters.examples import format_example
-from codegen.utils.constants import ProgrammingLanguage
 
 ###########################################################################
 # STRING FORMATTING

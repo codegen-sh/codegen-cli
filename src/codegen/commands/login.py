@@ -1,10 +1,11 @@
 import webbrowser
+
 import click
 
 from codegen.analytics.decorators import track_command
+from codegen.api.webapp_routes import USER_SECRETS_ROUTE
 from codegen.auth.token_manager import TokenManager
 from codegen.env.global_env import global_env
-from codegen.api.webapp_routes import USER_SECRETS_ROUTE
 
 
 @click.command(name="login")

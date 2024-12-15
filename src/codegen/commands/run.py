@@ -2,20 +2,16 @@ import webbrowser
 from pathlib import Path
 
 import click
-import requests
-from pygit2.repository import Repository
-from requests import Response
 from rich.console import Console
-from rich import box
 from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.client import API
 from codegen.auth.decorator import requires_auth
 from codegen.auth.session import CodegenSession
+from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
 from codegen.utils.git.patch import apply_patch
-from codegen.errors import ServerError
 
 
 @click.command(name="run")

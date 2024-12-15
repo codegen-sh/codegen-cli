@@ -4,11 +4,10 @@ from pathlib import Path
 import jwt
 from pygit2.repository import Repository
 
-from codegen.auth.token_manager import get_current_token
+from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.errors import AuthError
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
-from codegen.auth.token_manager import TokenManager
-from codegen.errors import ServerError, AuthError
 
 
 @dataclass

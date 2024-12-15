@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import ClassVar, Type, TypeVar
+from typing import ClassVar, TypeVar
 
 import requests
 from pydantic import BaseModel
@@ -12,10 +12,10 @@ from codegen.api.endpoints import (
 from codegen.api.schemas import (
     AskExpertInput,
     AskExpertResponse,
-    RunCodemodInput,
-    RunCodemodOutput,
     DocsInput,
     DocsResponse,
+    RunCodemodInput,
+    RunCodemodOutput,
 )
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
@@ -44,7 +44,7 @@ class API:
         method: str,
         endpoint: str,
         input_data: InputT | None,
-        output_model: Type[OutputT],
+        output_model: type[OutputT],
     ) -> OutputT:
         """Make an API request with input validation and response handling."""
         try:
@@ -76,7 +76,7 @@ class API:
                 raise ServerError(f"Error ({response.status_code}): {error_msg}")
 
         except requests.RequestException as e:
-            raise ServerError(f"Network error: {str(e)}")
+            raise ServerError(f"Network error: {e!s}")
 
     @classmethod
     def run(
