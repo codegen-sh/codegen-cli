@@ -12,10 +12,12 @@ from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
+from codegen.auth.decorator import requires_auth
 
 
 @click.command(name="run")
 @track_command()
+@requires_auth
 @click.argument("codemod_path", required=True, type=click.Path(exists=True, path_type=Path))
 @click.argument("repo_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.option(
@@ -31,11 +33,6 @@ def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = F
         (optional) repo_path: Path to the repository to run the codemod on. Defaults to the current working directory.
 
     """
-    # TODO: add back in once login works
-    # auth_token = get_current_token()
-    # if not auth_token:
-    #     raise AuthError("Not authenticated. Please run 'codegen login' first.")
-
     repo_path = repo_path or Path.cwd()
     git_repo = get_git_repo(repo_path)
     if not git_repo:

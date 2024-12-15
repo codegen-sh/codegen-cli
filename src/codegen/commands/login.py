@@ -15,7 +15,11 @@ def login_command(token: str):
         _token = global_env.CODEGEN_USER_ACCESS_TOKEN
 
     if not _token:
-        click.echo("Error: Token must be provided via --token option or CODEGEN_USER_ACCESS_TOKEN environment variable", err=True)
+        click.echo("Please enter your authentication token:")
+        _token = input().strip().replace("\n", "").replace("\r", "")
+
+    if not _token:
+        click.echo("Error: Token must be provided via --token option, CODEGEN_USER_ACCESS_TOKEN environment variable, or manual input", err=True)
         exit(1)
 
     token_manager = TokenManager()
@@ -26,8 +30,12 @@ def login_command(token: str):
         exit(1)
 
     try:
-        token_manager.save_token(_token)
-        click.echo("Successfully stored authentication token")
+        if token_manager.validate_expiration(_token):
+            token_manager.save_token(_token)
+            click.echo(f"✅ Stored token to: {token_manager.token_file}")
+        else:
+            click.echo("Error: Token has expired. Please re-authenticate.")
+            exit(1)
     except ValueError as e:
         click.echo(f"Error: {e!s}", err=True)
         exit(1)

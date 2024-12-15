@@ -4,7 +4,11 @@ from pygit2.repository import Repository
 
 
 def get_repo_full_name(repo: Repository) -> str:
-    return get_repo_full_name_from_url(get_git_url(repo))
+    full_name = get_repo_full_name_from_url(get_git_url(repo))
+    if not full_name:
+        raise ValueError("Could not determine repository full name from URL")
+    full_name = full_name.split(":")[1]
+    return full_name
 
 
 def get_git_url(repo: Repository) -> str:

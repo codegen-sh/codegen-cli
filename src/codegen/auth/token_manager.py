@@ -54,20 +54,25 @@ class TokenManager:
             with open(self.token_file) as f:
                 data = json.load(f)
                 token = data.get("token")
-                if token:
-                    # Verify token hasn't expired
-                    payload = jwt.decode(token, options={"verify_signature": False})
-                    exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+                if not token:
+                    return None
 
-                    if exp > datetime.now(UTC):
-                        return token
-                    else:
-                        self.clear_token()
-                        return None
+                if not self.validate_expiration(token):
+                    print("Expired token - reauthenticate with `codegen login`")
+                    self.clear_token()
+                    return None
+
+                return token
 
         except (json.JSONDecodeError, jwt.InvalidTokenError, KeyError, OSError) as e:
             print(e)
             return None
+
+    def validate_expiration(self, token: str) -> bool:
+        """Validate the expiration of a token."""
+        payload = jwt.decode(token, options={"verify_signature": False})
+        exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+        return exp > datetime.now(UTC)
 
     def clear_token(self) -> None:
         """Remove stored token."""
