@@ -7,6 +7,8 @@ from pygit2.repository import Repository
 from codegen.auth.token_manager import get_current_token
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
+from codegen.auth.token_manager import TokenManager
+from codegen.errors import ServerError, AuthError
 
 
 @dataclass
@@ -88,5 +90,14 @@ class CodegenSession:
         return f"CodegenSession(user={self.profile.name}, repo={self.repo_name})"
 
     def is_authenticated(self) -> bool:
-        """Check if the session is fully authenticated"""
-        return bool(self._token and self.repo_name)
+        """Check if the session is fully authenticated, including token expiration"""
+        return bool(self._token and self.repo_name and TokenManager().validate_expiration(self._token))
+
+    def assert_authenticated(self) -> None:
+        """Raise an AuthError if the session is not fully authenticated"""
+        if not self._token:
+            raise AuthError("No authentication token found")
+        if not self.repo_name:
+            raise AuthError("No repository found")
+        if not TokenManager().validate_expiration(self._token):
+            raise AuthError("Authentication token has expired")

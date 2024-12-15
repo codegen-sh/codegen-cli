@@ -14,8 +14,10 @@ from codegen.api.schemas import (
     AskExpertResponse,
     RunCodemodInput,
     RunCodemodOutput,
+    DocsInput,
+    DocsResponse,
 )
-from codegen.auth.token_manager import get_current_token
+from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 
 InputT = TypeVar("InputT", bound=BaseModel)
@@ -23,19 +25,17 @@ OutputT = TypeVar("OutputT", bound=BaseModel)
 
 
 class API:
-    """Static class that handles auth + validation with the codegen API."""
+    """Handles auth + validation with the codegen API."""
 
     _session: ClassVar[requests.Session] = requests.Session()
 
     @classmethod
     def _get_headers(cls) -> dict[str, str]:
         """Get headers with authentication token."""
-        token = get_current_token()
-        if not token:
-            raise ServerError("No authentication token found")
+        session = CodegenSession()
+        session.assert_authenticated()
         return {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
+            "Authorization": f"Bearer {session.token}",
         }
 
     @classmethod
@@ -103,13 +103,14 @@ class API:
         )
 
     @classmethod
-    def get_docs(cls, query: str) -> dict:
+    def get_docs(cls) -> dict:
         """Search documentation."""
+        session = CodegenSession()
         return cls._make_request(
             "GET",
             DOCS_ENDPOINT,
-            None,  # Query params will be added automatically
-            dict,  # Replace with proper response type
+            DocsInput(repo_full_name=session.repo_name, language="PYTHON"),
+            DocsResponse,
         )
 
     @classmethod
