@@ -20,13 +20,13 @@ from codegen.utils.constants import ProgrammingLanguage
 ###########################################################################
 
 
-def get_success_message(codegen_folder: Path, codemods_folder: Path, docs_folder: Path, skills_folder: Path, sample_codemod_path: Path) -> str:
+def get_success_message(codegen_folder: Path, codemods_folder: Path, docs_folder: Path, examples_folder: Path, sample_codemod_path: Path) -> str:
     return f"""
 📁 Folders Created:
    • Codegen:  {codegen_folder}
    • Codemods: {codemods_folder}
    • Docs:     {docs_folder}
-   • Skills:   {skills_folder}
+   • Examples: {examples_folder}
 
 📝 Sample Codemod:
    {sample_codemod_path}
@@ -60,6 +60,13 @@ function.rename('new_name') # rename
 function.set_docstring('new docstring') # set docstring
 
 # ... etc.
+"""
+
+# Add new constant for gitignore content
+GITIGNORE_CONTENT = """
+# Codegen generated directories
+docs/
+examples/
 """
 
 
@@ -133,18 +140,23 @@ def init_command(session: CodegenSession):
         SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
         SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
         DOCS_FOLDER = CODEGEN_FOLDER / "docs"
-        SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
+        EXAMPLES_FOLDER = CODEGEN_FOLDER / "examples"  # Renamed from SKILLS_FOLDER
         DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-        SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
+        EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
+
+        # Create .gitignore file
+        status.update("Creating .gitignore...")
+        gitignore_path = CODEGEN_FOLDER / ".gitignore"
+        gitignore_path.write_text(GITIGNORE_CONTENT.strip())
 
         # Populate folders
         docs = fetch_docs(session, status)
         populate_api_docs(DOCS_FOLDER, docs["docs"], status)
-        populate_examples(SKILLS_FOLDER, docs["examples"], status)
+        populate_examples(EXAMPLES_FOLDER, docs["examples"], status)  # Updated folder path
 
         status.update("Done! 🎉")
 
     click.echo("\n🚀 Codegen CLI Initialized Successfully!")
     click.echo("━" * 60)
-    click.echo(get_success_message(CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, SKILLS_FOLDER, SAMPLE_CODEMOD_PATH))
+    click.echo(get_success_message(CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER, SAMPLE_CODEMOD_PATH))
     click.echo("━" * 60 + "\n")
