@@ -1,13 +1,13 @@
 import click
 
+from codegen.commands.create import create_command
 from codegen.commands.docs_search import docs_search_command
 from codegen.commands.init import init_command
 from codegen.commands.login import login_command
 from codegen.commands.logout import logout_command
+from codegen.commands.profile import profile_command
 from codegen.commands.run import run_command
 from codegen.errors import handle_errors
-from codegen.commands.profile import profile_command
-from codegen.commands.create import create_command
 
 
 @click.group()

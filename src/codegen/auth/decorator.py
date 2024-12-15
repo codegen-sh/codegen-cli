@@ -1,6 +1,5 @@
 import functools
-from typing import Callable
-from inspect import signature
+from collections.abc import Callable
 
 from codegen.auth.session import CodegenSession
 from codegen.errors import AuthError

@@ -1,5 +1,4 @@
 import click
-from pathlib import Path
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth

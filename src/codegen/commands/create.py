@@ -1,6 +1,7 @@
-import click
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import click
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth
@@ -19,7 +20,7 @@ from typing import Any
 def run(codebase: Any) -> None:
     """
     Your codemod logic goes here.
-    
+
     Args:
         codebase: The codebase object containing files and symbols
     """
@@ -27,11 +28,11 @@ def run(codebase: Any) -> None:
     for file in codebase.files:
         if file.path.endswith(".py"):
             print(f"Found Python file: {{file.path}}")
-    
+
     # Example: Modify files
     # file = codebase.get_file("example.py")
     # file.edit("New content")
-    
+
     # Example: Work with functions
     # for func in codebase.functions:
     #     if func.name.startswith("test_"):

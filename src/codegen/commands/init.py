@@ -9,16 +9,11 @@ from rich.status import Status
 from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import DOCS_ENDPOINT
 from codegen.api.schemas import SkillOutput
-from codegen.api.webapp_routes import USER_SECRETS_ROUTE
-from codegen.auth.token_manager import TokenManager, get_current_token
-from codegen.errors import AuthError, handle_auth_error
-from codegen.skills import format_skill
-from codegen.utils.constants import ProgrammingLanguage
-from codegen.utils.git.repo import get_git_repo
-from codegen.utils.git.url import get_repo_full_name
 from codegen.auth.decorator import requires_auth
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
+from codegen.skills import format_skill
+from codegen.utils.constants import ProgrammingLanguage
 
 ###########################################################################
 # STRING FORMATTING
@@ -125,8 +120,7 @@ def populate_examples(dest: Path, examples: list[dict], status: Status):
 @track_command()
 @requires_auth
 def init_command(session: CodegenSession):
-    """
-    Initialize the Codegen folder.
+    """Initialize the Codegen folder.
     Hits up an API to do so.
     """
     console = Console()

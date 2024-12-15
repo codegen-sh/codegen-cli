@@ -6,16 +6,15 @@ import requests
 from pygit2.repository import Repository
 from requests import Response
 from rich.console import Console
-from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import RUN_CODEMOD_ENDPOINT
 from codegen.api.schemas import RunCodemodInput, RunCodemodOutput
+from codegen.auth.decorator import requires_auth
+from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
 from codegen.utils.git.patch import apply_patch
-from codegen.auth.decorator import requires_auth
-from codegen.auth.session import CodegenSession
 
 
 @click.command(name="run")

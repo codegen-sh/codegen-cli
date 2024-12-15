@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
-import jwt
-import requests
-from pygit2.repository import Repository
-from typing import Optional, Tuple
 
-from codegen.auth.token_manager import TokenManager, get_current_token
+import jwt
+from pygit2.repository import Repository
+
+from codegen.auth.token_manager import get_current_token
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
 
