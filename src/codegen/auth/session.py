@@ -52,7 +52,6 @@ class CodegenSession:
         """Get the current repository name"""
         if not self._repo_name:
             git_repo = get_git_repo(Path.cwd())
-            print(git_repo)
             self._repo_name = get_repo_full_name(git_repo)
         return self._repo_name
 

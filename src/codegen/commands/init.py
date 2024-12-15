@@ -3,6 +3,8 @@ from pathlib import Path
 
 import click
 import requests
+from rich.console import Console
+from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.endpoints import DOCS_ENDPOINT
@@ -71,7 +73,9 @@ function.set_docstring('new docstring') # set docstring
 ###########################################################################
 
 
-def fetch_docs(session: CodegenSession) -> dict[str, str]:
+def fetch_docs(session: CodegenSession, status: Status) -> dict[str, str]:
+    """Fetch docs with status updates"""
+    status.update("Fetching documentation and examples...")
     response = requests.get(
         DOCS_ENDPOINT,
         headers={"Authorization": f"Bearer {session.token}"},
@@ -83,8 +87,9 @@ def fetch_docs(session: CodegenSession) -> dict[str, str]:
         raise ServerError(f"Error: HTTP {response.status_code}")
 
 
-def populate_api_docs(dest: Path, api_docs: dict[str, str]):
+def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
     """Writes all API docs to the docs folder"""
+    status.update("Populating API documentation...")
     # Remove existing docs
     shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
@@ -96,8 +101,9 @@ def populate_api_docs(dest: Path, api_docs: dict[str, str]):
         dest_file.write_text(content)
 
 
-def populate_examples(dest: Path, examples: list[dict]):
+def populate_examples(dest: Path, examples: list[dict], status: Status):
     """Populate the skills folder with skills for the current repository."""
+    status.update("Populating example codemods...")
     # Remove existing examples
     shutil.rmtree(dest, ignore_errors=True)
     dest.mkdir(parents=True, exist_ok=True)
@@ -123,20 +129,26 @@ def init_command(session: CodegenSession):
     Initialize the Codegen folder.
     Hits up an API to do so.
     """
-    # Create folders
-    CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
-    CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
-    SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
-    SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
-    DOCS_FOLDER = CODEGEN_FOLDER / "docs"
-    SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
-    DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-    SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
+    console = Console()
 
-    # Populate folders
-    docs = fetch_docs(session)
-    populate_api_docs(DOCS_FOLDER, docs["docs"])
-    populate_examples(SKILLS_FOLDER, docs["examples"])
+    # Create folders
+    with console.status("[bold green]Initializing Codegen...") as status:
+        status.update("Creating folders...")
+        CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
+        CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
+        SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
+        SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
+        DOCS_FOLDER = CODEGEN_FOLDER / "docs"
+        SKILLS_FOLDER = CODEGEN_FOLDER / "skills"
+        DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
+        SKILLS_FOLDER.mkdir(parents=True, exist_ok=True)
+
+        # Populate folders
+        docs = fetch_docs(session, status)
+        populate_api_docs(DOCS_FOLDER, docs["docs"], status)
+        populate_examples(SKILLS_FOLDER, docs["examples"], status)
+
+        status.update("Done! 🎉")
 
     click.echo("\n🚀 Codegen CLI Initialized Successfully!")
     click.echo("━" * 60)
