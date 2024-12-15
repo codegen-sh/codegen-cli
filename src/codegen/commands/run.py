@@ -13,26 +13,41 @@ from codegen.rich.pretty_print import pretty_print_output
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
 from codegen.auth.decorator import requires_auth
+from codegen.auth.session import CodegenSession
 
 
 @click.command(name="run")
 @track_command()
 @requires_auth
-@click.argument("codemod_path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.argument("codemod_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.argument("repo_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--web",
     is_flag=True,
     help="Return a web link to the diff",
 )
-def run_command(codemod_path: Path, repo_path: Path | None = None, web: bool = False):
+def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_path: Path | None = None, web: bool = False):
     """Run code transformation on the provided Python code.
 
     Arguments:
-        (required) codemod_path: Path to the codemod file to execute
+        (optional) codemod_path: Path to the codemod file to execute. If not provided, uses the active codemod.
         (optional) repo_path: Path to the repository to run the codemod on. Defaults to the current working directory.
 
     """
+    if not codemod_path:
+        # Try to get active codemod
+        codemods_dir = Path.cwd() / ".codegen" / "codemods"
+        active_codemod_file = codemods_dir / "active_codemod.txt"
+
+        if not active_codemod_file.exists():
+            raise click.ClickException("No codemod path provided and no active codemod found.\n" "Either provide a codemod path or create one with: codegen create <name>")
+
+        active_codemod = active_codemod_file.read_text().strip()
+        codemod_path = codemods_dir / active_codemod / "run.py"
+
+        if not codemod_path.exists():
+            raise click.ClickException(f"Active codemod not found at: {codemod_path}")
+
     repo_path = repo_path or Path.cwd()
     git_repo = get_git_repo(repo_path)
     if not git_repo:

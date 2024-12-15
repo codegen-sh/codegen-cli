@@ -7,6 +7,7 @@ from codegen.commands.logout import logout_command
 from codegen.commands.run import run_command
 from codegen.errors import handle_errors
 from codegen.commands.profile import profile_command
+from codegen.commands.create import create_command
 
 
 @click.group()
@@ -21,6 +22,7 @@ main.add_command(handle_errors(login_command))
 main.add_command(handle_errors(run_command))
 main.add_command(handle_errors(docs_search_command))
 main.add_command(handle_errors(profile_command))
+main.add_command(handle_errors(create_command))
 
 if __name__ == "__main__":
     main()
