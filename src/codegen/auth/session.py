@@ -8,6 +8,8 @@ from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
+from codegen.utils.schema import CodemodConfig
+from codegen.utils.codemods import Codemod
 
 
 @dataclass
@@ -36,7 +38,7 @@ class CodegenSession:
 
         self._profile: UserProfile | None = None
         self._repo_name: str | None = None
-        self._active_codemod: tuple[str, Path] | None = None
+        self._active_codemod: Codemod | None = None
 
     @property
     def token(self) -> str:
@@ -66,8 +68,8 @@ class CodegenSession:
         return self._repo_name
 
     @property
-    def active_codemod(self) -> tuple[str, Path] | None:
-        """Get the active codemod name and path if one exists."""
+    def active_codemod(self) -> Codemod | None:
+        """Get the active codemod information if one exists."""
         if self._active_codemod is None:
             codemods_dir = Path.cwd() / ".codegen" / "codemods"
             active_codemod_file = codemods_dir / "active_codemod.txt"
@@ -76,12 +78,22 @@ class CodegenSession:
                 return None
 
             active_codemod = active_codemod_file.read_text().strip()
-            codemod_path = codemods_dir / active_codemod / "run.py"
+            codemod_dir = codemods_dir / active_codemod
+            run_file = codemod_dir / "run.py"
+            config_file = codemod_dir / "config.json"
 
-            if not codemod_path.exists():
+            if not run_file.exists():
                 return None
 
-            self._active_codemod = (active_codemod, codemod_path)
+            # Try to load config if it exists
+            config = None
+            if config_file.exists():
+                try:
+                    config = CodemodConfig.model_validate_json(config_file.read_text())
+                except Exception:
+                    pass  # Config is optional
+
+            self._active_codemod = Codemod(name=active_codemod, path=run_file, config=config)
 
         return self._active_codemod
 

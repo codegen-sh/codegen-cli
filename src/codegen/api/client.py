@@ -8,6 +8,7 @@ from codegen.api.endpoints import (
     DOCS_ENDPOINT,
     EXPERT_ENDPOINT,
     RUN_CODEMOD_ENDPOINT,
+    CREATE_ENDPOINT,
 )
 from codegen.api.schemas import (
     AskExpertInput,
@@ -16,6 +17,8 @@ from codegen.api.schemas import (
     DocsResponse,
     RunCodemodInput,
     RunCodemodOutput,
+    CreateInput,
+    CreateResponse,
 )
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
@@ -121,4 +124,14 @@ class API:
             EXPERT_ENDPOINT,
             AskExpertInput(query=query),
             AskExpertResponse,
+        )
+
+    @classmethod
+    def create(cls, query: str) -> CreateResponse:
+        """Get AI-generated starter code for a codemod."""
+        return cls._make_request(
+            "GET",
+            CREATE_ENDPOINT,
+            CreateInput(query=query),
+            CreateResponse,
         )
