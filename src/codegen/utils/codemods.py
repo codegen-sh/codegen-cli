@@ -27,6 +27,10 @@ class Codemod:
         """Get the URL for this codemod."""
         return generate_webapp_url(path=f"codemod/{self.config.codemod_id}")
 
+    def relative_path(self) -> str:
+        """Get the relative path to this codemod."""
+        return self.path.relative_to(Path.cwd())
+
 
 class CodemodManager:
     """Manages codemod operations in the local filesystem."""

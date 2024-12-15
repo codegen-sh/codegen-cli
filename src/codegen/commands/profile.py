@@ -1,3 +1,4 @@
+from pathlib import Path
 import click
 from rich import box
 from rich.console import Console
@@ -16,36 +17,50 @@ def profile_command(session: CodegenSession):
     """Display information about the currently authenticated user."""
     console = Console()
 
-    console.print("\n🔑 [bold]Current Profile:[/bold]")
-    console.print("─" * 40)
-    console.print(f"[cyan]Name:[/cyan]  {session.profile.name}")
-    console.print(f"[cyan]Email:[/cyan] {session.profile.email}")
-    console.print(f"[cyan]Repo:[/cyan]  {session.repo_name}")
+    console.print(
+        Panel(
+            f"[cyan]Name:[/cyan]  {session.profile.name}\n" f"[cyan]Email:[/cyan] {session.profile.email}\n" f"[cyan]Repo:[/cyan]  {session.repo_name}",
+            title="🔑 [bold]Current Profile[/bold]",
+            border_style="cyan",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
 
     # Show active codemod if one exists
     active_codemod = session.active_codemod
     if active_codemod:
-        console.print("\n📝 [bold]Active Codemod:[/bold]")
-        console.print(f"[cyan]Name:[/cyan] {active_codemod.name}")
-        console.print(f"[cyan]URL:[/cyan] {active_codemod.get_url()}")
-        console.print(f"[cyan]Path:[/cyan] {active_codemod.path}")
+        content = []
+        content.append("📝 [bold]Active Codemod[/bold]\n")
+        content.append(f"[cyan]Name:[/cyan] {active_codemod.name}")
+        content.append(f"[cyan]Path:[/cyan] {active_codemod.relative_path()}")
+        content.append(f"[cyan]URL:[/cyan] {active_codemod.get_url()}")
 
         if active_codemod.config:
-            console.print(f"[cyan]ID:[/cyan]   {active_codemod.config.codemod_id}")
+            content.append(f"[cyan]ID:[/cyan]   {active_codemod.config.codemod_id}")
             if active_codemod.config.description:
-                console.print(f"[cyan]Desc:[/cyan] {active_codemod.config.description}")
+                content.append(f"[cyan]Desc:[/cyan] {active_codemod.config.description}")
 
         # Show the source code
         source = active_codemod.path.read_text()
-        console.print("\n[bold]Source Code:[/bold]")
+        content.append("\n[bold]Source Code:[/bold]")
+
+        # Create source code panel
+        source_panel = Panel(
+            source,
+            title="[bold blue]run.py",
+            border_style="blue",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+        content.append(source_panel.renderable)
+
         console.print(
             Panel(
-                source,
-                title="[bold blue]run.py",
-                border_style="blue",
+                "\n".join(str(line) for line in content),
+                title="[bold]Active Codemod Details[/bold]",
+                border_style="cyan",
                 box=box.ROUNDED,
                 padding=(1, 2),
             )
         )
-
-    console.print("─" * 40 + "\n")

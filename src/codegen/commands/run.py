@@ -20,7 +20,7 @@ from codegen.utils.git.patch import apply_patch
 @requires_init
 @click.argument("codemod_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.argument("repo_path", required=False, type=click.Path(exists=True, path_type=Path))
-@click.option("--web", is_flag=True, help="Return a web link to the diff")
+@click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
 def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_path: Path | None = None, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
@@ -37,10 +37,11 @@ def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_
     # Print details below the spinner
     console.print()  # Add blank line after spinner
     console.print(f"Repo: {session.repo_name}")
-    console.print(f"Codemod: {codemod_path.relative_to(Path.cwd())}\n")
+    console.print(f"Codemod: {session.active_codemod.name}\n")
 
     try:
         run_output = API.run(
+            codemod_id=active_codemod.config.codemod_id,
             repo_full_name=session.repo_name,
             codemod_source=codemod_path,
             web=web,

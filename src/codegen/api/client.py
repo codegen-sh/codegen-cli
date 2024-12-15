@@ -84,6 +84,7 @@ class API:
     @classmethod
     def run(
         cls,
+        codemod_id: int,
         repo_full_name: str,
         codemod_source: str | Path,
         web: bool = False,
@@ -93,6 +94,7 @@ class API:
             codemod_source = codemod_source.read_text()
 
         input_data = RunCodemodInput(
+            codemod_id=codemod_id,
             repo_full_name=repo_full_name,
             codemod_source=codemod_source,
             web=web,
