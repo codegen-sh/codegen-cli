@@ -5,6 +5,7 @@ import click
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth
+from codegen.auth.decorator import requires_init
 from codegen.auth.session import CodegenSession
 
 
@@ -43,6 +44,7 @@ def run(codebase: Any) -> None:
 @click.command(name="create")
 @track_command()
 @requires_auth
+@requires_init
 @click.argument("name", type=str)
 @click.option("--description", "-d", default="A codemod to transform your code", help="Description of what this codemod does")
 def create_command(session: CodegenSession, name: str, description: str):

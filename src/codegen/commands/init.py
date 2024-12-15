@@ -1,144 +1,83 @@
-import shutil
 from pathlib import Path
 
 import click
+from rich import box
 from rich.console import Console
+from rich.panel import Panel
 from rich.status import Status
+from rich.text import Text
 
 from codegen.analytics.decorators import track_command
-from codegen.api.client import API
-from codegen.api.schemas import SerializedExample
 from codegen.auth.decorator import requires_auth
 from codegen.auth.session import CodegenSession
-from codegen.utils.formatters.examples import format_example
-
-###########################################################################
-# STRING FORMATTING
-###########################################################################
+from codegen.utils.init import initialize_codegen
 
 
-def get_success_message(codegen_folder: Path, codemods_folder: Path, docs_folder: Path, examples_folder: Path, sample_codemod_path: Path) -> str:
-    return f"""
-📁 Folders Created:
-   • Codegen:  {codegen_folder}
-   • Codemods: {codemods_folder}
-   • Docs:     {docs_folder}
-   • Examples: {examples_folder}
+def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_folder, sample_codemod_path) -> Text:
+    """Create a rich-formatted success message."""
+    message = Text()
 
-📝 Sample Codemod:
-   {sample_codemod_path}
+    # Folders section
+    message.append("\n📁 ", style="bold yellow")
+    message.append("Folders Created:", style="bold blue")
+    message.append(f"\n   • Codegen:  ", style="dim")
+    message.append(str(codegen_folder), style="cyan")
+    message.append(f"\n   • Codemods: ", style="dim")
+    message.append(str(codemods_folder), style="cyan")
+    message.append(f"\n   • Docs:     ", style="dim")
+    message.append(str(docs_folder), style="cyan")
+    message.append(f"\n   • Examples: ", style="dim")
+    message.append(str(examples_folder), style="cyan")
 
-🔨 Getting Started:
-   1. Add your codemods to the codemods folder
-   2. Run them with: codegen run --codemod <path>
-   3. Try the sample: codegen run --codemod {sample_codemod_path}
+    # Sample codemod section
+    message.append("\n\n📝 ", style="bold yellow")
+    message.append("Sample Codemod:", style="bold blue")
+    message.append("\n   ", style="dim")
+    message.append(str(sample_codemod_path), style="cyan")
 
-💡 Tips:
-   • Use absolute paths for all arguments
-   • Codemods use the graph_sitter library
-   • Run 'codegen docs_search' for examples and documentation
-"""
+    # Getting started section
+    message.append("\n\n🔨 ", style="bold yellow")
+    message.append("Getting Started:", style="bold blue")
+    message.append("\n   1. Add your codemods to the codemods folder")
+    message.append("\n   2. Run them with: ", style="dim")
+    message.append("codegen run --codemod <path>", style="green")
+    message.append("\n   3. Try the sample: ", style="dim")
+    message.append(f"codegen run --codemod {sample_codemod_path}", style="green")
 
+    # Tips section
+    message.append("\n\n💡 ", style="bold yellow")
+    message.append("Tips:", style="bold blue")
+    message.append("\n   • Use absolute paths for all arguments")
+    message.append("\n   • Codemods use the graph_sitter library")
+    message.append("\n   • Run ", style="dim")
+    message.append("codegen docs_search", style="green")
+    message.append(" for examples and documentation", style="dim")
 
-CODEGEN_FOLDER = Path.cwd() / ".codegen"
-CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
-SAMPLE_CODEMOD = """
-# grab codebase content
-file = codebase.files[0] # or .get_file("test.py")
-function = codebase.functions[0] # or .get_symbol("my_func")
-
-# print logs
-print(f'# of files: {len(codebase.files)}')
-print(f'# of functions: {len(codebase.functions)}')
-
-# make edits
-file.edit('🌈' + file.content) # edit contents
-function.rename('new_name') # rename
-function.set_docstring('new docstring') # set docstring
-
-# ... etc.
-"""
-
-# Add new constant for gitignore content
-GITIGNORE_CONTENT = """
-# Codegen generated directories
-docs/
-examples/
-"""
-
-
-###########################################################################
-# POPULATE FOLDERS
-###########################################################################
-
-
-def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
-    """Writes all API docs to the docs folder"""
-    status.update("Populating API documentation...")
-    # Remove existing docs
-    shutil.rmtree(dest, ignore_errors=True)
-    dest.mkdir(parents=True, exist_ok=True)
-
-    # Populate docs
-    for file, content in api_docs.items():
-        dest_file = dest / file
-        dest_file.parent.mkdir(parents=True, exist_ok=True)
-        dest_file.write_text(content)
-
-
-def populate_examples(dest: Path, examples: list[SerializedExample], status: Status):
-    """Populate the skills folder with skills for the current repository."""
-    status.update("Populating example codemods...")
-    # Remove existing examples
-    shutil.rmtree(dest, ignore_errors=True)
-    dest.mkdir(parents=True, exist_ok=True)
-
-    for example in examples:
-        dest_file = dest / f"{example.name}.py"
-        dest_file.parent.mkdir(parents=True, exist_ok=True)
-        formatted = format_example(example)
-        dest_file.write_text(formatted)
-
-
-###########################################################################
-# COMMAND
-###########################################################################
+    return message
 
 
 @click.command(name="init")
 @track_command()
 @requires_auth
 def init_command(session: CodegenSession):
-    """Initialize the Codegen folder.
-    Hits up an API to do so.
-    """
+    """Initialize or update the Codegen folder."""
+    codegen_dir = Path.cwd() / ".codegen"
+    is_update = codegen_dir.exists()
+
     console = Console()
+    action = "Updating" if is_update else "Initializing"
+    with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
+        folders = initialize_codegen(status, is_update=is_update)
 
-    # Create folders
-    with console.status("[bold green]Initializing Codegen...") as status:
-        status.update("Creating folders...")
-        CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
-        CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
-        SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
-        SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
-        DOCS_FOLDER = CODEGEN_FOLDER / "docs"
-        EXAMPLES_FOLDER = CODEGEN_FOLDER / "examples"  # Renamed from SKILLS_FOLDER
-        DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-        EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
-
-        # Create .gitignore file
-        status.update("Creating .gitignore...")
-        gitignore_path = CODEGEN_FOLDER / ".gitignore"
-        gitignore_path.write_text(GITIGNORE_CONTENT.strip())
-
-        status.update("Fetching docs & examples...")
-        response = API.get_docs()
-        populate_api_docs(DOCS_FOLDER, response.docs, status)
-        populate_examples(EXAMPLES_FOLDER, response.examples, status)  # Updated folder path
-
-        status.update("Done! 🎉")
-
-    click.echo("\n🚀 Codegen CLI Initialized Successfully!")
-    click.echo("━" * 60)
-    click.echo(get_success_message(CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER, SAMPLE_CODEMOD_PATH))
-    click.echo("━" * 60 + "\n")
+    # Print success message
+    console.print("\n")
+    console.print(
+        Panel(
+            get_success_message(*folders),
+            title=f"[bold green]🚀 Codegen CLI {action} Successfully!",
+            border_style="green",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
+    console.print("\n")
