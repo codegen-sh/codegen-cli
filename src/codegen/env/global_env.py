@@ -10,7 +10,7 @@ class GlobalEnv:
         load_dotenv()
 
         self.ENV = os.environ.get("ENV", DEFAULT_ENV)
-        print(f"ENV: {self.ENV}")
+        # print(f"ENV: {self.ENV}")
 
         # =====[ DEV ]=====
         self.DEBUG = self._get_env_var("DEBUG")

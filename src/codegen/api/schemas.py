@@ -18,6 +18,6 @@ class RunCodemodOutput(SafeBaseModel):
 class SkillOutput(SafeBaseModel):
     name: str | None
     description: str | None
-    docstring: str
     source: str
     language: ProgrammingLanguage
+    docstring: str = ""
