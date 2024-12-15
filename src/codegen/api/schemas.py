@@ -22,3 +22,12 @@ class SkillOutput(SafeBaseModel):
     source: str
     language: ProgrammingLanguage
     docstring: str = ""
+
+
+class AskExpertInput(SafeBaseModel):
+    query: str
+
+
+class AskExpertResponse(SafeBaseModel):
+    response: str
+    success: bool

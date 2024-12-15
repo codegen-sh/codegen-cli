@@ -2,6 +2,7 @@ import click
 
 from codegen.commands.create import create_command
 from codegen.commands.docs_search import docs_search_command
+from codegen.commands.expert import expert_command
 from codegen.commands.init import init_command
 from codegen.commands.login import login_command
 from codegen.commands.logout import logout_command
@@ -23,6 +24,7 @@ main.add_command(handle_errors(run_command))
 main.add_command(handle_errors(docs_search_command))
 main.add_command(handle_errors(profile_command))
 main.add_command(handle_errors(create_command))
+main.add_command(handle_errors(expert_command))
 
 if __name__ == "__main__":
     main()
