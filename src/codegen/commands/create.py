@@ -1,43 +1,15 @@
-from datetime import datetime
-from pathlib import Path
-
 import click
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.status import Status
 
 from codegen.analytics.decorators import track_command
+from codegen.api.client import API
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
-
-
-def get_codemod_template(description: str, author: str, date: str) -> str:
-    return f'''"""
-{description}
-
-Created by: {author}
-Date: {date}
-"""
-from typing import Any
-
-def run(codebase: Any) -> None:
-    """
-    Your codemod logic goes here.
-
-    Args:
-        codebase: The codebase object containing files and symbols
-    """
-    # Example: Print all Python files
-    for file in codebase.files:
-        if file.path.endswith(".py"):
-            print(f"Found Python file: {{file.path}}")
-
-    # Example: Modify files
-    # file = codebase.get_file("example.py")
-    # file.edit("New content")
-
-    # Example: Work with functions
-    # for func in codebase.functions:
-    #     if func.name.startswith("test_"):
-    #         func.rename(func.name.replace("test_", ""))
-'''
+from codegen.errors import ServerError
+from codegen.utils.codemods import CodemodManager
 
 
 @click.command(name="create")
@@ -45,41 +17,52 @@ def run(codebase: Any) -> None:
 @requires_auth
 @requires_init
 @click.argument("name", type=str)
-@click.option("--description", "-d", default="A codemod to transform your code", help="Description of what this codemod does")
-def create_command(session: CodegenSession, name: str, description: str):
+@click.option("--description", "-d", default=None, help="Description of what this codemod does")
+def create_command(session: CodegenSession, name: str, description: str | None):
     """Create a new codemod in the .codegen/codemods directory."""
-    # Ensure valid codemod name (convert to snake_case if needed)
-    codemod_name = name.lower().replace(" ", "_").replace("-", "_")
+    console = Console()
 
-    # Setup paths
-    codemods_dir = Path.cwd() / ".codegen" / "codemods"
-    codemod_dir = codemods_dir / codemod_name
-    run_file = codemod_dir / "run.py"
-    config_file = codemod_dir / "config.json"
+    with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
+        try:
+            # Get code from API
+            response = API.create(description if description else None)
 
-    # Create directories
-    codemods_dir.mkdir(parents=True, exist_ok=True)
+            # Show the AI's explanation
+            console.print("\n[bold]🤖 AI Assistant:[/bold]")
+            console.print(
+                Panel(
+                    response.response,
+                    title="[bold blue]Generated Codemod Explanation",
+                    border_style="blue",
+                    box=box.ROUNDED,
+                    padding=(1, 2),
+                )
+            )
 
-    if codemod_dir.exists():
-        raise click.ClickException(f"Codemod '{codemod_name}' already exists at {codemod_dir}")
+            # Create the codemod
+            codemod = CodemodManager.create(
+                name=name,
+                code=response.code,
+                codemod_id=response.codemod_id,
+                description=description or f"AI-generated codemod for: {name}",
+                author=session.profile.name,
+            )
 
-    # Create codemod directory and files
-    codemod_dir.mkdir()
+        except ServerError as e:
+            status.stop()
+            raise click.ClickException(str(e))
+        except ValueError as e:
+            status.stop()
+            raise click.ClickException(str(e))
 
-    # Create run.py with template
-    with run_file.open("w") as f:
-        value = get_codemod_template(description=description, author=session.profile.name, date=datetime.now().strftime("%Y-%m-%d"))
-        f.write(value)
-
-    # Set this as the active codemod
-    with (codemods_dir / "active_codemod.txt").open("w") as f:
-        f.write(codemod_name)
-
-    click.echo(f"\n✨ Created new codemod: {codemod_name}")
-    click.echo("─" * 40)
-    click.echo(f"Location: {codemod_dir}")
-    click.echo(f"Main file: {run_file}")
-    click.echo("\n💡 Next steps:")
-    click.echo("1. Edit run.py to implement your codemod")
-    click.echo("2. Run it with: codegen run")
-    click.echo("─" * 40 + "\n")
+    # Success message
+    console.print("\n[bold green]✨ Created new codemod:[/bold green]")
+    console.print("─" * 40)
+    console.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
+    console.print(f"[cyan]Main file:[/cyan] {codemod.path}")
+    if codemod.config:
+        console.print(f"[cyan]Config:[/cyan] {codemod.path.parent / 'config.json'}")
+    console.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
+    console.print("1. Review and edit [cyan]run.py[/cyan] to customize the codemod")
+    console.print("2. Run it with: [green]codegen run[/green]")
+    console.print("─" * 40 + "\n")

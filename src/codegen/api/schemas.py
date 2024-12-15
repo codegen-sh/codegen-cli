@@ -55,3 +55,19 @@ class DocsInput(SafeBaseModel):
 class DocsResponse(SafeBaseModel):
     docs: dict[str, str]
     examples: list[SerializedExample]
+
+
+###########################################################################
+# CREATE
+###########################################################################
+
+
+class CreateInput(SafeBaseModel):
+    query: str | None = None
+
+
+class CreateResponse(SafeBaseModel):
+    success: bool
+    response: str
+    code: str
+    codemod_id: int

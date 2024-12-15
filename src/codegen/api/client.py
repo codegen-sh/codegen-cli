@@ -5,6 +5,7 @@ import requests
 from pydantic import BaseModel
 
 from codegen.api.endpoints import (
+    CREATE_ENDPOINT,
     DOCS_ENDPOINT,
     EXPERT_ENDPOINT,
     RUN_CODEMOD_ENDPOINT,
@@ -12,6 +13,8 @@ from codegen.api.endpoints import (
 from codegen.api.schemas import (
     AskExpertInput,
     AskExpertResponse,
+    CreateInput,
+    CreateResponse,
     DocsInput,
     DocsResponse,
     RunCodemodInput,
@@ -121,4 +124,14 @@ class API:
             EXPERT_ENDPOINT,
             AskExpertInput(query=query),
             AskExpertResponse,
+        )
+
+    @classmethod
+    def create(cls, query: str) -> CreateResponse:
+        """Get AI-generated starter code for a codemod."""
+        return cls._make_request(
+            "GET",
+            CREATE_ENDPOINT,
+            CreateInput(query=query),
+            CreateResponse,
         )
