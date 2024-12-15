@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 import jwt
-from typing import Optional
+import requests
+from pygit2.repository import Repository
+from typing import Optional, Tuple
 
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.utils.git.repo import get_git_repo
@@ -27,13 +29,14 @@ class UserProfile:
 class CodegenSession:
     """Represents an authenticated codegen session with user and repository context"""
 
-    def __init__(self, token: Optional[str] = None):
+    def __init__(self, token: str | None = None):
         self._token = token or get_current_token()
         if not self._token:
             raise ValueError("No authentication token found")
 
-        self._profile: Optional[UserProfile] = None
-        self._repo_name: Optional[str] = None
+        self._profile: UserProfile | None = None
+        self._repo_name: str | None = None
+        self._active_codemod: tuple[str, Path] | None = None
 
     @property
     def token(self) -> str:
@@ -48,12 +51,39 @@ class CodegenSession:
         return self._profile
 
     @property
+    def git_repo(self) -> Repository:
+        git_repo = get_git_repo(Path.cwd())
+        if not git_repo:
+            raise ValueError("No git repository found")
+        return git_repo
+
+    @property
     def repo_name(self) -> str:
         """Get the current repository name"""
         if not self._repo_name:
-            git_repo = get_git_repo(Path.cwd())
+            git_repo = self.git_repo
             self._repo_name = get_repo_full_name(git_repo)
         return self._repo_name
+
+    @property
+    def active_codemod(self) -> tuple[str, Path] | None:
+        """Get the active codemod name and path if one exists."""
+        if self._active_codemod is None:
+            codemods_dir = Path.cwd() / ".codegen" / "codemods"
+            active_codemod_file = codemods_dir / "active_codemod.txt"
+
+            if not active_codemod_file.exists():
+                return None
+
+            active_codemod = active_codemod_file.read_text().strip()
+            codemod_path = codemods_dir / active_codemod / "run.py"
+
+            if not codemod_path.exists():
+                return None
+
+            self._active_codemod = (active_codemod, codemod_path)
+
+        return self._active_codemod
 
     def __str__(self) -> str:
         return f"CodegenSession(user={self.profile.name}, repo={self.repo_name})"
