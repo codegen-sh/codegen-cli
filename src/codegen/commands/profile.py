@@ -1,7 +1,7 @@
 import click
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
-from rich import box
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth, requires_init

@@ -6,10 +6,10 @@ from pygit2.repository import Repository
 
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError
+from codegen.utils.codemods import Codemod
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
 from codegen.utils.schema import CodemodConfig
-from codegen.utils.codemods import Codemod
 
 
 @dataclass
