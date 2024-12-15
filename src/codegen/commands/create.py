@@ -4,8 +4,7 @@ from pathlib import Path
 import click
 
 from codegen.analytics.decorators import track_command
-from codegen.auth.decorator import requires_auth
-from codegen.auth.decorator import requires_init
+from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
 
 

@@ -3,11 +3,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 import click
+from rich.status import Status
 
 from codegen.auth.session import CodegenSession
 from codegen.errors import AuthError
 from codegen.utils.init import initialize_codegen
-from rich.status import Status
 
 
 def requires_auth(f: Callable) -> Callable:

@@ -1,12 +1,11 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from rich.status import Status
 
 from codegen.api.client import API
 from codegen.api.schemas import SerializedExample
 from codegen.utils.formatters.examples import format_example
-
 
 CODEGEN_FOLDER = Path.cwd() / ".codegen"
 CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
@@ -74,6 +73,7 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
 
     Returns:
         Tuple of (codegen_folder, codemods_folder, docs_folder, examples_folder, sample_codemod_path)
+
     """
     action = "Updating" if is_update else "Creating"
     status.update(f"[purple]{action} folders...")

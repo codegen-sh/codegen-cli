@@ -20,13 +20,13 @@ def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_f
     # Folders section
     message.append("\n📁 ", style="bold yellow")
     message.append("Folders Created:", style="bold blue")
-    message.append(f"\n   • Codegen:  ", style="dim")
+    message.append("\n   • Codegen:  ", style="dim")
     message.append(str(codegen_folder), style="cyan")
-    message.append(f"\n   • Codemods: ", style="dim")
+    message.append("\n   • Codemods: ", style="dim")
     message.append(str(codemods_folder), style="cyan")
-    message.append(f"\n   • Docs:     ", style="dim")
+    message.append("\n   • Docs:     ", style="dim")
     message.append(str(docs_folder), style="cyan")
-    message.append(f"\n   • Examples: ", style="dim")
+    message.append("\n   • Examples: ", style="dim")
     message.append(str(examples_folder), style="cyan")
 
     # Sample codemod section
