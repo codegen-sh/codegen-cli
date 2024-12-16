@@ -77,6 +77,13 @@
         }
       }
     ],
-    "@semantic-release/github"
+    "@semantic-release/github",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "uv build",
+        "publishCmd": "uv publish --trusted-publishing always"
+      }
+    ]
   ]
 }
