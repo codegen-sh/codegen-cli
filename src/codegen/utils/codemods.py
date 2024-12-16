@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from codegen.api.webapp_routes import generate_webapp_url
+from codegen.auth.session import CodegenSession
 from codegen.utils.schema import CodemodConfig
 
 
@@ -16,10 +17,8 @@ class Codemod:
     @property
     def is_active(self) -> bool:
         """Check if this is the currently active codemod."""
-        active_file = self.path.parent.parent / "active_codemod.txt"
-        if not active_file.exists():
-            return False
-        return active_file.read_text().strip() == self.name
+        session = CodegenSession()
+        return session.config.active_codemod == self.name
 
     def get_url(self) -> str:
         """Get the URL for this codemod."""
