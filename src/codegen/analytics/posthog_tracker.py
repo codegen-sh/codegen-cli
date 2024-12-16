@@ -78,7 +78,8 @@ class PostHogTracker:
             return
 
         try:
-            posthog.capture(distinct_id=self.distinct_id, event=event_name, properties=base_properties)
+            posthog.capture(distinct_id=self.distinct_id, event=event_name, properties=base_properties,
+                            groups={'codegen_app': 'cli'})
         except Exception as e:
             # Silently fail for telemetry
             print("Failed to send event to PostHog")
