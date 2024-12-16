@@ -14,6 +14,8 @@ dependencies = [
     "posthog",
     "giturlparse",
     "pygit2>=1.16.0",
+    "pydantic>=2.10.3",
+    "toml>=0.10.2",
 ]
 dynamic = ["version", "urls"]
 [project.scripts]

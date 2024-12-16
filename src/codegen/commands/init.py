@@ -55,6 +55,17 @@ def init_command(session: CodegenSession):
             padding=(1, 2),
         )
     )
+    console.print("\n")
+    # Print config file location
+    console.print(
+        Panel(
+            f"[dim]Config file location:[/dim] [cyan]{session.codegen_dir / 'config.toml'}[/cyan]",
+            title="[bold white]📝 Configuration[/bold white]",
+            border_style="blue",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
 
     # Print next steps panel
     console.print("\n")
