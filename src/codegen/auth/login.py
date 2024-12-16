@@ -2,6 +2,7 @@ import webbrowser
 
 import click
 from rich.console import Console
+from rich.prompt import Prompt
 
 from codegen.api.webapp_routes import USER_SECRETS_ROUTE
 from codegen.auth.session import CodegenSession
@@ -31,9 +32,7 @@ def login_routine(console: Console | None = None) -> CodegenSession:
     if not _token:
         console.print(f"Opening {USER_SECRETS_ROUTE} to get your authentication token...")
         webbrowser.open_new(USER_SECRETS_ROUTE)
-
-        console.print("\nPlease enter your authentication token from the browser:")
-        _token = input().strip().replace("\n", "").replace("\r", "")
+        _token = Prompt.ask("Please enter your authentication token from the browser", console=console)
 
     if not _token:
         raise click.ClickException("Token must be provided via CODEGEN_USER_ACCESS_TOKEN environment variable or manual input")
