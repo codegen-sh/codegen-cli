@@ -11,7 +11,7 @@ from codegen.auth.session import CodegenSession
 from codegen.utils.init import initialize_codegen
 
 
-def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_folder, sample_codemod_path) -> Text:
+def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_folder) -> Text:
     """Create a rich-formatted success message."""
     message = Text()
 
@@ -26,30 +26,6 @@ def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_f
     message.append(str(docs_folder), style="cyan")
     message.append("\n   • Examples: ", style="dim")
     message.append(str(examples_folder), style="cyan")
-
-    # Sample codemod section
-    message.append("\n\n📝 ", style="bold yellow")
-    message.append("Sample Codemod:", style="bold blue")
-    message.append("\n   ", style="dim")
-    message.append(str(sample_codemod_path), style="cyan")
-
-    # Getting started section
-    message.append("\n\n🔨 ", style="bold yellow")
-    message.append("Getting Started:", style="bold blue")
-    message.append("\n   1. Add your codemods to the codemods folder")
-    message.append("\n   2. Run them with: ", style="dim")
-    message.append("codegen run --codemod <path>", style="green")
-    message.append("\n   3. Try the sample: ", style="dim")
-    message.append(f"codegen run --codemod {sample_codemod_path}", style="green")
-
-    # Tips section
-    message.append("\n\n💡 ", style="bold yellow")
-    message.append("Tips:", style="bold blue")
-    message.append("\n   • Use absolute paths for all arguments")
-    message.append("\n   • Codemods use the graph_sitter library")
-    message.append("\n   • Run ", style="dim")
-    message.append("codegen docs_search", style="green")
-    message.append(" for examples and documentation", style="dim")
 
     return message
 
@@ -75,6 +51,23 @@ def init_command(session: CodegenSession):
             get_success_message(*folders),
             title=f"[bold green]🚀 Codegen CLI {action} Successfully!",
             border_style="green",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
+
+    # Print next steps panel
+    console.print("\n")
+    console.print(
+        Panel(
+            "[bold white]Create a codemod with:[/bold white]\n\n"
+            '[cyan]\tcodegen create my-codemod-name --description "describe what you want to do"[/cyan]\n\n'
+            "[dim]This will create a new codemod in the codegen-sh/codemods folder.[/dim]\n\n"
+            "[bold white]Then run it with:[/bold white]\n\n"
+            "[cyan]\tcodegen run --apply-local[/cyan]\n\n"
+            "[dim]This will apply your codemod and show you the results.[/dim]",
+            title="[bold white ]✨ What's Next?[/bold white]",
+            border_style="blue",
             box=box.ROUNDED,
             padding=(1, 2),
         )

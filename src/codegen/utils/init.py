@@ -13,23 +13,6 @@ CODEMODS_FOLDER = Path.cwd() / CODEMODS_DIR
 DOCS_FOLDER = Path.cwd() / DOCS_DIR
 EXAMPLES_FOLDER = Path.cwd() / EXAMPLES_DIR
 
-SAMPLE_CODEMOD = """
-# grab codebase content
-file = codebase.files[0] # or .get_file("test.py")
-function = codebase.functions[0] # or .get_symbol("my_func")
-
-# print logs
-print(f'# of files: {len(codebase.files)}')
-print(f'# of functions: {len(codebase.functions)}')
-
-# make edits
-file.edit('🌈' + file.content) # edit contents
-function.rename('new_name') # rename
-function.set_docstring('new docstring') # set docstring
-
-# ... etc.
-"""
-
 GITIGNORE_CONTENT = """
 # Codegen generated directories
 docs/
@@ -85,12 +68,6 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
     EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
 
-    # Create sample codemod only on first init
-    SAMPLE_CODEMOD_PATH = CODEMODS_FOLDER / "sample_codemod.py"
-    if not is_update and not SAMPLE_CODEMOD_PATH.exists():
-        status.update("Creating sample codemod...")
-        SAMPLE_CODEMOD_PATH.write_text(SAMPLE_CODEMOD)
-
     # Create/update .gitignore
     status.update(f"{action} .gitignore...")
     gitignore_path = CODEGEN_FOLDER / ".gitignore"
@@ -104,4 +81,4 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
 
     status.update("[bold green]Done! 🎉")
 
-    return CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER, SAMPLE_CODEMOD_PATH
+    return CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
