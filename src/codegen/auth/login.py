@@ -1,41 +1,12 @@
 import webbrowser
-from typing import TextIO
 
 import rich
 import rich_click as click
-from rich.prompt import Prompt
 
 from codegen.api.webapp_routes import USER_SECRETS_ROUTE
 from codegen.auth.session import CodegenSession
 from codegen.auth.token_manager import TokenManager
 from codegen.env.global_env import global_env
-
-
-class UnbufferedTextIO(TextIO):
-    """Unbuffered text IO that reads until newline."""
-
-    def __init__(self):
-        import sys
-
-        self._stdin = sys.stdin
-
-    def readline(self) -> str:
-        return self._stdin.readline()
-
-    def read(self, size: int = -1) -> str:
-        if size < 0:
-            return self.readline()
-        return self._stdin.read(size)
-
-    def write(self, s: str) -> int:
-        import sys
-
-        return sys.stdout.write(s)
-
-    def flush(self) -> None:
-        import sys
-
-        sys.stdout.flush()
 
 
 def login_routine() -> CodegenSession:
@@ -58,7 +29,7 @@ def login_routine() -> CodegenSession:
     if not _token:
         rich.print(f"Opening {USER_SECRETS_ROUTE} to get your authentication token...")
         webbrowser.open_new(USER_SECRETS_ROUTE)
-        _token = Prompt.ask("Please enter your authentication token from the browser", password=True, stream=UnbufferedTextIO())
+        _token = click.prompt("Please enter your authentication token from the browser", hide_input=True)
 
     if not _token:
         raise click.ClickException("Token must be provided via CODEGEN_USER_ACCESS_TOKEN environment variable or manual input")
