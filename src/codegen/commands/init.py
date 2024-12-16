@@ -8,6 +8,7 @@ from rich.text import Text
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth
 from codegen.auth.session import CodegenSession
+from codegen.utils.git.url import get_git_organization_and_repo
 from codegen.utils.init import initialize_codegen
 
 
@@ -32,8 +33,10 @@ def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_f
 
 @click.command(name="init")
 @track_command()
+@click.option("--repo-name", type=str, help="The name of the repository")
+@click.option("--organization-name", type=str, help="The name of the organization")
 @requires_auth
-def init_command(session: CodegenSession):
+def init_command(session: CodegenSession, repo_name: str | None = None, organization_name: str | None = None):
     """Initialize or update the Codegen folder."""
     codegen_dir = session.codegen_dir
 
@@ -43,6 +46,17 @@ def init_command(session: CodegenSession):
     action = "Updating" if is_update else "Initializing"
     with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
         folders = initialize_codegen(status, is_update=is_update)
+    if organization_name is not None:
+        session.config.organization_name = organization_name
+    if repo_name is not None:
+        session.config.repo_name = repo_name
+    if not session.config.organization_name or not session.config.repo_name:
+        cwd_org, cwd_repo = get_git_organization_and_repo(session.git_repo)
+        session.config.organization_name = session.config.organization_name or cwd_org
+        session.config.repo_name = session.config.repo_name or cwd_repo
+    session.write_config()
+    click.echo(f"Organization name: {session.config.organization_name}")
+    click.echo(f"Repo name: {session.config.repo_name}")
 
     # Print success message
     console.print("\n")

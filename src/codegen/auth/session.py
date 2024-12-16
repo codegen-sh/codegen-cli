@@ -10,7 +10,6 @@ from codegen.errors import AuthError
 from codegen.utils.codemods import Codemod
 from codegen.utils.config import Config, State, get_config, get_state, write_config, write_state
 from codegen.utils.git.repo import get_git_repo
-from codegen.utils.git.url import get_repo_full_name
 from codegen.utils.schema import CodemodConfig
 
 
@@ -66,10 +65,7 @@ class CodegenSession:
     @property
     def repo_name(self) -> str:
         """Get the current repository name"""
-        if not self._repo_name:
-            git_repo = self.git_repo
-            self._repo_name = get_repo_full_name(git_repo)
-        return self._repo_name
+        return self.config.repo_name
 
     @property
     def active_codemod(self) -> Codemod | None:

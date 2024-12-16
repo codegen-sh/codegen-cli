@@ -12,11 +12,6 @@ from codegen.utils.config import STATE_PATH
 from codegen.utils.formatters.examples import format_example
 from codegen.utils.git.repo import get_git_repo
 
-CODEGEN_FOLDER = Path.cwd() / CODEGEN_DIR
-CODEMODS_FOLDER = Path.cwd() / CODEMODS_DIR
-DOCS_FOLDER = Path.cwd() / DOCS_DIR
-EXAMPLES_FOLDER = Path.cwd() / EXAMPLES_DIR
-
 
 def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
     """Writes all API docs to the docs folder"""
@@ -65,6 +60,11 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     else:
         status.update(f"{action} .gitignore...")
         modify_gitignore(repo)
+    REPO_PATH = Path(repo.workdir)
+    CODEGEN_FOLDER = REPO_PATH / CODEGEN_DIR
+    CODEMODS_FOLDER = REPO_PATH / CODEMODS_DIR
+    DOCS_FOLDER = REPO_PATH / DOCS_DIR
+    EXAMPLES_FOLDER = REPO_PATH / EXAMPLES_DIR
 
     # Create folders if they don't exist
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
