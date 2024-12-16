@@ -10,6 +10,7 @@ from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.utils.codemod_manager import CodemodManager
+from codegen.utils.schema import CODEMOD_CONFIG_PATH
 
 
 @click.command(name="create")
@@ -60,7 +61,7 @@ def create_command(session: CodegenSession, name: str, description: str | None):
     rich.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
     rich.print(f"[cyan]Main file:[/cyan] {codemod.path}")
     if codemod.config:
-        rich.print(f"[cyan]Config:[/cyan] {codemod.path.parent / 'config.json'}")
+        rich.print(f"[cyan]Config:[/cyan] {codemod.path.parent / CODEMOD_CONFIG_PATH}")
     rich.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
     rich.print("1. Review and edit [cyan]run.py[/cyan] to customize the codemod")
     rich.print("2. Run it with: [green]codegen run[/green]")

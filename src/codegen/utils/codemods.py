@@ -13,14 +13,6 @@ class Codemod:
     path: Path
     config: CodemodConfig | None = None
 
-    @property
-    def is_active(self) -> bool:
-        """Check if this is the currently active codemod."""
-        active_file = self.path.parent.parent / "active_codemod.txt"
-        if not active_file.exists():
-            return False
-        return active_file.read_text().strip() == self.name
-
     def get_url(self) -> str:
         """Get the URL for this codemod."""
         return generate_webapp_url(path=f"codemod/{self.config.codemod_id}")
