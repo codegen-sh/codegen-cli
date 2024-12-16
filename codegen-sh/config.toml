@@ -1,5 +1,5 @@
-repo_name = ""
-organization_name = ""
+repo_name = "codegen-staging"
+organization_name = "codegen-sh-staging"
 
 [analytics]
 telemetry_enabled = true

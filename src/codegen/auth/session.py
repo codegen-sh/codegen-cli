@@ -107,14 +107,12 @@ class CodegenSession:
 
     def is_authenticated(self) -> bool:
         """Check if the session is fully authenticated, including token expiration"""
-        return bool(self._token and self.repo_name and TokenManager().validate_expiration(self._token))
+        return bool(self._token and TokenManager().validate_expiration(self._token))
 
     def assert_authenticated(self) -> None:
         """Raise an AuthError if the session is not fully authenticated"""
         if not self._token:
             raise AuthError("No authentication token found")
-        if not self.repo_name:
-            raise AuthError("No repository found")
         if not TokenManager().validate_expiration(self._token):
             raise AuthError("Authentication token has expired")
 
