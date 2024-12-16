@@ -6,17 +6,16 @@ from pathlib import Path
 import jwt
 import jwt.exceptions
 
-# todo: move to config file
-CONFIG_DIR = "~/.config/codegen"
+from codegen.auth.config import AUTH_FILE, CONFIG_DIR
 
 
 class TokenManager:
     # Simple token manager to store and retrieve tokens.
     # This manager checks if the token is expired before retrieval.
     # TODO: add support for refreshing token and re authorization via supabase oauth
-    def __init__(self, config_dir: str = CONFIG_DIR):
-        self.config_dir = os.path.expanduser(config_dir)
-        self.token_file = os.path.join(self.config_dir, "auth.json")
+    def __init__(self):
+        self.config_dir = CONFIG_DIR
+        self.token_file = AUTH_FILE
         self._ensure_config_dir()
 
     def _ensure_config_dir(self):
@@ -54,20 +53,25 @@ class TokenManager:
             with open(self.token_file) as f:
                 data = json.load(f)
                 token = data.get("token")
-                if token:
-                    # Verify token hasn't expired
-                    payload = jwt.decode(token, options={"verify_signature": False})
-                    exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+                if not token:
+                    return None
 
-                    if exp > datetime.now(UTC):
-                        return token
-                    else:
-                        self.clear_token()
-                        return None
+                if not self.validate_expiration(token):
+                    print("Expired token - reauthenticate with `codegen login`")
+                    self.clear_token()
+                    return None
+
+                return token
 
         except (json.JSONDecodeError, jwt.InvalidTokenError, KeyError, OSError) as e:
             print(e)
             return None
+
+    def validate_expiration(self, token: str) -> bool:
+        """Validate the expiration of a token."""
+        payload = jwt.decode(token, options={"verify_signature": False})
+        exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+        return exp > datetime.now(UTC)
 
     def clear_token(self) -> None:
         """Remove stored token."""

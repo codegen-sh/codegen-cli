@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class ProgrammingLanguage(Enum):
-    PYTHON = "python"
-    TYPESCRIPT = "typescript"
+class ProgrammingLanguage(StrEnum):
+    PYTHON = "PYTHON"
+    TYPESCRIPT = "TYPESCRIPT"

@@ -1,0 +1,6 @@
+repo_name = "codegen-staging"
+organization_name = "codegen-sh-staging"
+
+[analytics]
+telemetry_enabled = true
+distinct_id = "d70f8ccf-873e-49ff-b2f4-3bd1e678313f"

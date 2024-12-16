@@ -11,6 +11,12 @@ dependencies = [
     "rich",
     "python-dotenv>=1.0.1",
     "pyjwt>=2.10.1",
+    "posthog",
+    "giturlparse",
+    "pygit2>=1.16.0",
+    "pydantic>=2.10.3",
+    "toml>=0.10.2",
+    "rich-click>=1.8.5",
 ]
 dynamic = ["version", "urls"]
 [project.scripts]
@@ -56,3 +62,7 @@ lint.ignore = [
     "RUF012",
     "RUF007",
 ]
+
+lint.exclude = [
+    "*.ipynb",
+] # disable just linting for notebooks (allow for formatting)
