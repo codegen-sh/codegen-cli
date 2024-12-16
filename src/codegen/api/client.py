@@ -107,7 +107,7 @@ class API:
         return cls._make_request(
             "GET",
             DOCS_ENDPOINT,
-            DocsInput(repo_full_name=session.repo_name, language="PYTHON"),
+            DocsInput(repo_full_name=session.repo_name),
             DocsResponse,
         )
 
