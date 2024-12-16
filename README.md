@@ -68,6 +68,8 @@ Execute this codemod and view output with `codegen run`:
 
 `--apply-local` will apply the changes to your current local filesystem.
 
+Note: use `ENV=prod` if you want to point the CLI to prod instead of staging
+
 ## Working with AI
 
 When editing your codemod using Cursor, you can now `@codegen-sh` in any chat or composer window to pull in relevant documentation and context about your codemods and the Codegen API.
