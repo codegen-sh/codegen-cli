@@ -8,11 +8,13 @@ import posthog
 
 from codegen.analytics.utils import print_debug_message
 from codegen.env.global_env import global_env
+from codegen.auth.config import CODEGEN_DIR
 
 
 class PostHogTracker:
     def __init__(self):
-        self.config_file = ".config.json"
+        self.config_dir = Path.cwd() / CODEGEN_DIR
+        self.config_file = self.config_dir / "config.json"
 
         self._initialize_posthog()
         self._initialize_config()
@@ -28,8 +30,11 @@ class PostHogTracker:
 
     def _initialize_config(self):
         """Initialize or load the config file."""
-        # check if config_file exists
-        if Path(self.config_file).is_file():
+        # Create config directory if it doesn't exist
+        self.config_dir.mkdir(parents=True, exist_ok=True)
+
+        # Check if config file exists
+        if self.config_file.is_file():
             with open(self.config_file) as f:
                 self.config = json.load(f)
         else:

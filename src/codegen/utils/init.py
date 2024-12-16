@@ -15,6 +15,7 @@ EXAMPLES_FOLDER = Path.cwd() / EXAMPLES_DIR
 
 GITIGNORE_CONTENT = """
 # Codegen generated directories
+active_codemod.txt
 docs/
 examples/
 """

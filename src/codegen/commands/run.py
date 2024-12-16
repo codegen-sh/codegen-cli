@@ -25,7 +25,19 @@ from codegen.utils.git.patch import apply_patch
 def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_path: Path | None = None, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
     if not session.active_codemod:
-        raise click.ClickException("No codemod path provided and no active codemod found.\n" "Either provide a codemod path or create one with: codegen create <name>")
+        raise click.ClickException(
+            """No codemod path provided and no active codemod found.
+
+Either provide a codemod path:
+    codegen run <path-to-codemod.py>
+
+Or create one with:
+    codegen create <name>
+
+Or select an existing one with:
+    codegen set-active <name>
+"""
+        )
 
     console = Console()
     status = Status("Running codemod...", spinner="dots", spinner_style="purple")
