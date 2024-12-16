@@ -2,6 +2,8 @@
 
 A command-line interface for the Codegen API that helps you transform your code with AI.
 
+[![Documentation](https://img.shields.io/badge/docs-view%20docs-blue)](https://docs.codegen.com/)
+
 ## Installation
 
 To install the latest release:
