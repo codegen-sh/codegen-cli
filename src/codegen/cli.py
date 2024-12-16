@@ -11,6 +11,7 @@ from codegen.commands.run import run_command
 from codegen.commands.set_active import set_active_command
 from codegen.errors import handle_errors
 
+click.rich_click.USE_RICH_MARKUP = True
 
 @click.group()
 def main():
