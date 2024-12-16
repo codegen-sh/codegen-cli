@@ -4,9 +4,15 @@ import toml
 from pydantic import BaseModel
 
 
+class AnalyticsConfig(BaseModel):
+    telemetry_enabled: bool = True
+    distinct_id: str = ""
+
+
 class Config(BaseModel):
     repo_name: str = ""
     organization_name: str = ""
+    analytics: AnalyticsConfig = AnalyticsConfig()
 
     @property
     def repo_full_name(self) -> str:
