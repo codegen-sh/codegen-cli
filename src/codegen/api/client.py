@@ -126,9 +126,10 @@ class API:
     @classmethod
     def create(cls, query: str) -> CreateResponse:
         """Get AI-generated starter code for a codemod."""
+        session = CodegenSession()
         return cls._make_request(
             "GET",
             CREATE_ENDPOINT,
-            CreateInput(query=query),
+            CreateInput(query=query, repo_full_name=session.repo_name),
             CreateResponse,
         )
