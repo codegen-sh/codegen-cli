@@ -1,9 +1,9 @@
 import webbrowser
 from pathlib import Path
 
-import click
+import rich
+import rich_click as click
 from rich import box
-from rich.console import Console
 from rich.panel import Panel
 from rich.status import Status
 
@@ -39,12 +39,11 @@ Or select an existing one with:
 """
         )
 
-    console = Console()
     status = Status("Running codemod...", spinner="dots", spinner_style="purple")
     status.start()
 
     # Print details below the spinner
-    console.print(
+    rich.print(
         Panel(
             f"[cyan]Repo:[/cyan]    {session.repo_name}\n" f"[cyan]Codemod:[/cyan] {session.active_codemod.name}",
             title="🔧 [bold]Running Codemod[/bold]",
@@ -61,7 +60,7 @@ Or select an existing one with:
         )
 
         status.stop()
-        console.print("✓ Codemod run complete", style="green")
+        rich.print("✓ Codemod run complete", style="green")
 
         pretty_print_output(run_output)
 
@@ -70,7 +69,7 @@ Or select an existing one with:
 
         if apply_local and run_output.observation:
             apply_patch(session.git_repo, f"\n{run_output.observation}\n")
-            click.echo(f"Diff applied to {session.git_repo.path}")
+            rich.print(f"Diff applied to {session.git_repo.path}")
 
     except ServerError as e:
         status.stop()

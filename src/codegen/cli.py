@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 
 from codegen.commands.create import create_command
 from codegen.commands.docs_search import docs_search_command
@@ -10,6 +10,8 @@ from codegen.commands.profile import profile_command
 from codegen.commands.run import run_command
 from codegen.commands.set_active import set_active_command
 from codegen.errors import handle_errors
+
+click.rich_click.USE_RICH_MARKUP = True
 
 
 @click.group()

@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -11,10 +11,8 @@ from codegen.utils.codemod_manager import CodemodManager
 from codegen.utils.codemods import Codemod
 
 
-def display_codemods_table(codemods: list[Codemod], page: int, per_page: int = 10) -> None:
+def display_codemods_table(console: Console, codemods: list[Codemod], page: int, per_page: int = 10) -> None:
     """Display a table of codemods with pagination."""
-    console = Console()
-
     # Calculate pagination
     start_idx = page * per_page
     end_idx = start_idx + per_page
@@ -69,11 +67,10 @@ def set_active_command(session: CodegenSession):
     current_page = 0
     per_page = 10
     total_pages = (len(codemods) + per_page - 1) // per_page
-
     while True:
         console.clear()
         console.print("\n[bold]Select Active Codemod[/bold]\n")
-        display_codemods_table(codemods, current_page, per_page)
+        display_codemods_table(console, codemods, current_page, per_page)
 
         # Get user input
         choice = click.prompt(

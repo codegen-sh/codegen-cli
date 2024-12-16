@@ -1,7 +1,8 @@
 import asyncio
 import json
 
-import click
+import rich
+import rich_click as click
 from algoliasearch.search.client import SearchClient
 
 from codegen.analytics.decorators import track_command
@@ -48,8 +49,8 @@ def docs_search_command(query: str, page: int, hits: int, doctype: str | None):
         total_hits = results.get("nbHits", 0)
         total_pages = results.get("nbPages", 0)
         doctype_str = f" ({doctype} only)" if doctype else ""
-        click.echo(f"\nFound {total_hits} results for '{query}'{doctype_str} ({total_pages} pages)")
-        click.echo(f"Showing page {page + 1} of {total_pages}\n")
+        rich.print(f"\nFound {total_hits} results for '{query}'{doctype_str} ({total_pages} pages)")
+        rich.print(f"Showing page {page + 1} of {total_pages}\n")
 
         # Print each hit with appropriate formatting
         for i, hit in enumerate(hits_list, 1):
@@ -59,17 +60,17 @@ def docs_search_command(query: str, page: int, hits: int, doctype: str | None):
                 format_example(hit, i)
 
         if hits_list:
-            click.echo("─" * 80)  # Final separator
+            rich.print("─" * 80)  # Final separator
 
             # Navigation help with doctype if specified
             doctype_param = f" -d {doctype}" if doctype else ""
             if page > 0:
-                click.echo(f"\nPrevious page: codegen docs-search -p {page - 1}{doctype_param} '{query}'")
+                rich.print(f"\nPrevious page: codegen docs-search -p {page - 1}{doctype_param} '{query}'")
             if page + 1 < total_pages:
-                click.echo(f"Next page: codegen docs-search -p {page + 1}{doctype_param} '{query}'")
+                rich.print(f"Next page: codegen docs-search -p {page + 1}{doctype_param} '{query}'")
 
     except Exception as e:
-        click.echo(f"Error searching docs: {e!s}", err=True)
+        rich.print(f"Error searching docs: {e!s}", err=True)
         return 1
 
 
@@ -105,49 +106,49 @@ async def async_docs_search(query: str, page: int, hits_per_page: int, doctype: 
 
 def format_api_doc(hit: dict, index: int) -> None:
     """Format and print an API documentation entry."""
-    click.echo("─" * 80)  # Separator line
-    click.echo(f"\n[{index}] {hit['fullname']}")
+    rich.print("─" * 80)  # Separator line
+    rich.print(f"\n[{index}] {hit['fullname']}")
 
     if hit.get("description"):
-        click.echo("\nDescription:")
-        click.echo(hit["description"].strip())
+        rich.print("\nDescription:")
+        rich.print(hit["description"].strip())
 
     # Print additional API-specific details
-    click.echo("\nDetails:")
-    click.echo(f"Type: {hit.get('level', 'N/A')} ({hit.get('docType', 'N/A')})")
-    click.echo(f"Language: {hit.get('language', 'N/A')}")
+    rich.print("\nDetails:")
+    rich.print(f"Type: {hit.get('level', 'N/A')} ({hit.get('docType', 'N/A')})")
+    rich.print(f"Language: {hit.get('language', 'N/A')}")
     if hit.get("className"):
-        click.echo(f"Class: {hit['className']}")
-    click.echo(f"Path: {hit.get('path', 'N/A')}")
-    click.echo()
+        rich.print(f"Class: {hit['className']}")
+    rich.print(f"Path: {hit.get('path', 'N/A')}")
+    rich.print()
 
 
 def format_example(hit: dict, index: int) -> None:
     """Format and print an example entry."""
-    click.echo("─" * 80)  # Separator line
+    rich.print("─" * 80)  # Separator line
 
     # Title with emoji if available
     title = f"\n[{index}] {hit['name']}"
     if hit.get("emoji"):
         title = f"{title} {hit['emoji']}"
-    click.echo(title)
+    rich.print(title)
 
     if hit.get("docstring"):
-        click.echo("\nDescription:")
-        click.echo(hit["docstring"].strip())
+        rich.print("\nDescription:")
+        rich.print(hit["docstring"].strip())
 
     if hit.get("source"):
-        click.echo("\nSource:")
-        click.echo("```")
-        click.echo(hit["source"].strip())
-        click.echo("```")
+        rich.print("\nSource:")
+        rich.print("```")
+        rich.print(hit["source"].strip())
+        rich.print("```")
 
     # Additional metadata
     if hit.get("language") or hit.get("user_name"):
-        click.echo("\nMetadata:")
+        rich.print("\nMetadata:")
         if hit.get("language"):
-            click.echo(f"Language: {hit['language']}")
+            rich.print(f"Language: {hit['language']}")
         if hit.get("user_name"):
-            click.echo(f"Author: {hit['user_name']}")
+            rich.print(f"Author: {hit['user_name']}")
 
-    click.echo()
+    rich.print()

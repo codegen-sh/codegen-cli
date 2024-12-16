@@ -1,6 +1,6 @@
-import click
+import rich
+import rich_click as click
 from rich import box
-from rich.console import Console
 from rich.panel import Panel
 from rich.status import Status
 from rich.text import Text
@@ -42,7 +42,6 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
 
     is_update = codegen_dir.exists()
 
-    console = Console()
     action = "Updating" if is_update else "Initializing"
     with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
         folders = initialize_codegen(status, is_update=is_update)
@@ -55,12 +54,12 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
         session.config.organization_name = session.config.organization_name or cwd_org
         session.config.repo_name = session.config.repo_name or cwd_repo
     session.write_config()
-    click.echo(f"Organization name: {session.config.organization_name}")
-    click.echo(f"Repo name: {session.config.repo_name}")
+    rich.print(f"Organization name: {session.config.organization_name}")
+    rich.print(f"Repo name: {session.config.repo_name}")
 
     # Print success message
-    console.print("\n")
-    console.print(
+    rich.print("\n")
+    rich.print(
         Panel(
             get_success_message(*folders),
             title=f"[bold green]🚀 Codegen CLI {action} Successfully!",
@@ -69,9 +68,9 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
             padding=(1, 2),
         )
     )
-    console.print("\n")
+    rich.print("\n")
     # Print config file location
-    console.print(
+    rich.print(
         Panel(
             f"[dim]Config file location:[/dim] [cyan]{session.codegen_dir / 'config.toml'}[/cyan]",
             title="[bold white]📝 Configuration[/bold white]",
@@ -82,8 +81,8 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
     )
 
     # Print next steps panel
-    console.print("\n")
-    console.print(
+    rich.print("\n")
+    rich.print(
         Panel(
             "[bold white]Create a codemod with:[/bold white]\n\n"
             '[cyan]\tcodegen create my-codemod-name --description "describe what you want to do"[/cyan]\n\n'
@@ -97,4 +96,4 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
             padding=(1, 2),
         )
     )
-    console.print("\n")
+    rich.print("\n")

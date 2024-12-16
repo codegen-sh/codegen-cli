@@ -1,6 +1,6 @@
-import click
+import rich
+import rich_click as click
 from rich import box
-from rich.console import Console
 from rich.panel import Panel
 from rich.status import Status
 
@@ -20,16 +20,14 @@ from codegen.utils.codemod_manager import CodemodManager
 @click.option("--description", "-d", default=None, help="Description of what this codemod does")
 def create_command(session: CodegenSession, name: str, description: str | None):
     """Create a new codemod in the codegen-sh/codemods directory."""
-    console = Console()
-
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
         try:
             # Get code from API
             response = API.create(description if description else None)
 
             # Show the AI's explanation
-            console.print("\n[bold]🤖 AI Assistant:[/bold]")
-            console.print(
+            rich.print("\n[bold]🤖 AI Assistant:[/bold]")
+            rich.print(
                 Panel(
                     response.response,
                     title="[bold blue]Generated Codemod Explanation",
@@ -57,13 +55,13 @@ def create_command(session: CodegenSession, name: str, description: str | None):
             raise click.ClickException(str(e))
 
     # Success message
-    console.print("\n[bold green]✨ Created new codemod:[/bold green]")
-    console.print("─" * 40)
-    console.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
-    console.print(f"[cyan]Main file:[/cyan] {codemod.path}")
+    rich.print("\n[bold green]✨ Created new codemod:[/bold green]")
+    rich.print("─" * 40)
+    rich.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
+    rich.print(f"[cyan]Main file:[/cyan] {codemod.path}")
     if codemod.config:
-        console.print(f"[cyan]Config:[/cyan] {codemod.path.parent / 'config.json'}")
-    console.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
-    console.print("1. Review and edit [cyan]run.py[/cyan] to customize the codemod")
-    console.print("2. Run it with: [green]codegen run[/green]")
-    console.print("─" * 40 + "\n")
+        rich.print(f"[cyan]Config:[/cyan] {codemod.path.parent / 'config.json'}")
+    rich.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
+    rich.print("1. Review and edit [cyan]run.py[/cyan] to customize the codemod")
+    rich.print("2. Run it with: [green]codegen run[/green]")
+    rich.print("─" * 40 + "\n")

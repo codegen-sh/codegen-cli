@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 
-import click
+import rich
 from pygit2.repository import Repository
 from rich.status import Status
 
@@ -56,7 +56,7 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     status.update(f"[purple]{action} folders...")
     repo = get_git_repo()
     if not repo:
-        click.echo("No git repository found. Please run this command in a git repository.")
+        rich.print("No git repository found. Please run this command in a git repository.")
     else:
         status.update(f"{action} .gitignore...")
         modify_gitignore(repo)

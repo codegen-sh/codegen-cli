@@ -1,8 +1,7 @@
 import functools
 from collections.abc import Callable
 
-import click
-from rich.console import Console
+import rich
 from rich.status import Status
 
 from codegen.auth.login import login_routine
@@ -18,9 +17,8 @@ def requires_auth(f: Callable) -> Callable:
         session = CodegenSession()
 
         if not session.is_authenticated():
-            console = Console()
-            console.print("[yellow]Not authenticated. Let's get you logged in first![/yellow]\n")
-            session = login_routine(console)
+            rich.print("[yellow]Not authenticated. Let's get you logged in first![/yellow]\n")
+            session = login_routine()
 
         return f(*args, session=session, **kwargs)
 
@@ -37,7 +35,7 @@ def requires_init(f: Callable) -> Callable:
             raise ValueError("@requires_init must be used after @requires_auth")
 
         if not session.codegen_dir.exists():
-            click.echo("Codegen not initialized. Running init command first...")
+            rich.print("Codegen not initialized. Running init command first...")
             with Status("[bold]Initializing Codegen...", spinner="dots", spinner_style="purple") as status:
                 initialize_codegen(status)
 
