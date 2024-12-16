@@ -11,7 +11,7 @@ from codegen.utils.codemod_manager import CodemodManager
 from codegen.utils.codemods import Codemod
 
 
-def display_codemods_table(console: Console, codemods: list[Codemod], page: int, per_page: int = 10) -> None:
+def display_codemods_table(console: Console, codemods: list[Codemod], session: CodegenSession, page: int, per_page: int = 10) -> None:
     """Display a table of codemods with pagination."""
     # Calculate pagination
     start_idx = page * per_page
@@ -41,7 +41,7 @@ def display_codemods_table(console: Console, codemods: list[Codemod], page: int,
             codemod.name,
             codemod.config.description if codemod.config else "No description",
             codemod.config.created_by if codemod.config else "Unknown",
-            "✓" if codemod.is_active else "",
+            "✓" if codemod.name == session.state.active_codemod else "",
         )
 
     console.print(table)
@@ -70,7 +70,7 @@ def set_active_command(session: CodegenSession):
     while True:
         console.clear()
         console.print("\n[bold]Select Active Codemod[/bold]\n")
-        display_codemods_table(console, codemods, current_page, per_page)
+        display_codemods_table(console, codemods, session, current_page, per_page)
 
         # Get user input
         choice = click.prompt(

@@ -5,7 +5,8 @@ from typing import ClassVar
 from codegen.auth.config import CODEMODS_DIR
 from codegen.auth.session import CodegenSession
 from codegen.utils.codemods import Codemod
-from codegen.utils.schema import CodemodConfig
+from codegen.utils.config import read_model, write_model
+from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
 
 
 class CodemodManager:
@@ -25,7 +26,7 @@ class CodemodManager:
                 continue
 
             run_file = codemod_dir / "run.py"
-            config_file = codemod_dir / "config.json"
+            config_file = codemod_dir / CODEMOD_CONFIG_PATH
 
             if not run_file.exists():
                 continue
@@ -34,7 +35,7 @@ class CodemodManager:
             config = None
             if config_file.exists():
                 try:
-                    config = CodemodConfig.model_validate_json(config_file.read_text())
+                    config = read_model(CodemodConfig, config_file)
                 except Exception:
                     pass  # Config is optional
 
@@ -81,8 +82,7 @@ class CodemodManager:
         cls.CODEMODS_DIR.mkdir(parents=True, exist_ok=True)
         codemod_dir = cls.CODEMODS_DIR / codemod_name
         run_file = codemod_dir / "run.py"
-        config_file = codemod_dir / "config.json"
-
+        config_file = codemod_dir / CODEMOD_CONFIG_PATH
         if codemod_dir.exists():
             raise ValueError(f"Codemod '{codemod_name}' already exists at {codemod_dir}")
 
@@ -100,7 +100,7 @@ class CodemodManager:
                 created_at=datetime.now().isoformat(),
                 created_by=author or "Unknown",
             )
-            config_file.write_text(config.model_dump_json(indent=2))
+            write_model(config, config_file)
 
         # Set as active codemod
         session.state.active_codemod = codemod_name

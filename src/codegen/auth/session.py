@@ -8,9 +8,9 @@ from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError
 from codegen.utils.codemods import Codemod
-from codegen.utils.config import Config, State, get_config, get_state, write_config, write_state
+from codegen.utils.config import Config, State, get_config, get_state, read_model, write_config, write_state
 from codegen.utils.git.repo import get_git_repo
-from codegen.utils.schema import CodemodConfig
+from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
 
 
 @dataclass
@@ -65,7 +65,7 @@ class CodegenSession:
     @property
     def repo_name(self) -> str:
         """Get the current repository name"""
-        return self.config.repo_name
+        return self.config.repo_full_name
 
     @property
     def active_codemod(self) -> Codemod | None:
@@ -75,7 +75,7 @@ class CodegenSession:
 
             codemod_dir = codemods_dir / self.state.active_codemod
             run_file = codemod_dir / "run.py"
-            config_file = codemod_dir / "config.json"
+            config_file = codemod_dir / CODEMOD_CONFIG_PATH
 
             if not run_file.exists():
                 return None
@@ -84,7 +84,7 @@ class CodegenSession:
             config = None
             if config_file.exists():
                 try:
-                    config = CodemodConfig.model_validate_json(config_file.read_text())
+                    config = read_model(CodemodConfig, config_file)
                 except Exception:
                     pass  # Config is optional
 
