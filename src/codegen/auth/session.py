@@ -40,7 +40,7 @@ class CodegenSession:
         self._profile: UserProfile | None = None
         self._repo_name: str | None = None
         self._active_codemod: Codemod | None = None
-        self._config = get_config(self.codegen_dir)
+        self.config = get_config(self.codegen_dir)
 
     @property
     def token(self) -> str:

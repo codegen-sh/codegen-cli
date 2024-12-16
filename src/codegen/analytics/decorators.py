@@ -4,8 +4,9 @@ from functools import wraps
 
 from codegen.analytics.posthog_tracker import PostHogTracker
 from codegen.analytics.utils import print_debug_message
+from codegen.auth.session import CodegenSession
 
-POSTHOG_TRACKER = PostHogTracker()
+POSTHOG_TRACKER = PostHogTracker(CodegenSession())
 
 
 def track_command():
