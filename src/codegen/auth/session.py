@@ -8,6 +8,7 @@ from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError
 from codegen.utils.codemods import Codemod
+from codegen.utils.config import Config, get_config, write_config
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.git.url import get_repo_full_name
 from codegen.utils.schema import CodemodConfig
@@ -32,11 +33,14 @@ class UserProfile:
 class CodegenSession:
     """Represents an authenticated codegen session with user and repository context"""
 
+    config: Config
+
     def __init__(self, token: str | None = None):
         self._token = token or get_current_token()
         self._profile: UserProfile | None = None
         self._repo_name: str | None = None
         self._active_codemod: Codemod | None = None
+        self.config = get_config(self.codegen_dir)
 
     @property
     def token(self) -> str:
@@ -120,3 +124,7 @@ class CodegenSession:
             raise AuthError("No repository found")
         if not TokenManager().validate_expiration(self._token):
             raise AuthError("Authentication token has expired")
+
+    def write_config(self) -> None:
+        """Write the config to the codegen-sh/config.toml file"""
+        write_config(self.config, self.codegen_dir)
