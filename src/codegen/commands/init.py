@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import click
 from rich import box
 from rich.console import Console
@@ -61,7 +59,8 @@ def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_f
 @requires_auth
 def init_command(session: CodegenSession):
     """Initialize or update the Codegen folder."""
-    codegen_dir = Path.cwd() / ".codegen"
+    codegen_dir = session.codegen_dir
+
     is_update = codegen_dir.exists()
 
     console = Console()

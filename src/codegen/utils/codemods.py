@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from codegen.api.webapp_routes import generate_webapp_url
+from codegen.auth.config import CODEMODS_DIR
 from codegen.utils.schema import CodemodConfig
 
 
@@ -41,7 +42,7 @@ class Codemod:
 class CodemodManager:
     """Manages codemod operations in the local filesystem."""
 
-    CODEMODS_DIR: ClassVar[Path] = Path.cwd() / ".codegen" / "codemods"
+    CODEMODS_DIR: ClassVar[Path] = Path.cwd() / CODEMODS_DIR
 
     @classmethod
     def list(cls) -> list[Codemod]:

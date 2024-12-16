@@ -4,6 +4,7 @@ from pathlib import Path
 import jwt
 from pygit2.repository import Repository
 
+from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import TokenManager, get_current_token
 from codegen.errors import AuthError
 from codegen.utils.codemods import Codemod
@@ -33,9 +34,6 @@ class CodegenSession:
 
     def __init__(self, token: str | None = None):
         self._token = token or get_current_token()
-        if not self._token:
-            raise ValueError("No authentication token found")
-
         self._profile: UserProfile | None = None
         self._repo_name: str | None = None
         self._active_codemod: Codemod | None = None
@@ -71,7 +69,7 @@ class CodegenSession:
     def active_codemod(self) -> Codemod | None:
         """Get the active codemod information if one exists."""
         if self._active_codemod is None:
-            codemods_dir = Path.cwd() / ".codegen" / "codemods"
+            codemods_dir = Path.cwd() / CODEGEN_DIR / "codemods"
             active_codemod_file = codemods_dir / "active_codemod.txt"
 
             if not active_codemod_file.exists():
@@ -96,6 +94,16 @@ class CodegenSession:
             self._active_codemod = Codemod(name=active_codemod, path=run_file, config=config)
 
         return self._active_codemod
+
+    @property
+    def codegen_dir(self) -> Path:
+        """Get the path to the  codegen-sh directory"""
+        return Path.cwd() / CODEGEN_DIR
+
+    @property
+    def codemods_dir(self) -> Path:
+        """Get the path to the codemods directory"""
+        return Path.cwd() / CODEMODS_DIR
 
     def __str__(self) -> str:
         return f"CodegenSession(user={self.profile.name}, repo={self.repo_name})"

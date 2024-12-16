@@ -17,7 +17,7 @@ class SafeBaseModel(BaseModel):
 
 
 class CodemodConfig(BaseModel):
-    """Configuration for a codemod stored in the .codegen/codemods/<name>/config.json file."""
+    """Configuration for a codemod stored in the codegen-sh/codemods/<name>/config.json file."""
 
     name: str
     codemod_id: int
