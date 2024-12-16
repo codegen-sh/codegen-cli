@@ -6,17 +6,16 @@ from pathlib import Path
 import jwt
 import jwt.exceptions
 
-# todo: move to config file
-CONFIG_DIR = "~/.config/codegen"
+from codegen.auth.config import CONFIG_DIR, AUTH_FILE
 
 
 class TokenManager:
     # Simple token manager to store and retrieve tokens.
     # This manager checks if the token is expired before retrieval.
     # TODO: add support for refreshing token and re authorization via supabase oauth
-    def __init__(self, config_dir: str = CONFIG_DIR):
-        self.config_dir = os.path.expanduser(config_dir)
-        self.token_file = os.path.join(self.config_dir, "auth.json")
+    def __init__(self):
+        self.config_dir = CONFIG_DIR
+        self.token_file = AUTH_FILE
         self._ensure_config_dir()
 
     def _ensure_config_dir(self):

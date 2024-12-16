@@ -6,11 +6,12 @@ from rich.status import Status
 from codegen.api.client import API
 from codegen.api.schemas import SerializedExample
 from codegen.utils.formatters.examples import format_example
+from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
 
-CODEGEN_FOLDER = Path.cwd() / ".codegen"
-CODEMODS_FOLDER = CODEGEN_FOLDER / "codemods"
-DOCS_FOLDER = CODEGEN_FOLDER / "docs"
-EXAMPLES_FOLDER = CODEGEN_FOLDER / "examples"
+CODEGEN_FOLDER = Path.cwd() / CODEGEN_DIR
+CODEMODS_FOLDER = Path.cwd() / CODEMODS_DIR
+DOCS_FOLDER = Path.cwd() / DOCS_DIR
+EXAMPLES_FOLDER = Path.cwd() / EXAMPLES_DIR
 
 SAMPLE_CODEMOD = """
 # grab codebase content

@@ -19,7 +19,7 @@ from codegen.utils.codemods import CodemodManager
 @click.argument("name", type=str)
 @click.option("--description", "-d", default=None, help="Description of what this codemod does")
 def create_command(session: CodegenSession, name: str, description: str | None):
-    """Create a new codemod in the .codegen/codemods directory."""
+    """Create a new codemod in the codegen-sh/codemods directory."""
     console = Console()
 
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
