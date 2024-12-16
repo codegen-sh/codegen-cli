@@ -7,8 +7,8 @@ from typing import Any
 import posthog
 
 from codegen.analytics.utils import print_debug_message
-from codegen.env.global_env import global_env
 from codegen.auth.config import CODEGEN_DIR
+from codegen.env.global_env import global_env
 
 
 class PostHogTracker:
@@ -78,7 +78,7 @@ class PostHogTracker:
             return
 
         try:
-            posthog.capture(distinct_id=self.distinct_id, event=event_name, properties=base_properties)
+            posthog.capture(distinct_id=self.distinct_id, event=event_name, properties=base_properties, groups={"codegen_app": "cli"})
         except Exception as e:
             # Silently fail for telemetry
             print("Failed to send event to PostHog")
