@@ -7,9 +7,9 @@ from codegen.utils.schema import SafeBaseModel
 
 
 class RunCodemodInput(SafeBaseModel):
+    codemod_id: int
     repo_full_name: str
     codemod_source: str
-    web: bool = False
 
 
 class RunCodemodOutput(SafeBaseModel):
@@ -64,6 +64,7 @@ class DocsResponse(SafeBaseModel):
 
 class CreateInput(SafeBaseModel):
     query: str | None = None
+    repo_full_name: str | None = None
 
 
 class CreateResponse(SafeBaseModel):
