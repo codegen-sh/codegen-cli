@@ -2,7 +2,9 @@ import webbrowser
 from pathlib import Path
 
 import click
+from rich import box
 from rich.console import Console
+from rich.panel import Panel
 from rich.status import Status
 
 from codegen.analytics.decorators import track_command
@@ -12,39 +14,39 @@ from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
 from codegen.utils.git.patch import apply_patch
+from codegen.utils.codemods import Codemod
 
 
 @click.command(name="run")
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("codemod_path", required=False, type=click.Path(exists=True, path_type=Path))
-@click.argument("repo_path", required=False, type=click.Path(exists=True, path_type=Path))
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
 def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_path: Path | None = None, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
-    if not codemod_path:
-        active_codemod = session.active_codemod
-        if not active_codemod:
-            raise click.ClickException("No codemod path provided and no active codemod found.\n" "Either provide a codemod path or create one with: codegen create <name>")
-        _, codemod_path = active_codemod
+    if not session.active_codemod:
+        raise click.ClickException("No codemod path provided and no active codemod found.\n" "Either provide a codemod path or create one with: codegen create <name>")
 
     console = Console()
     status = Status("Running codemod...", spinner="dots", spinner_style="purple")
     status.start()
 
     # Print details below the spinner
-    console.print()  # Add blank line after spinner
-    console.print(f"Repo: {session.repo_name}")
-    console.print(f"Codemod: {session.active_codemod.name}\n")
+    console.print(
+        Panel(
+            f"[cyan]Repo:[/cyan]    {session.repo_name}\n" f"[cyan]Codemod:[/cyan] {session.active_codemod.name}",
+            title="🔧 [bold]Running Codemod[/bold]",
+            border_style="cyan",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
 
     try:
         run_output = API.run(
-            codemod_id=active_codemod.config.codemod_id,
+            codemod=session.active_codemod,
             repo_full_name=session.repo_name,
-            codemod_source=codemod_path,
-            web=web,
         )
 
         status.stop()

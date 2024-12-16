@@ -22,6 +22,7 @@ from codegen.api.schemas import (
 )
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
+from codegen.utils.codemods import Codemod
 
 InputT = TypeVar("InputT", bound=BaseModel)
 OutputT = TypeVar("OutputT", bound=BaseModel)
@@ -84,22 +85,16 @@ class API:
     @classmethod
     def run(
         cls,
-        codemod_id: int,
+        codemod: Codemod,
         repo_full_name: str,
-        codemod_source: str | Path,
-        web: bool = False,
     ) -> RunCodemodOutput:
         """Run a codemod transformation."""
-        if isinstance(codemod_source, Path):
-            codemod_source = codemod_source.read_text()
 
         input_data = RunCodemodInput(
-            codemod_id=codemod_id,
+            codemod_id=codemod.config.codemod_id,
             repo_full_name=repo_full_name,
-            codemod_source=codemod_source,
-            web=web,
+            codemod_source=codemod.get_current_source(),
         )
-
         return cls._make_request(
             "POST",
             RUN_CODEMOD_ENDPOINT,

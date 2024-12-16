@@ -31,6 +31,12 @@ class Codemod:
         """Get the relative path to this codemod."""
         return self.path.relative_to(Path.cwd())
 
+    def get_current_source(self) -> str:
+        """Get the current source code for this codemod."""
+        text = self.path.read_text()
+        text = text.strip()
+        return text
+
 
 class CodemodManager:
     """Manages codemod operations in the local filesystem."""
