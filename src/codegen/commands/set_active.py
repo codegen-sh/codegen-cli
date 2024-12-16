@@ -7,7 +7,8 @@ from rich.table import Table
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
-from codegen.utils.codemods import Codemod, CodemodManager
+from codegen.utils.codemod_manager import CodemodManager
+from codegen.utils.codemods import Codemod
 
 
 def display_codemods_table(codemods: list[Codemod], page: int, per_page: int = 10) -> None:
@@ -98,9 +99,8 @@ def set_active_command(session: CodegenSession):
                 selected_codemod = codemods[idx]
 
                 # Set as active
-                with (CodemodManager.CODEMODS_DIR / "active_codemod.txt").open("w") as f:
-                    f.write(selected_codemod.name)
-
+                session.state.active_codemod = selected_codemod.name
+                session.write_state()
                 console.print(
                     Panel(
                         f"[green]✓ Set active codemod to:[/green] {selected_codemod.name}\n" f"[dim]You can now use 'codegen run' to run this codemod[/dim]",
