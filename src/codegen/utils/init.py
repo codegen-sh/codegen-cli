@@ -1,24 +1,21 @@
 import shutil
 from pathlib import Path
 
+import click
+from pygit2.repository import Repository
 from rich.status import Status
 
 from codegen.api.client import API
 from codegen.api.schemas import SerializedExample
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
+from codegen.utils.config import STATE_PATH
 from codegen.utils.formatters.examples import format_example
+from codegen.utils.git.repo import get_git_repo
 
 CODEGEN_FOLDER = Path.cwd() / CODEGEN_DIR
 CODEMODS_FOLDER = Path.cwd() / CODEMODS_DIR
 DOCS_FOLDER = Path.cwd() / DOCS_DIR
 EXAMPLES_FOLDER = Path.cwd() / EXAMPLES_DIR
-
-GITIGNORE_CONTENT = """
-# Codegen generated directories
-active_codemod.txt
-docs/
-examples/
-"""
 
 
 def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
@@ -62,17 +59,18 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     """
     action = "Updating" if is_update else "Creating"
     status.update(f"[purple]{action} folders...")
+    repo = get_git_repo()
+    if not repo:
+        click.echo("No git repository found. Please run this command in a git repository.")
+    else:
+        status.update(f"{action} .gitignore...")
+        modify_gitignore(repo)
 
     # Create folders if they don't exist
     CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
     EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
-
-    # Create/update .gitignore
-    status.update(f"{action} .gitignore...")
-    gitignore_path = CODEGEN_FOLDER / ".gitignore"
-    gitignore_path.write_text(GITIGNORE_CONTENT.strip())
 
     # Always fetch and update docs & examples
     status.update("Fetching latest docs & examples...", spinner_style="purple")
@@ -83,3 +81,17 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     status.update("[bold green]Done! 🎉")
 
     return CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
+
+
+def add_to_gitignore_if_not_present(gitignore: Path, line: str):
+    if not gitignore.exists():
+        gitignore.write_text(line)
+    elif line not in gitignore.read_text():
+        gitignore.write_text(gitignore.read_text() + "\n" + line)
+
+
+def modify_gitignore(repo: Repository):
+    gitignore_path = CODEGEN_DIR / ".gitignore"
+    add_to_gitignore_if_not_present(gitignore_path, "docs")
+    add_to_gitignore_if_not_present(gitignore_path, "examples")
+    add_to_gitignore_if_not_present(gitignore_path, STATE_PATH)

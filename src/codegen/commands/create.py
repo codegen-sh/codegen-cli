@@ -9,7 +9,7 @@ from codegen.api.client import API
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
-from codegen.utils.codemods import CodemodManager
+from codegen.utils.codemod_manager import CodemodManager
 
 
 @click.command(name="create")
@@ -41,6 +41,7 @@ def create_command(session: CodegenSession, name: str, description: str | None):
 
             # Create the codemod
             codemod = CodemodManager.create(
+                session=session,
                 name=name,
                 code=response.code,
                 codemod_id=response.codemod_id,

@@ -1,4 +1,3 @@
-# Codegen generated directories
-active_codemod.txt
-docs/
-examples/
+docs
+examples
+state.toml
