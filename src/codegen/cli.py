@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 
 from codegen.commands.create import create_command
 from codegen.commands.docs_search import docs_search_command

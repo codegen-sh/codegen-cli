@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.token_manager import TokenManager

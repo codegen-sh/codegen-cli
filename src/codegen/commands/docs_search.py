@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-import click
+import rich_click as click
 from algoliasearch.search.client import SearchClient
 
 from codegen.analytics.decorators import track_command

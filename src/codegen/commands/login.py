@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 from rich.console import Console
 
 from codegen.analytics.decorators import track_command

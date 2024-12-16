@@ -1,7 +1,7 @@
 import functools
 from collections.abc import Callable
 
-import click
+import rich_click as click
 from rich.console import Console
 from rich.status import Status
 

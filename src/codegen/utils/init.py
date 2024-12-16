@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 
-import click
+import rich_click as click
 from pygit2.repository import Repository
 from rich.status import Status
 
