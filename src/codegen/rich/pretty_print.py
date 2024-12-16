@@ -1,8 +1,7 @@
-from rich import print as rprint
+from rich import box
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
-from rich import box
 
 from codegen.api.schemas import RunCodemodOutput
 

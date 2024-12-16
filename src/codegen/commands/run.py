@@ -14,7 +14,6 @@ from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.rich.pretty_print import pretty_print_output
 from codegen.utils.git.patch import apply_patch
-from codegen.utils.codemods import Codemod
 
 
 @click.command(name="run")

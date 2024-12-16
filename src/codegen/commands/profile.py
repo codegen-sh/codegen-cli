@@ -1,4 +1,3 @@
-from pathlib import Path
 import click
 from rich import box
 from rich.console import Console

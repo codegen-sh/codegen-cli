@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import ClassVar, TypeVar
 
 import requests
@@ -89,7 +88,6 @@ class API:
         repo_full_name: str,
     ) -> RunCodemodOutput:
         """Run a codemod transformation."""
-
         input_data = RunCodemodInput(
             codemod_id=codemod.config.codemod_id,
             repo_full_name=repo_full_name,
