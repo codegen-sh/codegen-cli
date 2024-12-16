@@ -188,7 +188,7 @@ wheels = [
 
 [[package]]
 name = "codegen-sh"
-version = "1.6.1.dev4+gba0fb2f.d20241216"
+version = "1.6.1.dev5+g87918d4.d20241216"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
