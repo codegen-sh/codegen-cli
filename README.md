@@ -54,6 +54,19 @@ Execute this codemod and view output with `codegen run`:
 
 `--apply-local` will apply the changes to your current local filesystem.
 
+## Working with AI
+
+When editing your codemod using Cursor, you can now `@codegen-sh` in any chat or composer window to pull in relevant documentation and context about your codemods and the Codegen API.
+
+This provides:
+
+- Documentation about available APIs and utilities
+- Context about your active codemod
+- Examples of similar codemods
+- Relevant code snippets
+
+The AI will use this context to provide more accurate and helpful responses about working with Codegen.
+
 ## Available Commands
 
 - `login` - Authenticate with Codegen
@@ -78,10 +91,6 @@ codegen-sh/
 ├── docs/         # API documentation
 └── examples/     # Example codemods
 ```
-
-## Working with AI
-
-In Cursor composer or chat , type `@codegen-sh` to pull into context relevant docs.
 
 ## License
 
