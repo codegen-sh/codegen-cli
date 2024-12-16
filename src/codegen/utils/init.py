@@ -5,8 +5,8 @@ from rich.status import Status
 
 from codegen.api.client import API
 from codegen.api.schemas import SerializedExample
-from codegen.utils.formatters.examples import format_example
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
+from codegen.utils.formatters.examples import format_example
 
 CODEGEN_FOLDER = Path.cwd() / CODEGEN_DIR
 CODEMODS_FOLDER = Path.cwd() / CODEMODS_DIR

@@ -27,6 +27,6 @@ def login_command(token: str):
             else:
                 raise click.ClickException("Token has expired. Please get a new one.")
         except ValueError as e:
-            raise click.ClickException(f"Error: {str(e)}")
+            raise click.ClickException(f"Error: {e!s}")
     else:
         login_routine(console)

@@ -7,7 +7,6 @@ from rich.status import Status
 
 from codegen.auth.login import login_routine
 from codegen.auth.session import CodegenSession
-from codegen.errors import AuthError
 from codegen.utils.init import initialize_codegen
 
 

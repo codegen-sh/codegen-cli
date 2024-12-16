@@ -20,6 +20,7 @@ def login_routine(console: Console | None = None) -> CodegenSession:
 
     Raises:
         click.ClickException: If login fails
+
     """
     console = console or Console()
 
@@ -46,7 +47,7 @@ def login_routine(console: Console | None = None) -> CodegenSession:
         else:
             raise click.ClickException("Token has expired. Please get a new one.")
     except ValueError as e:
-        raise click.ClickException(f"Error: {str(e)}")
+        raise click.ClickException(f"Error: {e!s}")
 
     # Create and return new session
     return CodegenSession(_token)

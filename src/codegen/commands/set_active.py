@@ -1,17 +1,16 @@
-from typing import List
 import click
-from rich.console import Console
-from rich.table import Table
 from rich import box
+from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
 
 from codegen.analytics.decorators import track_command
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
-from codegen.utils.codemods import CodemodManager, Codemod
+from codegen.utils.codemods import Codemod, CodemodManager
 
 
-def display_codemods_table(codemods: List[Codemod], page: int, per_page: int = 10) -> None:
+def display_codemods_table(codemods: list[Codemod], page: int, per_page: int = 10) -> None:
     """Display a table of codemods with pagination."""
     console = Console()
 

@@ -6,7 +6,7 @@ from pathlib import Path
 import jwt
 import jwt.exceptions
 
-from codegen.auth.config import CONFIG_DIR, AUTH_FILE
+from codegen.auth.config import AUTH_FILE, CONFIG_DIR
 
 
 class TokenManager:
