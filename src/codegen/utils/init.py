@@ -74,6 +74,8 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
 
     # Always fetch and update docs & examples
     status.update("Fetching latest docs & examples...", spinner_style="purple")
+    shutil.rmtree(DOCS_FOLDER, ignore_errors=True)
+    shutil.rmtree(EXAMPLES_FOLDER, ignore_errors=True)
     response = API.get_docs()
     populate_api_docs(DOCS_FOLDER, response.docs, status)
     populate_examples(EXAMPLES_FOLDER, response.examples, status)
