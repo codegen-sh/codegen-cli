@@ -13,6 +13,7 @@ from codegen.errors import handle_errors
 
 click.rich_click.USE_RICH_MARKUP = True
 
+
 @click.group()
 def main():
     """Codegen CLI - Transform your code with AI."""

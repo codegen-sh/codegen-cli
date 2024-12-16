@@ -1,6 +1,6 @@
+import rich
 import rich_click as click
 from rich import box
-from rich.console import Console
 from rich.panel import Panel
 
 from codegen.analytics.decorators import track_command
@@ -14,9 +14,7 @@ from codegen.auth.session import CodegenSession
 @requires_init
 def profile_command(session: CodegenSession):
     """Display information about the currently authenticated user."""
-    console = Console()
-
-    console.print(
+    rich.print(
         Panel(
             f"[cyan]Name:[/cyan]  {session.profile.name}\n" f"[cyan]Email:[/cyan] {session.profile.email}\n" f"[cyan]Repo:[/cyan]  {session.repo_name}",
             title="🔑 [bold]Current Profile[/bold]",
@@ -54,7 +52,7 @@ def profile_command(session: CodegenSession):
         )
         content.append(source_panel.renderable)
 
-        console.print(
+        rich.print(
             Panel(
                 "\n".join(str(line) for line in content),
                 title="[bold]Active Codemod Details[/bold]",

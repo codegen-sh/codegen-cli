@@ -1,10 +1,8 @@
 import functools
 
+import rich
 import rich_click as click
-from rich.console import Console
 from rich.panel import Panel
-
-console = Console(highlight=False)
 
 
 class AuthError(Exception):
@@ -43,7 +41,7 @@ def handle_auth_error(f):
         try:
             return f(*args, **kwargs)
         except AuthError:
-            console.print(Panel("[red]Authentication Error:[/red] Please run 'codegen login' first.", title="Codegen Error", border_style="red"))
+            rich.print(Panel("[red]Authentication Error:[/red] Please run 'codegen login' first.", title="Codegen Error", border_style="red"))
             raise click.Abort()
 
     return wrapper
@@ -58,7 +56,7 @@ def handle_errors(cmd):
             try:
                 return f(*args, **kwargs)
             except Exception as e:
-                console.print(Panel(format_error_message(e), title="Codegen Error", border_style="red"))
+                rich.print(Panel(format_error_message(e), title="Codegen Error", border_style="red"))
                 raise click.Abort()
 
         return wrapper
