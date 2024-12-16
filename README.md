@@ -40,13 +40,19 @@ This creates the necessary folder structure and downloads documentation and exam
 ~$: codegen create my-codemod-name --description "delete all my unused functions"
 ```
 
-When passed the `--description` argument, a Codegen expert AI will generate your first draft. Therefore, it's helpful to provide as much info as possible.
+This will create a new codemod in the folder `codegen-sh/codemod/my-codemod-name/run.py`
+
+When passed the `--description` argument, a Codegen expert AI will generate this first draft. Therefore, it's helpful to provide as much info as possible.
 
 4. Run your codemod:
 
+Execute this codemod and view output with `codegen run`:
+
 ```
-~$: codegen run
+~$: codegen run --apply-local
 ```
+
+`--apply-local` will apply the changes to your current local filesystem.
 
 ## Available Commands
 
