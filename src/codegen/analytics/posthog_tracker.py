@@ -37,7 +37,7 @@ class PostHogTracker:
                 json.dump({"distinct_id": distinct_id, "telemetry_enabled": telemetry_enabled}, f)
 
         # load the config file
-        with open(ANALYTICS_FILE, "r") as f:
+        with open(ANALYTICS_FILE) as f:
             data = json.load(f)
             self.session.config.analytics.distinct_id = data["distinct_id"]
             self.session.config.analytics.telemetry_enabled = data["telemetry_enabled"]
