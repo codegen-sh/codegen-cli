@@ -22,6 +22,8 @@ def login_command(token: str):
             if token_manager.validate_expiration(token):
                 token_manager.save_token(token)
                 rich.print(f"[green]✓ Stored token to:[/green] {token_manager.token_file}")
+                rich.print("[cyan]📊 Hey![/cyan] We collect anonymous usage data to improve your experience 🔒")
+                rich.print("To opt out, set [green]telemetry_enabled = false[/green] in [cyan]~/.config/codegen-sh/analytics.json[/cyan] ✨")
             else:
                 raise click.ClickException("Token has expired. Please get a new one.")
         except ValueError as e:

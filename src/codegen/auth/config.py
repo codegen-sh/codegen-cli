@@ -11,4 +11,5 @@ EXAMPLES_DIR = CODEGEN_DIR / "examples"
 
 # Files
 AUTH_FILE = CONFIG_DIR / "auth.json"
+ANALYTICS_FILE = CONFIG_DIR / "analytics.json"
 ACTIVE_CODEMOD_FILE = CODEMODS_DIR / "active_codemod.txt"
