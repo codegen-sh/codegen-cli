@@ -54,8 +54,8 @@ class CodegenSession:
         """Get the identity of the user, if a token has been provided"""
 
         if not self._identity and self._token:
-            from codegen.api.client import API
-            identity = API(self._token).identify()
+            from codegen.api.client import RestAPI
+            identity = RestAPI(self._token).identify()
             if identity:
                 self._identity = Identity(
                     token=self._token,

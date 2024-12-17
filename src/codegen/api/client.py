@@ -41,8 +41,6 @@ class RestAPI:
 
     def _get_headers(self) -> dict[str, str]:
         """Get headers with authentication token."""
-
-        print("session.token is ", self.auth_token)
         return {
             "Authorization": f"Bearer {self.auth_token}",
         }
@@ -137,7 +135,7 @@ class RestAPI:
         """Identify the user's codemod."""
         try:
             return self._make_request(
-                "GET",
+                "POST",
                 IDENTIFY_ENDPOINT,
                 None,
                 IdentifyResponse,
