@@ -49,7 +49,6 @@ class SerializedExample(SafeBaseModel):
 
 class DocsInput(SafeBaseModel):
     repo_full_name: str
-    language: str
 
 
 class DocsResponse(SafeBaseModel):
