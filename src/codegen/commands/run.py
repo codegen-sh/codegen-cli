@@ -69,7 +69,7 @@ Or select an existing one with:
 
         if apply_local and run_output.observation:
             apply_patch(session.git_repo, f"\n{run_output.observation}\n")
-            rich.print(f"Diff applied to {session.git_repo.path}")
+            rich.print(f"Diff applied to {session.git_repo.workdir}")
 
     except ServerError as e:
         status.stop()
