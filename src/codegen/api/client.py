@@ -33,7 +33,7 @@ class RestAPI:
     """Handles auth + validation with the codegen API."""
 
     _session: ClassVar[requests.Session] = requests.Session()
-    
+
     auth_token: str | None = None
 
     def __init__(self, auth_token: str):

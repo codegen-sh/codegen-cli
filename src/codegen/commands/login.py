@@ -2,7 +2,6 @@ import rich
 import rich_click as click
 
 from codegen.analytics.decorators import track_command
-from codegen.api.webapp_routes import USER_SECRETS_ROUTE
 from codegen.auth.login import login_routine
 from codegen.auth.session import CodegenSession
 from codegen.auth.token_manager import TokenManager

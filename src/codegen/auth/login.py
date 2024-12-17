@@ -47,6 +47,3 @@ def login_routine(token: str | None = None) -> CodegenSession:
         return session
     except AuthError as e:
         raise click.ClickException(f"Error: {e!s}")
-
-
-

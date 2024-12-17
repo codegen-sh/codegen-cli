@@ -4,12 +4,13 @@ from pathlib import Path
 from pygit2.repository import Repository
 
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
-from codegen.auth.token_manager import TokenManager, get_current_token
+from codegen.auth.token_manager import get_current_token
 from codegen.errors import AuthError
 from codegen.utils.codemods import Codemod
 from codegen.utils.config import Config, State, get_config, get_state, read_model, write_config, write_state
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
+
 
 @dataclass
 class Identity:
@@ -18,11 +19,13 @@ class Identity:
     status: str
     user: "User"
 
+
 @dataclass
 class User:
     full_name: str
     email: str
     github_username: str
+
 
 @dataclass
 class UserProfile:
@@ -31,6 +34,7 @@ class UserProfile:
     name: str
     email: str
     username: str
+
 
 class CodegenSession:
     """Represents an authenticated codegen session with user and repository context"""
@@ -47,14 +51,12 @@ class CodegenSession:
         self.config = get_config(self.codegen_dir)
         self.state = get_state(self.codegen_dir)
 
-
-
     @property
     def identity(self) -> Identity:
         """Get the identity of the user, if a token has been provided"""
-
         if not self._identity and self._token:
             from codegen.api.client import RestAPI
+
             identity = RestAPI(self._token).identify()
             if identity:
                 self._identity = Identity(
@@ -74,12 +76,11 @@ class CodegenSession:
             raise AuthError("No authentication token found")
         elif self._identity:
             return self._identity
-        
+
     @property
     def token(self) -> str:
         """Get the authentication token"""
         return self._token
-
 
     @property
     def profile(self) -> UserProfile:
@@ -145,7 +146,7 @@ class CodegenSession:
 
     def is_authenticated(self) -> bool:
         """Check if the session is fully authenticated, including token expiration"""
-        return bool(self.identity and  self.identity.status == "active")
+        return bool(self.identity and self.identity.status == "active")
 
     def assert_authenticated(self) -> None:
         """Raise an AuthError if the session is not fully authenticated"""

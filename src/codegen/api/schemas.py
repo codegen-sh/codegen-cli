@@ -1,10 +1,9 @@
-from typing import Generic, TypeVar
+from typing import TypeVar
+
 from codegen.utils.constants import ProgrammingLanguage
 from codegen.utils.schema import SafeBaseModel
 
-
-T = TypeVar('T')
-
+T = TypeVar("T")
 
 
 ###########################################################################
@@ -17,8 +16,9 @@ class RunCodemodInput(SafeBaseModel):
         codemod_id: int
         repo_full_name: str
         codemod_source: str
-    
+
     input: BaseRunCodemodInput
+
 
 class RunCodemodOutput(SafeBaseModel):
     success: bool = False
@@ -31,6 +31,7 @@ class RunCodemodOutput(SafeBaseModel):
 ###########################################################################
 # EXPERT
 ###########################################################################
+
 
 class AskExpertInput(SafeBaseModel):
     class BaseAskExpertInput(SafeBaseModel):
@@ -95,7 +96,7 @@ class IdentifyResponse(SafeBaseModel):
     class AuthContext(SafeBaseModel):
         token_id: int
         expires_at: str
-        status: str 
+        status: str
         user_id: int
 
     class User(SafeBaseModel):
