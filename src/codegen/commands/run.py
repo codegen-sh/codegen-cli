@@ -1,5 +1,4 @@
 import webbrowser
-from pathlib import Path
 
 import rich
 import rich_click as click
@@ -22,14 +21,11 @@ from codegen.utils.git.patch import apply_patch
 @requires_init
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
-def run_command(session: CodegenSession, codemod_path: Path | None = None, repo_path: Path | None = None, web: bool = False, apply_local: bool = False):
+def run_command(session: CodegenSession, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
     if not session.active_codemod:
         raise click.ClickException(
             """No codemod path provided and no active codemod found.
-
-Either provide a codemod path:
-    codegen run <path-to-codemod.py>
 
 Or create one with:
     codegen create <name>
