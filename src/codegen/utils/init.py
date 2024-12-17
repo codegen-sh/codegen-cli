@@ -55,11 +55,6 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     action = "Updating" if is_update else "Creating"
     status.update(f"[purple]{action} folders...")
     repo = get_git_repo()
-    if not repo:
-        rich.print("No git repository found. Please run this command in a git repository.")
-    else:
-        status.update(f"{action} .gitignore...")
-        modify_gitignore(repo)
     REPO_PATH = Path(repo.workdir)
     CODEGEN_FOLDER = REPO_PATH / CODEGEN_DIR
     CODEMODS_FOLDER = REPO_PATH / CODEMODS_DIR
@@ -71,6 +66,11 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
     DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
     EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
+    if not repo:
+        rich.print("No git repository found. Please run this command in a git repository.")
+    else:
+        status.update(f"{action} .gitignore...")
+        modify_gitignore(repo)
 
     # Always fetch and update docs & examples
     status.update("Fetching latest docs & examples...", spinner_style="purple")
