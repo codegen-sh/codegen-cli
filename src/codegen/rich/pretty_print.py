@@ -12,43 +12,13 @@ def pretty_print_output(output: RunCodemodOutput):
         rich.print("\n• [blue underline]" + output.web_link + "[/blue underline]\n")
 
     if output.logs:
-        rich.print(
-            Panel(
-                output.logs,
-                title="[bold blue]Logs",
-                border_style="blue",
-                box=box.ROUNDED,
-                padding=(1, 2),
-            )
-        )
-        rich.print()  # Add spacing
+        pretty_print_logs(output.logs)
 
     if output.error:
-        rich.print(
-            Panel(
-                output.error,
-                title="[bold red]Error",
-                border_style="red",
-                box=box.ROUNDED,
-                padding=(1, 2),
-            )
-        )
-        rich.print()  # Add spacing
+        pretty_print_error(output.error)
 
     if output.observation:
-        rich.print(
-            Panel(
-                Markdown(
-                    f"""```diff\n{output.observation}\n```""",
-                    code_theme="monokai",
-                ),
-                title="[bold green]Diff",
-                border_style="green",
-                box=box.ROUNDED,
-                padding=(1, 2),
-            )
-        )
-        rich.print()  # Add spacing
+        pretty_print_diff(output.observation)
 
 
 def pretty_print_logs(logs: str):
@@ -62,6 +32,21 @@ def pretty_print_logs(logs: str):
             padding=(1, 2),
         )
     )
+    rich.print()  # spacing
+
+
+def pretty_print_error(error: str):
+    """Pretty print error in a panel."""
+    rich.print(
+        Panel(
+            error,
+            title="[bold red]Error",
+            border_style="red",
+            box=box.ROUNDED,
+            padding=(1, 2),
+        )
+    )
+    rich.print()  # spacing
 
 
 def pretty_print_diff(diff: str):
@@ -78,3 +63,4 @@ def pretty_print_diff(diff: str):
             padding=(1, 2),
         )
     )
+    rich.print()  # spacing

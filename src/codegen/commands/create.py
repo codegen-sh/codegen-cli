@@ -5,7 +5,7 @@ from rich.panel import Panel
 from rich.status import Status
 
 from codegen.analytics.decorators import track_command
-from codegen.api.client import API
+from codegen.api.client import RestAPI
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
@@ -24,7 +24,7 @@ def create_command(session: CodegenSession, name: str, description: str | None):
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
         try:
             # Get code from API
-            response = API.create(description if description else None)
+            response = RestAPI.create(description if description else None)
 
             # Show the AI's explanation
             rich.print("\n[bold]🤖 AI Assistant:[/bold]")

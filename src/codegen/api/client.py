@@ -27,7 +27,7 @@ InputT = TypeVar("InputT", bound=BaseModel)
 OutputT = TypeVar("OutputT", bound=BaseModel)
 
 
-class API:
+class RestAPI:
     """Handles auth + validation with the codegen API."""
 
     _session: ClassVar[requests.Session] = requests.Session()

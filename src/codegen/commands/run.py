@@ -7,7 +7,7 @@ from rich.panel import Panel
 from rich.status import Status
 
 from codegen.analytics.decorators import track_command
-from codegen.api.client import API
+from codegen.api.client import RestAPI
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
@@ -50,7 +50,7 @@ Or select an existing one with:
     )
 
     try:
-        run_output = API.run(
+        run_output = RestAPI.run(
             codemod=session.active_codemod,
             repo_full_name=session.repo_name,
         )
