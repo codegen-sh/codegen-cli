@@ -1,5 +1,0 @@
-{
-    "telemetry_enabled": true,
-    "distinct_id": "your_distinct_id",
-    "README": "You do not need to do nothing with this file, is here as an example. An automatic script will create the .config.json file for you."
-}

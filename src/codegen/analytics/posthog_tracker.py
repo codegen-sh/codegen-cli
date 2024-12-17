@@ -1,3 +1,5 @@
+import json
+import os
 import platform
 import uuid
 from typing import Any
@@ -5,6 +7,7 @@ from typing import Any
 import posthog
 
 from codegen.analytics.utils import print_debug_message
+from codegen.auth.config import ANALYTICS_FILE
 from codegen.auth.session import CodegenSession
 from codegen.env.global_env import global_env
 
@@ -16,8 +19,6 @@ class PostHogTracker:
         self.session = session
         self._initialize_posthog()
         self._initialize_config()
-        self.opted_in = self.session.config.analytics.telemetry_enabled
-        self.distinct_id = self.session.config.analytics.distinct_id
 
     def _initialize_posthog(self):
         """Initialize PostHog with the given API key and host."""
@@ -28,21 +29,28 @@ class PostHogTracker:
 
     def _initialize_config(self):
         """Initialize or load the config file."""
-        if not self.session.config.analytics.distinct_id:
-            self.session.config.analytics.distinct_id = str(uuid.uuid4())
-        self.session.write_config()
+        # check if the analytical config file exists
+        if not os.path.exists(ANALYTICS_FILE):
+            distinct_id = str(uuid.uuid4())
+            telemetry_enabled = True
+            with open(ANALYTICS_FILE, "w") as f:
+                json.dump({"distinct_id": distinct_id, "telemetry_enabled": telemetry_enabled}, f)
 
-    def opt_in(self):
-        """Opt in to telemetry."""
-        self.opted_in = True
-        self.session.config.analytics.telemetry_enabled = True
-        self.session.write_config()
+        # load the config file
+        with open(ANALYTICS_FILE, "r") as f:
+            data = json.load(f)
+            self.session.config.analytics.distinct_id = data["distinct_id"]
+            self.session.config.analytics.telemetry_enabled = data["telemetry_enabled"]
+
+    def opt_in(self, opted_in: bool = True):
+        with open(ANALYTICS_FILE, "w") as f:
+            data = json.load(f)
+            data["telemetry_enabled"] = opted_in
+            json.dump(data, f)
 
     def opt_out(self):
         """Opt out of telemetry."""
-        self.opted_in = False
-        self.session.config.analytics.telemetry_enabled = False
-        self.session.write_config()
+        self.opt_in(False)
 
     def capture_event(self, event_name: str, properties: dict[str, Any] | None = None):
         """Capture an event if user has opted in."""
@@ -58,14 +66,13 @@ class PostHogTracker:
 
         print_debug_message(f"About to send: {event_name} with properties: {base_properties}")
 
-        if not self.opted_in:
+        if not self.session.config.analytics.telemetry_enabled:
             print_debug_message("User not opted_in. Posthog message won't be sent! ")
             return
 
         try:
-            posthog.capture(distinct_id=self.distinct_id, event=event_name, properties=base_properties, groups={"codegen_app": "cli"})
+            posthog.capture(distinct_id=self.session.config.analytics.distinct_id, event=event_name, properties=base_properties, groups={"codegen_app": "cli"})
         except Exception as e:
             # Silently fail for telemetry
-            print("Failed to send event to PostHog")
-            print(e)
-            pass
+            print_debug_message("Failed to send event to PostHog")
+            print_debug_message(e)
