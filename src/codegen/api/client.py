@@ -55,6 +55,8 @@ class RestAPI:
         """Make an API request with input validation and response handling."""
         try:
             headers = self._get_headers()
+
+            print("headers are ", headers)
             json_data = input_data.model_dump() if input_data else None
 
             response = self._session.request(
@@ -91,9 +93,11 @@ class RestAPI:
     ) -> RunCodemodOutput:
         """Run a codemod transformation."""
         input_data = RunCodemodInput(
-            codemod_id=codemod.config.codemod_id,
-            repo_full_name=repo_full_name,
-            codemod_source=codemod.get_current_source(),
+            input=RunCodemodInput.BaseRunCodemodInput(
+                codemod_id=codemod.config.codemod_id,
+                repo_full_name=repo_full_name,
+                codemod_source=codemod.get_current_source(),
+            )
         )
         return self._make_request(
             "POST",
@@ -117,7 +121,7 @@ class RestAPI:
         return self._make_request(
             "GET",
             EXPERT_ENDPOINT,
-            AskExpertInput(query=query),
+            AskExpertInput(input=AskExpertInput.BaseAskExpertInput(query=query)),
             AskExpertResponse,
         )
 
@@ -127,7 +131,7 @@ class RestAPI:
         return self._make_request(
             "GET",
             CREATE_ENDPOINT,
-            CreateInput(query=query, repo_full_name=session.repo_name),
+            CreateInput(input=CreateInput.BaseCreateInput(query=query, repo_full_name=session.repo_name)),
             CreateResponse,
         )
 

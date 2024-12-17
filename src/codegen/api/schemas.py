@@ -1,5 +1,11 @@
+from typing import Generic, TypeVar
 from codegen.utils.constants import ProgrammingLanguage
 from codegen.utils.schema import SafeBaseModel
+
+
+T = TypeVar('T')
+
+
 
 ###########################################################################
 # RUN
@@ -7,10 +13,12 @@ from codegen.utils.schema import SafeBaseModel
 
 
 class RunCodemodInput(SafeBaseModel):
-    codemod_id: int
-    repo_full_name: str
-    codemod_source: str
-
+    class BaseRunCodemodInput(SafeBaseModel):
+        codemod_id: int
+        repo_full_name: str
+        codemod_source: str
+    
+    input: BaseRunCodemodInput
 
 class RunCodemodOutput(SafeBaseModel):
     success: bool = False
@@ -24,9 +32,11 @@ class RunCodemodOutput(SafeBaseModel):
 # EXPERT
 ###########################################################################
 
-
 class AskExpertInput(SafeBaseModel):
-    query: str
+    class BaseAskExpertInput(SafeBaseModel):
+        query: str
+
+    input: BaseAskExpertInput
 
 
 class AskExpertResponse(SafeBaseModel):
@@ -62,8 +72,11 @@ class DocsResponse(SafeBaseModel):
 
 
 class CreateInput(SafeBaseModel):
-    query: str | None = None
-    repo_full_name: str | None = None
+    class BaseCreateInput(SafeBaseModel):
+        query: str | None = None
+        repo_full_name: str | None = None
+
+    input: BaseCreateInput
 
 
 class CreateResponse(SafeBaseModel):
@@ -71,6 +84,11 @@ class CreateResponse(SafeBaseModel):
     response: str
     code: str
     codemod_id: int
+
+
+###########################################################################
+# IDENTIFY
+###########################################################################
 
 
 class IdentifyResponse(SafeBaseModel):
