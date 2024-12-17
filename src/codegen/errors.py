@@ -45,22 +45,3 @@ def handle_auth_error(f):
             raise click.Abort()
 
     return wrapper
-
-
-def handle_errors(cmd):
-    """Global error handler for CLI commands."""
-
-    def decorator(f):
-        @functools.wraps(f)
-        def wrapper(*args, **kwargs):
-            try:
-                return f(*args, **kwargs)
-            except Exception as e:
-                rich.print(Panel(format_error_message(e), title="Codegen Error", border_style="red"))
-                raise click.Abort()
-
-        return wrapper
-
-    # Apply the error handling wrapper while preserving Click command attributes
-    cmd.callback = decorator(cmd.callback)
-    return cmd
