@@ -14,4 +14,4 @@ def get_modal_workspace():
             raise ValueError(f"Invalid environment: {global_env.ENV}")
 
 
-MODAL_WORKSPACE = get_modal_workspace()
+MODAL_WORKSPACE = "codegen-sh-develop-rpatel"

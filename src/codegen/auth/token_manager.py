@@ -1,10 +1,6 @@
 import json
 import os
-from datetime import UTC, datetime
 from pathlib import Path
-
-import jwt
-import jwt.exceptions
 
 from codegen.auth.config import AUTH_FILE, CONFIG_DIR
 
@@ -24,19 +20,13 @@ class TokenManager:
             Path(self.config_dir).mkdir(parents=True, exist_ok=True)
 
     def save_token(self, token: str) -> None:
-        """Save JWT token to disk."""
+        """Save api token to disk."""
         try:
-            # Verify token is valid JWT before saving
-            jwt.decode(token, options={"verify_signature": False})
-
             with open(self.token_file, "w") as f:
                 json.dump({"token": token}, f)
 
             # Secure the file permissions (read/write for owner only)
             os.chmod(self.token_file, 0o600)
-        except jwt.InvalidTokenError as e:
-            print(e)
-            raise ValueError("Invalid JWT token provided") from e
         except Exception as e:
             print(f"Error saving token: {e!s}")
             raise
@@ -56,22 +46,11 @@ class TokenManager:
                 if not token:
                     return None
 
-                if not self.validate_expiration(token):
-                    print("Expired token - reauthenticate with `codegen login`")
-                    self.clear_token()
-                    return None
-
                 return token
 
-        except (json.JSONDecodeError, jwt.InvalidTokenError, KeyError, OSError) as e:
+        except (KeyError, OSError) as e:
             print(e)
             return None
-
-    def validate_expiration(self, token: str) -> bool:
-        """Validate the expiration of a token."""
-        payload = jwt.decode(token, options={"verify_signature": False})
-        exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
-        return exp > datetime.now(UTC)
 
     def clear_token(self) -> None:
         """Remove stored token."""
@@ -86,8 +65,8 @@ def get_current_token() -> str | None:
     the stored token. The token is validated before being returned.
 
     Returns:
-        Optional[str]: The current valid JWT token if one exists and hasn't expired.
-                      Returns None if no token exists, the token is expired, or invalid.
+        Optional[str]: The current valid api token if one exists.
+                      Returns None if no token exists.
 
     """
     token_manager = TokenManager()

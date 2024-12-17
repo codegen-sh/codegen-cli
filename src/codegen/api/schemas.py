@@ -71,3 +71,26 @@ class CreateResponse(SafeBaseModel):
     response: str
     code: str
     codemod_id: int
+
+
+class IdentifyResponse(SafeBaseModel):
+    class AuthContext(SafeBaseModel):
+        token_id: int
+        expires_at: str
+        status: str 
+        user_id: int
+
+    class User(SafeBaseModel):
+        github_user_id: str
+        avatar_url: str
+        auth_user_id: str
+        created_at: str
+        email: str
+        is_contractor: str
+        github_username: str
+        full_name: str
+        id: int
+        last_updated_at: str | None
+
+    auth_context: AuthContext
+    user: User

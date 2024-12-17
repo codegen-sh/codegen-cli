@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-import jwt
 from pygit2.repository import Repository
 
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
@@ -12,22 +11,26 @@ from codegen.utils.config import Config, State, get_config, get_state, read_mode
 from codegen.utils.git.repo import get_git_repo
 from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
 
+@dataclass
+class Identity:
+    token: str
+    expires_at: str
+    status: str
+    user: "User"
+
+@dataclass
+class User:
+    full_name: str
+    email: str
+    github_username: str
 
 @dataclass
 class UserProfile:
-    """User profile information extracted from JWT token"""
+    """User profile populated from /identity endpoint"""
 
     name: str
     email: str
     username: str
-
-    @classmethod
-    def from_token(cls, token: str) -> "UserProfile":
-        """Create a UserProfile from a JWT token"""
-        claims = jwt.decode(token.encode("utf-8"), options={"verify_signature": False})
-        user_metadata = claims.get("user_metadata", {})
-        return cls(name=user_metadata.get("full_name", "N/A"), email=claims.get("email", "N/A"), username=user_metadata.get("preferred_username", "N/A"))
-
 
 class CodegenSession:
     """Represents an authenticated codegen session with user and repository context"""
@@ -37,22 +40,57 @@ class CodegenSession:
 
     def __init__(self, token: str | None = None):
         self._token = token or get_current_token()
+        self._identity: Identity | None = None
         self._profile: UserProfile | None = None
         self._repo_name: str | None = None
         self._active_codemod: Codemod | None = None
         self.config = get_config(self.codegen_dir)
         self.state = get_state(self.codegen_dir)
 
+
+
+    @property
+    def identity(self) -> Identity:
+        """Get the identity of the user, if a token has been provided"""
+
+        if not self._identity and self._token:
+            from codegen.api.client import API
+            identity = API(self._token).identify()
+            if identity:
+                self._identity = Identity(
+                    token=self._token,
+                    expires_at=identity.auth_context.expires_at,
+                    status=identity.auth_context.status,
+                    user=User(
+                        full_name=identity.user.full_name,
+                        email=identity.user.email,
+                        github_username=identity.user.github_username,
+                    ),
+                )
+                return self._identity
+            else:
+                raise AuthError("Failed to identify user")
+        elif not self._token:
+            raise AuthError("No authentication token found")
+        elif self._identity:
+            return self._identity
+        
     @property
     def token(self) -> str:
         """Get the authentication token"""
         return self._token
 
+
     @property
     def profile(self) -> UserProfile:
         """Get the user profile information"""
         if not self._profile:
-            self._profile = UserProfile.from_token(self._token)
+            identity = self.identity
+            self._profile = UserProfile(
+                name=identity.user.full_name,
+                email=identity.user.email,
+                username=identity.user.github_username,
+            )
         return self._profile
 
     @property
@@ -107,14 +145,14 @@ class CodegenSession:
 
     def is_authenticated(self) -> bool:
         """Check if the session is fully authenticated, including token expiration"""
-        return bool(self._token and TokenManager().validate_expiration(self._token))
+        return bool(self.identity and  self.identity.status == "active")
 
     def assert_authenticated(self) -> None:
         """Raise an AuthError if the session is not fully authenticated"""
-        if not self._token:
-            raise AuthError("No authentication token found")
-        if not TokenManager().validate_expiration(self._token):
-            raise AuthError("Authentication token has expired")
+        if not self.identity:
+            raise AuthError("No identity found for session")
+        if self.identity.status != "active":
+            raise AuthError("Current session is not active. API Token may be invalid or may have expired.")
 
     def write_config(self) -> None:
         """Write the config to the codegen-sh/config.toml file"""

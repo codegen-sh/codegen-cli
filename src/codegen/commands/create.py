@@ -24,8 +24,7 @@ def create_command(session: CodegenSession, name: str, description: str | None):
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
         try:
             # Get code from API
-            response = RestAPI.create(description if description else None)
-
+            response = RestAPI(session.token).create(description if description else None)
             # Show the AI's explanation
             rich.print("\n[bold]🤖 AI Assistant:[/bold]")
             rich.print(
