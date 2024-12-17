@@ -3,14 +3,14 @@ import os
 from dotenv import load_dotenv
 
 from codegen.env.constants import DEFAULT_ENV
+from codegen.env.enums import Environment
 
 
 class GlobalEnv:
     def __init__(self) -> None:
         load_dotenv()
 
-        self.ENV = os.environ.get("ENV", DEFAULT_ENV)
-        # print(f"ENV: {self.ENV}")
+        self.ENV = self._parse_env()
 
         # =====[ DEV ]=====
         self.DEBUG = self._get_env_var("DEBUG")
@@ -35,6 +35,14 @@ class GlobalEnv:
         if required:
             raise ValueError(f"Environment variable {var_name} is not set with ENV={self.ENV}!")
         return ""
+
+    def _parse_env(self) -> Environment:
+        envvar_env = os.environ.get("ENV")
+        if not envvar_env:
+            return DEFAULT_ENV
+        if envvar_env not in Environment:
+            raise ValueError(f"Invalid environment: {envvar_env}")
+        return Environment(envvar_env)
 
 
 # NOTE: load and store envvars once
