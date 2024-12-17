@@ -3,7 +3,7 @@ import rich_click as click
 from rich.status import Status
 
 from codegen.analytics.decorators import track_command
-from codegen.api.client import API
+from codegen.api.client import RestAPI
 from codegen.api.schemas import AskExpertResponse
 from codegen.auth.decorator import requires_auth, requires_init
 from codegen.auth.session import CodegenSession
@@ -25,7 +25,7 @@ def expert_command(session: CodegenSession, query: str):
     status.start()
 
     try:
-        response = API.ask_expert(query)
+        response = RestAPI.ask_expert(query)
         status.stop()
         rich.print.print("✓ Response received", style="green")
         pretty_print_expert_response(response)
