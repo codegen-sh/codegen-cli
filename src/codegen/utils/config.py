@@ -44,6 +44,7 @@ def get_state(codegen_dir: Path) -> State:
 
 
 def write_model(model: BaseModel, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         toml.dump(model.model_dump(), f)
 
