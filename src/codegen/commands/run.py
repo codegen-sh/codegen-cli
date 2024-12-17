@@ -60,7 +60,7 @@ Or select an existing one with:
         )
 
         status.stop()
-        rich.print("✓ Codemod run complete", style="green")
+        rich.print("[green]✓ Codemod run complete[/green]")
 
         pretty_print_output(run_output)
 
