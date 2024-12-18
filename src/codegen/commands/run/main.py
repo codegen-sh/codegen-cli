@@ -61,6 +61,10 @@ Or select an existing one with:
             panel = Panel(run_output.logs, title="[bold]Logs[/bold]", border_style="blue", padding=(1, 2), expand=False)
             rich.print(panel)
 
+        if run_output.error:
+            panel = Panel(run_output.error, title="[bold]Error[/bold]", border_style="red", padding=(1, 2), expand=False)
+            rich.print(panel)
+
         if run_output.observation:
             rich.print("")  # Add some spacing
             panel = Panel(run_output.observation, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
