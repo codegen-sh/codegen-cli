@@ -16,6 +16,7 @@ dependencies = [
     "pydantic>=2.10.3",
     "toml>=0.10.2",
     "rich-click>=1.8.5",
+    "graph-sitter-types>=6.2.1",
 ]
 dynamic = ["version", "urls"]
 [project.scripts]
