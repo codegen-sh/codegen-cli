@@ -8,11 +8,12 @@ from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.client import RestAPI
-from codegen.auth.decorator import requires_auth, requires_init
+from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
+from codegen.commands.run.render import pretty_print_output
 from codegen.errors import ServerError
-from codegen.rich.pretty_print import pretty_print_output
-from codegen.utils.git.patch import apply_patch
+from codegen.git.patch import apply_patch
+from codegen.workspace.decorators import requires_init
 
 
 @click.command(name="run")

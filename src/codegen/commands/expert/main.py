@@ -5,9 +5,10 @@ from rich.status import Status
 from codegen.analytics.decorators import track_command
 from codegen.api.client import RestAPI
 from codegen.api.schemas import AskExpertResponse
-from codegen.auth.decorator import requires_auth, requires_init
+from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
+from codegen.workspace.decorators import requires_init
 
 
 def pretty_print_expert_response(response: AskExpertResponse) -> None:
