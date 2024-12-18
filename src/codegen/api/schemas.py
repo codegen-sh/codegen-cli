@@ -59,7 +59,10 @@ class SerializedExample(SafeBaseModel):
 
 
 class DocsInput(SafeBaseModel):
-    repo_full_name: str
+    class BaseDocsInput(SafeBaseModel):
+        repo_full_name: str
+
+    docs_input: BaseDocsInput
 
 
 class DocsResponse(SafeBaseModel):

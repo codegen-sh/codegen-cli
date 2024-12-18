@@ -120,7 +120,7 @@ class RestAPI:
         return self._make_request(
             "GET",
             DOCS_ENDPOINT,
-            DocsInput(repo_full_name=session.repo_name),
+            DocsInput(docs_input=DocsInput.BaseDocsInput(repo_full_name=session.repo_name)),
             DocsResponse,
         )
 
