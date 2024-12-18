@@ -107,7 +107,7 @@ class IdentifyResponse(SafeBaseModel):
         email: str
         is_contractor: str
         github_username: str
-        full_name: str
+        full_name: str | None
         id: int
         last_updated_at: str | None
 

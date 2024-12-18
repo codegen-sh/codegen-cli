@@ -98,10 +98,13 @@ class RestAPI:
         codemod: Codemod,
     ) -> RunCodemodOutput:
         """Run a codemod transformation."""
+        session = CodegenSession()
+
         input_data = RunCodemodInput(
             input=RunCodemodInput.BaseRunCodemodInput(
                 codemod_id=codemod.config.codemod_id,
                 codemod_source=codemod.get_current_source(),
+                repo_full_name=session.repo_name,
             )
         )
         return self._make_request(
