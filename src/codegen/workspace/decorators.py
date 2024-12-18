@@ -5,7 +5,7 @@ import rich
 from rich.status import Status
 
 from codegen.auth.session import CodegenSession
-from codegen.workspace.docs_workspace import initialize_codegen
+from codegen.workspace.initialize_workspace import initialize_codegen
 
 
 def requires_init(f: Callable) -> Callable:
