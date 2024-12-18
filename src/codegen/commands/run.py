@@ -55,7 +55,7 @@ Or select an existing one with:
         status.stop()
         rich.print(f"[green]✓[/green] Ran {active_codemod.name} successfully")
         if run_output.web_link:
-            rich.print(f"[blue]→[/blue] View results (for humans): {run_output.web_link}")
+            rich.print(f"[blue]→[/blue] Web viewer (for humans): {run_output.web_link}")
 
         if run_output.logs:
             rich.print("")
@@ -70,6 +70,9 @@ Or select an existing one with:
             if not apply_local:
                 rich.print("")
                 rich.print(f"[yellow]→ Run 'codegen run {active_codemod.name} --apply-local' to apply these changes[/yellow]")
+        else:
+            rich.print("")
+            rich.print("[yellow]ℹ No changes were produced by this codemod[/yellow]")
 
         if web and run_output.web_link:
             webbrowser.open_new(run_output.web_link)
