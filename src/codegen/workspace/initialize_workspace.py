@@ -6,40 +6,12 @@ from pygit2.repository import Repository
 from rich.status import Status
 
 from codegen.api.client import RestAPI
-from codegen.api.schemas import SerializedExample
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
 from codegen.auth.session import CodegenSession
+from codegen.git.repo import get_git_repo
 from codegen.utils.config import STATE_PATH
-from codegen.utils.formatters.examples import format_example
-from codegen.utils.git.repo import get_git_repo
-
-
-def populate_api_docs(dest: Path, api_docs: dict[str, str], status: Status):
-    """Writes all API docs to the docs folder"""
-    status.update("Populating API documentation...")
-    # Remove existing docs
-    shutil.rmtree(dest, ignore_errors=True)
-    dest.mkdir(parents=True, exist_ok=True)
-
-    # Populate docs
-    for file, content in api_docs.items():
-        dest_file = dest / file
-        dest_file.parent.mkdir(parents=True, exist_ok=True)
-        dest_file.write_text(content)
-
-
-def populate_examples(dest: Path, examples: list[SerializedExample], status: Status):
-    """Populate the examples folder with examples for the current repository."""
-    status.update("Populating example codemods...")
-    # Remove existing examples
-    shutil.rmtree(dest, ignore_errors=True)
-    dest.mkdir(parents=True, exist_ok=True)
-
-    for example in examples:
-        dest_file = dest / f"{example.name}.py"
-        dest_file.parent.mkdir(parents=True, exist_ok=True)
-        formatted = format_example(example)
-        dest_file.write_text(formatted)
+from codegen.workspace.docs_workspace import populate_api_docs
+from codegen.workspace.examples_workspace import populate_examples
 
 
 def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, Path, Path, Path, Path]:

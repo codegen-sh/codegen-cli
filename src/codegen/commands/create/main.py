@@ -6,11 +6,12 @@ from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.client import RestAPI
-from codegen.auth.decorator import requires_auth, requires_init
+from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.utils.codemod_manager import CodemodManager
 from codegen.utils.schema import CODEMOD_CONFIG_PATH
+from codegen.workspace.decorators import requires_init
 
 
 @click.command(name="create")

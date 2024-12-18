@@ -4,25 +4,8 @@ from collections.abc import Callable
 import rich
 from rich.status import Status
 
-from codegen.auth.login import login_routine
 from codegen.auth.session import CodegenSession
-from codegen.utils.init import initialize_codegen
-
-
-def requires_auth(f: Callable) -> Callable:
-    """Decorator that ensures a user is authenticated and injects a CodegenSession."""
-
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        session = CodegenSession()
-
-        if not session.is_authenticated():
-            rich.print("[yellow]Not authenticated. Let's get you logged in first![/yellow]\n")
-            session = login_routine()
-
-        return f(*args, session=session, **kwargs)
-
-    return wrapper
+from codegen.workspace.initialize_workspace import initialize_codegen
 
 
 def requires_init(f: Callable) -> Callable:
