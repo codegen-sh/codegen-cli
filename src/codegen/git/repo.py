@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pygit2.repository import Repository
 
-from codegen.utils.git.folder import get_git_folder
+from codegen.git.folder import get_git_folder
 
 
 def get_git_repo(path: os.PathLike | None = None) -> Repository | None:

@@ -1,16 +1,16 @@
 import rich_click as click
 from rich.traceback import install
 
-from codegen.commands.create import create_command
-from codegen.commands.docs_search import docs_search_command
-from codegen.commands.expert import expert_command
-from codegen.commands.init import init_command
-from codegen.commands.login import login_command
-from codegen.commands.logout import logout_command
-from codegen.commands.profile import profile_command
-from codegen.commands.run import run_command
-from codegen.commands.set_active import set_active_command
-from codegen.commands.list import list_command
+from codegen.commands.create.main import create_command
+from codegen.commands.docs_search.main import docs_search_command
+from codegen.commands.expert.main import expert_command
+from codegen.commands.init.main import init_command
+from codegen.commands.list.main import list_command
+from codegen.commands.login.main import login_command
+from codegen.commands.logout.main import logout_command
+from codegen.commands.profile.main import profile_command
+from codegen.commands.run.main import run_command
+from codegen.commands.set_active.main import set_active_command
 
 click.rich_click.USE_RICH_MARKUP = True
 install(show_locals=True)

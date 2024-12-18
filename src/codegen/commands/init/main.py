@@ -3,32 +3,13 @@ import rich_click as click
 from rich import box
 from rich.panel import Panel
 from rich.status import Status
-from rich.text import Text
 
 from codegen.analytics.decorators import track_command
-from codegen.auth.decorator import requires_auth
+from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
-from codegen.utils.git.url import get_git_organization_and_repo
-from codegen.utils.init import initialize_codegen
-
-
-def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_folder) -> Text:
-    """Create a rich-formatted success message."""
-    message = Text()
-
-    # Folders section
-    message.append("\n📁 ", style="bold yellow")
-    message.append("Folders Created:", style="bold blue")
-    message.append("\n   • Codegen:  ", style="dim")
-    message.append(str(codegen_folder), style="cyan")
-    message.append("\n   • Codemods: ", style="dim")
-    message.append(str(codemods_folder), style="cyan")
-    message.append("\n   • Docs:     ", style="dim")
-    message.append(str(docs_folder), style="cyan")
-    message.append("\n   • Examples: ", style="dim")
-    message.append(str(examples_folder), style="cyan")
-
-    return message
+from codegen.commands.init.render import get_success_message
+from codegen.git.url import get_git_organization_and_repo
+from codegen.workspace.initialize_workspace import initialize_codegen
 
 
 @click.command(name="init")
