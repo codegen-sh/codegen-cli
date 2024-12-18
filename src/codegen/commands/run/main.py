@@ -62,6 +62,7 @@ Or select an existing one with:
             rich.print(panel)
 
         if run_output.error:
+            rich.print("")
             panel = Panel(run_output.error, title="[bold]Error[/bold]", border_style="red", padding=(1, 2), expand=False)
             rich.print(panel)
 
