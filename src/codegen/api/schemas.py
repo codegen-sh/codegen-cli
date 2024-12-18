@@ -88,6 +88,7 @@ class CreateResponse(SafeBaseModel):
     response: str
     code: str
     codemod_id: int
+    context: str | None = None
 
 
 ###########################################################################

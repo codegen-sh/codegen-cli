@@ -46,6 +46,7 @@ def create_command(session: CodegenSession, name: str, description: str | None):
                 codemod_id=response.codemod_id,
                 description=description or f"AI-generated codemod for: {name}",
                 author=session.profile.name,
+                system_prompt=response.context,
             )
 
         except ServerError as e:
