@@ -3,9 +3,10 @@ import rich_click as click
 from rich.table import Table
 
 from codegen.analytics.decorators import track_command
-from codegen.auth.decorator import requires_auth, requires_init
+from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
 from codegen.utils.codemod_manager import CodemodManager
+from codegen.workspace.decorators import requires_init
 
 
 @click.command(name="list")
