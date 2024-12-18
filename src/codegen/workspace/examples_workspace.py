@@ -6,7 +6,6 @@ from rich.status import Status
 from codegen.api.schemas import SerializedExample
 from codegen.auth.session import CodegenSession
 from codegen.codemod.convert import convert_to_cli
-from codegen.utils.constants import ProgrammingLanguage
 
 
 def populate_examples(session: CodegenSession, dest: Path, examples: list[SerializedExample], status: Status):
@@ -21,7 +20,7 @@ def populate_examples(session: CodegenSession, dest: Path, examples: list[Serial
         dest_file.parent.mkdir(parents=True, exist_ok=True)
         session.config.programming_language = example.language
         session.write_config()
-        formatted = format_example(example)
+        formatted = format_example(example, session.config.programming_language)
         dest_file.write_text(formatted)
 
 
@@ -34,7 +33,7 @@ def format_section(title: str, content: str | None) -> str:
     return f"{title}:\n    {formatted_lines}"
 
 
-def format_example(example: SerializedExample, language: ProgrammingLanguage) -> str:
+def format_example(example: SerializedExample, language: str) -> str:
     """Format a single example."""
     name = example.name if example.name else "Untitled"
 

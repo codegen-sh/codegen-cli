@@ -20,9 +20,9 @@ from codegen.workspace.decorators import requires_init
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("name", type=str)
+@click.argument("name", type=str, required=False)
 @click.option("--description", "-d", default=None, help="Description of what this codemod does")
-def create_command(session: CodegenSession, name: str, description: str | None):
+def create_command(session: CodegenSession, name: str | None = None, description: str | None = None):
     """Create a new codemod in the codegen-sh/codemods directory."""
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
         try:

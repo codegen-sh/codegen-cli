@@ -1,2 +1,6 @@
 repo_name = "codegen-staging"
 organization_name = "codegen-sh-staging"
+
+[analytics]
+telemetry_enabled = true
+distinct_id = ""
