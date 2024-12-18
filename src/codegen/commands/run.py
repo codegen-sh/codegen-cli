@@ -50,7 +50,7 @@ Or select an existing one with:
     )
 
     try:
-        run_output = RestAPI.run(
+        run_output = RestAPI(session.token).run(
             codemod=session.active_codemod,
             repo_full_name=session.repo_name,
         )

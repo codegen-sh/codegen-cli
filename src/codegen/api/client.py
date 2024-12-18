@@ -7,6 +7,7 @@ from codegen.api.endpoints import (
     CREATE_ENDPOINT,
     DOCS_ENDPOINT,
     EXPERT_ENDPOINT,
+    IDENTIFY_ENDPOINT,
     RUN_CODEMOD_ENDPOINT,
 )
 from codegen.api.schemas import (
@@ -16,6 +17,7 @@ from codegen.api.schemas import (
     CreateResponse,
     DocsInput,
     DocsResponse,
+    IdentifyResponse,
     RunCodemodInput,
     RunCodemodOutput,
 )
@@ -32,18 +34,19 @@ class RestAPI:
 
     _session: ClassVar[requests.Session] = requests.Session()
 
-    @classmethod
-    def _get_headers(cls) -> dict[str, str]:
+    auth_token: str | None = None
+
+    def __init__(self, auth_token: str):
+        self.auth_token = auth_token
+
+    def _get_headers(self) -> dict[str, str]:
         """Get headers with authentication token."""
-        session = CodegenSession()
-        session.assert_authenticated()
         return {
-            "Authorization": f"Bearer {session.token}",
+            "Authorization": f"Bearer {self.auth_token}",
         }
 
-    @classmethod
     def _make_request(
-        cls,
+        self,
         method: str,
         endpoint: str,
         input_data: InputT | None,
@@ -51,10 +54,12 @@ class RestAPI:
     ) -> OutputT:
         """Make an API request with input validation and response handling."""
         try:
-            headers = cls._get_headers()
+            headers = self._get_headers()
+
+            print("headers are ", headers)
             json_data = input_data.model_dump() if input_data else None
 
-            response = cls._session.request(
+            response = self._session.request(
                 method,
                 endpoint,
                 json=json_data,
@@ -81,53 +86,64 @@ class RestAPI:
         except requests.RequestException as e:
             raise ServerError(f"Network error: {e!s}")
 
-    @classmethod
     def run(
-        cls,
+        self,
         codemod: Codemod,
         repo_full_name: str,
     ) -> RunCodemodOutput:
         """Run a codemod transformation."""
         input_data = RunCodemodInput(
-            codemod_id=codemod.config.codemod_id,
-            repo_full_name=repo_full_name,
-            codemod_source=codemod.get_current_source(),
+            input=RunCodemodInput.BaseRunCodemodInput(
+                codemod_id=codemod.config.codemod_id,
+                repo_full_name=repo_full_name,
+                codemod_source=codemod.get_current_source(),
+            )
         )
-        return cls._make_request(
+        return self._make_request(
             "POST",
             RUN_CODEMOD_ENDPOINT,
             input_data,
             RunCodemodOutput,
         )
 
-    @classmethod
-    def get_docs(cls) -> dict:
+    def get_docs(self) -> dict:
         """Search documentation."""
         session = CodegenSession()
-        return cls._make_request(
+        return self._make_request(
             "GET",
             DOCS_ENDPOINT,
             DocsInput(repo_full_name=session.repo_name),
             DocsResponse,
         )
 
-    @classmethod
-    def ask_expert(cls, query: str) -> AskExpertResponse:
+    def ask_expert(self, query: str) -> AskExpertResponse:
         """Ask the expert system a question."""
-        return cls._make_request(
+        return self._make_request(
             "GET",
             EXPERT_ENDPOINT,
-            AskExpertInput(query=query),
+            AskExpertInput(input=AskExpertInput.BaseAskExpertInput(query=query)),
             AskExpertResponse,
         )
 
-    @classmethod
-    def create(cls, query: str) -> CreateResponse:
+    def create(self, query: str) -> CreateResponse:
         """Get AI-generated starter code for a codemod."""
         session = CodegenSession()
-        return cls._make_request(
+        return self._make_request(
             "GET",
             CREATE_ENDPOINT,
-            CreateInput(query=query, repo_full_name=session.repo_name),
+            CreateInput(input=CreateInput.BaseCreateInput(query=query, repo_full_name=session.repo_name)),
             CreateResponse,
         )
+
+    def identify(self) -> IdentifyResponse | None:
+        """Identify the user's codemod."""
+        try:
+            return self._make_request(
+                "POST",
+                IDENTIFY_ENDPOINT,
+                None,
+                IdentifyResponse,
+            )
+        except ServerError as e:
+            print(f"Error identifying user: {e}")
+            return None

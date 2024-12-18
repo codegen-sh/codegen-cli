@@ -25,7 +25,7 @@ def expert_command(session: CodegenSession, query: str):
     status.start()
 
     try:
-        response = RestAPI.ask_expert(query)
+        response = RestAPI(session.token).ask_expert(query)
         status.stop()
         rich.print.print("✓ Response received", style="green")
         pretty_print_expert_response(response)

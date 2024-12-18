@@ -1,5 +1,10 @@
+from typing import TypeVar
+
 from codegen.utils.constants import ProgrammingLanguage
 from codegen.utils.schema import SafeBaseModel
+
+T = TypeVar("T")
+
 
 ###########################################################################
 # RUN
@@ -7,9 +12,12 @@ from codegen.utils.schema import SafeBaseModel
 
 
 class RunCodemodInput(SafeBaseModel):
-    codemod_id: int
-    repo_full_name: str
-    codemod_source: str
+    class BaseRunCodemodInput(SafeBaseModel):
+        codemod_id: int
+        repo_full_name: str
+        codemod_source: str
+
+    input: BaseRunCodemodInput
 
 
 class RunCodemodOutput(SafeBaseModel):
@@ -26,7 +34,10 @@ class RunCodemodOutput(SafeBaseModel):
 
 
 class AskExpertInput(SafeBaseModel):
-    query: str
+    class BaseAskExpertInput(SafeBaseModel):
+        query: str
+
+    input: BaseAskExpertInput
 
 
 class AskExpertResponse(SafeBaseModel):
@@ -62,8 +73,11 @@ class DocsResponse(SafeBaseModel):
 
 
 class CreateInput(SafeBaseModel):
-    query: str | None = None
-    repo_full_name: str | None = None
+    class BaseCreateInput(SafeBaseModel):
+        query: str | None = None
+        repo_full_name: str | None = None
+
+    input: BaseCreateInput
 
 
 class CreateResponse(SafeBaseModel):
@@ -71,3 +85,31 @@ class CreateResponse(SafeBaseModel):
     response: str
     code: str
     codemod_id: int
+
+
+###########################################################################
+# IDENTIFY
+###########################################################################
+
+
+class IdentifyResponse(SafeBaseModel):
+    class AuthContext(SafeBaseModel):
+        token_id: int
+        expires_at: str
+        status: str
+        user_id: int
+
+    class User(SafeBaseModel):
+        github_user_id: str
+        avatar_url: str
+        auth_user_id: str
+        created_at: str
+        email: str
+        is_contractor: str
+        github_username: str
+        full_name: str
+        id: int
+        last_updated_at: str | None
+
+    auth_context: AuthContext
+    user: User

@@ -8,6 +8,7 @@ from rich.status import Status
 from codegen.api.client import RestAPI
 from codegen.api.schemas import SerializedExample
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
+from codegen.auth.session import CodegenSession
 from codegen.utils.config import STATE_PATH
 from codegen.utils.formatters.examples import format_example
 from codegen.utils.git.repo import get_git_repo
@@ -76,7 +77,8 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     status.update("Fetching latest docs & examples...", spinner_style="purple")
     shutil.rmtree(DOCS_FOLDER, ignore_errors=True)
     shutil.rmtree(EXAMPLES_FOLDER, ignore_errors=True)
-    response = RestAPI.get_docs()
+    session = CodegenSession()
+    response = RestAPI(session.token).get_docs()
     populate_api_docs(DOCS_FOLDER, response.docs, status)
     populate_examples(EXAMPLES_FOLDER, response.examples, status)
 
