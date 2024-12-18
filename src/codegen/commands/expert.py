@@ -16,6 +16,7 @@ def pretty_print_expert_response(response: AskExpertResponse) -> None:
 
 
 @click.command(name="expert")
+@click.option("--query", "-q", help="The question to ask the expert.")
 @track_command()
 @requires_auth
 @requires_init
