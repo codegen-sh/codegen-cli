@@ -24,7 +24,6 @@ from codegen.workspace.decorators import requires_init
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
 def run_command(session: CodegenSession, codemod_name: str | None = None, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
-
     # If codemod name is provided, create a Codemod object for it
     if codemod_name:
         active_codemod = CodemodManager.get(codemod_name)
