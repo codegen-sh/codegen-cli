@@ -107,3 +107,34 @@ class CodemodManager:
         session.write_state()
 
         return Codemod(name=codemod_name, path=run_file, config=config)
+
+    @classmethod
+    def get(cls, codemod_name: str) -> Codemod | None:
+        """Get a specific codemod by name.
+
+        Args:
+            codemod_name: Name of the codemod to fetch
+
+        Returns:
+            Codemod if found, None otherwise
+        """
+        codemod_dir = cls.CODEMODS_DIR / codemod_name
+        run_file = codemod_dir / "run.py"
+        config_file = codemod_dir / CODEMOD_CONFIG_PATH
+
+        if not run_file.exists():
+            return None
+
+        # Try to load config if it exists
+        config = None
+        if config_file.exists():
+            try:
+                config = read_model(CodemodConfig, config_file)
+            except Exception:
+                pass  # Config is optional
+
+        return Codemod(
+            name=codemod_name,
+            path=run_file,
+            config=config,
+        )

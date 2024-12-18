@@ -10,6 +10,7 @@ from codegen.commands.logout import logout_command
 from codegen.commands.profile import profile_command
 from codegen.commands.run import run_command
 from codegen.commands.set_active import set_active_command
+from codegen.commands.list import list_command
 
 click.rich_click.USE_RICH_MARKUP = True
 install(show_locals=True)
@@ -30,6 +31,7 @@ main.add_command(profile_command)
 main.add_command(create_command)
 main.add_command(expert_command)
 main.add_command(set_active_command)
+main.add_command(list_command)
 
 if __name__ == "__main__":
     main()
