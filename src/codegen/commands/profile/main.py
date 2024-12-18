@@ -29,34 +29,19 @@ def profile_command(session: CodegenSession):
     active_codemod = session.active_codemod
     if active_codemod:
         content = []
-        content.append("📝 [bold]Active Codemod[/bold]\n")
         content.append(f"[cyan]Name:[/cyan] {active_codemod.name}")
         content.append(f"[cyan]Path:[/cyan] {active_codemod.relative_path()}")
-        content.append(f"[cyan]URL:[/cyan] {active_codemod.get_url()}")
 
         if active_codemod.config:
-            content.append(f"[cyan]ID:[/cyan]   {active_codemod.config.codemod_id}")
+            if active_codemod.config.codemod_id:
+                content.append(f"[cyan]ID:[/cyan]   {active_codemod.config.codemod_id}")
             if active_codemod.config.description:
                 content.append(f"[cyan]Desc:[/cyan] {active_codemod.config.description}")
-
-        # Show the source code
-        source = active_codemod.path.read_text()
-        content.append("\n[bold]Source Code:[/bold]")
-
-        # Create source code panel
-        source_panel = Panel(
-            source,
-            title="[bold blue]run.py",
-            border_style="blue",
-            box=box.ROUNDED,
-            padding=(1, 2),
-        )
-        content.append(source_panel.renderable)
 
         rich.print(
             Panel(
                 "\n".join(str(line) for line in content),
-                title="[bold]Active Codemod Details[/bold]",
+                title="[bold]Active Codemod[/bold]",
                 border_style="cyan",
                 box=box.ROUNDED,
                 padding=(1, 2),
