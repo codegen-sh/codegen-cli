@@ -4,16 +4,10 @@ from rich.status import Status
 
 from codegen.analytics.decorators import track_command
 from codegen.api.client import RestAPI
-from codegen.api.schemas import AskExpertResponse
 from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
 from codegen.errors import ServerError
 from codegen.workspace.decorators import requires_init
-
-
-def pretty_print_expert_response(response: AskExpertResponse) -> None:
-    """Pretty print the expert response."""
-    rich.print(response.response)
 
 
 @click.command(name="expert")
@@ -30,7 +24,7 @@ def expert_command(session: CodegenSession, query: str):
         response = RestAPI(session.token).ask_expert(query)
         status.stop()
         rich.print("[bold green]✓ Response received[/bold green]")
-        pretty_print_expert_response(response)
+        rich.print(response.response)
     except ServerError as e:
         status.stop()
         raise click.ClickException(str(e))
