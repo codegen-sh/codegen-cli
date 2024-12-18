@@ -17,6 +17,7 @@ def pretty_print_expert_response(response: AskExpertResponse) -> None:
 
 
 @click.command(name="expert")
+@click.option("--query", "-q", help="The question to ask the expert.")
 @track_command()
 @requires_auth
 @requires_init
@@ -28,7 +29,7 @@ def expert_command(session: CodegenSession, query: str):
     try:
         response = RestAPI(session.token).ask_expert(query)
         status.stop()
-        rich.print.print("✓ Response received", style="green")
+        rich.print("[bold green]✓ Response received[/bold green]")
         pretty_print_expert_response(response)
     except ServerError as e:
         status.stop()

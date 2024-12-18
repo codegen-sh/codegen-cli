@@ -56,7 +56,6 @@ class RestAPI:
         try:
             headers = self._get_headers()
 
-            print("headers are ", headers)
             json_data = input_data.model_dump() if input_data else None
 
             response = self._session.request(
