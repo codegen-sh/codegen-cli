@@ -6,9 +6,9 @@ from pygit2.repository import Repository
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import get_current_token
 from codegen.errors import AuthError
+from codegen.git.repo import get_git_repo
 from codegen.utils.codemods import Codemod
 from codegen.utils.config import Config, State, get_config, get_state, read_model, write_config, write_state
-from codegen.utils.git.repo import get_git_repo
 from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
 
 
