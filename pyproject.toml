@@ -65,6 +65,7 @@ lint.ignore = [
     "E712", # https://github.com/astral-sh/ruff/issues/4560
     "F841",
     "F842",
+    "RUF001",
     "RUF012",
     "RUF007",
 ]

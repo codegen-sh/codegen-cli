@@ -1,6 +1,7 @@
 default_language_version:
   node: system
   python: python3.13
+fail_fast: true
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.3

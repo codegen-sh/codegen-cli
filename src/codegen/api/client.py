@@ -96,13 +96,11 @@ class RestAPI:
     def run(
         self,
         codemod: Codemod,
-        repo_full_name: str,
     ) -> RunCodemodOutput:
         """Run a codemod transformation."""
         input_data = RunCodemodInput(
             input=RunCodemodInput.BaseRunCodemodInput(
                 codemod_id=codemod.config.codemod_id,
-                repo_full_name=repo_full_name,
                 codemod_source=codemod.get_current_source(),
             )
         )
