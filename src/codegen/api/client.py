@@ -1,7 +1,9 @@
+import json
 from typing import ClassVar, TypeVar
 
 import requests
 from pydantic import BaseModel
+from rich import print as rprint
 
 from codegen.api.endpoints import (
     CREATE_ENDPOINT,
@@ -22,6 +24,7 @@ from codegen.api.schemas import (
     RunCodemodOutput,
 )
 from codegen.auth.session import CodegenSession
+from codegen.env.global_env import global_env
 from codegen.errors import ServerError
 from codegen.utils.codemods import Codemod
 
@@ -53,6 +56,11 @@ class RestAPI:
         output_model: type[OutputT],
     ) -> OutputT:
         """Make an API request with input validation and response handling."""
+        if global_env.DEBUG:
+            rprint(f"[purple]{method}[/purple] {endpoint}")
+            if input_data:
+                rprint(f"{json.dumps(input_data.model_dump(), indent=4)}")
+
         try:
             headers = self._get_headers()
 
