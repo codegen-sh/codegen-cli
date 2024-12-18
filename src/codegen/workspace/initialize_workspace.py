@@ -52,7 +52,7 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     session = CodegenSession()
     response = RestAPI(session.token).get_docs()
     populate_api_docs(DOCS_FOLDER, response.docs, status)
-    populate_examples(EXAMPLES_FOLDER, response.examples, status)
+    populate_examples(session, EXAMPLES_FOLDER, response.examples, status)
 
     status.update("[bold green]Done! 🎉")
 

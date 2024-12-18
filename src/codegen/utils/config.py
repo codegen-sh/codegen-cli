@@ -3,6 +3,8 @@ from pathlib import Path
 import toml
 from pydantic import BaseModel
 
+from codegen.utils.constants import ProgrammingLanguage
+
 
 class AnalyticsConfig(BaseModel):
     telemetry_enabled: bool = True
@@ -12,6 +14,7 @@ class AnalyticsConfig(BaseModel):
 class Config(BaseModel):
     repo_name: str = ""
     organization_name: str = ""
+    programming_language: ProgrammingLanguage | None = None
     analytics: AnalyticsConfig = AnalyticsConfig()
 
     @property
