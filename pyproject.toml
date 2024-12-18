@@ -17,6 +17,7 @@ dependencies = [
     "toml>=0.10.2",
     "rich-click>=1.8.5",
     "graph-sitter-types>=6.2.1",
+    "codegen-types>=0.263.0",
 ]
 dynamic = ["version", "urls"]
 [project.scripts]
