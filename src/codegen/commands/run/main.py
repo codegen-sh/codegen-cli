@@ -49,7 +49,6 @@ Or select an existing one with:
     try:
         run_output = RestAPI(session.token).run(
             codemod=active_codemod,
-            repo_full_name=session.repo_name,
         )
 
         status.stop()
