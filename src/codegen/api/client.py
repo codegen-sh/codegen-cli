@@ -10,7 +10,7 @@ from codegen.api.endpoints import (
     DOCS_ENDPOINT,
     EXPERT_ENDPOINT,
     IDENTIFY_ENDPOINT,
-    RUN_CODEMOD_ENDPOINT,
+    RUN_ENDPOINT,
 )
 from codegen.api.schemas import (
     AskExpertInput,
@@ -106,7 +106,7 @@ class RestAPI:
         )
         return self._make_request(
             "POST",
-            RUN_CODEMOD_ENDPOINT,
+            RUN_ENDPOINT,
             input_data,
             RunCodemodOutput,
         )
