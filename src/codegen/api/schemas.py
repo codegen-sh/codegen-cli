@@ -109,7 +109,7 @@ class IdentifyResponse(SafeBaseModel):
         auth_user_id: str
         created_at: str
         email: str
-        is_contractor: str
+        is_contractor: str | None
         github_username: str
         full_name: str | None
         id: int
