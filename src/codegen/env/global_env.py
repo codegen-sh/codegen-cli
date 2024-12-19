@@ -25,6 +25,9 @@ class GlobalEnv:
         self.POSTHOG_PROJECT_API_KEY = self._get_env_var("POSTHOG_PROJECT_API_KEY")
         self.POSTHOG_API_KEY = self._get_env_var("POSTHOG_API_KEY")
 
+        # =====[ MODAL ]=====
+        self.MODAL_ENVIRONMENT = self._get_env_var("MODAL_ENVIRONMENT")
+
     def _get_env_var(self, var_name, required: bool = False) -> str:
         if self.ENV == "local":
             return ""
