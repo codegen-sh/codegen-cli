@@ -40,12 +40,13 @@ class GlobalEnv:
         return ""
 
     def _parse_env(self) -> Environment:
-        env_envvar = os.environ.get("ENV")
-        if not env_envvar:
+        from codegen._env import ENV
+        
+        if not ENV:
             return DEFAULT_ENV
-        if env_envvar not in Environment:
+        if ENV not in Environment:
             raise ValueError(f"Invalid environment: {env_envvar}")
-        return Environment(env_envvar)
+        return Environment(ENV)
 
 
 # NOTE: load and store envvars once
