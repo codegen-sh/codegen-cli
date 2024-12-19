@@ -8,8 +8,10 @@ from codegen.analytics.decorators import track_command
 from codegen.api.client import RestAPI
 from codegen.auth.decorators import requires_auth
 from codegen.auth.session import CodegenSession
+from codegen.codemod.convert import convert_to_cli
 from codegen.errors import ServerError
 from codegen.utils.codemod_manager import CodemodManager
+from codegen.utils.constants import ProgrammingLanguage
 from codegen.utils.schema import CODEMOD_CONFIG_PATH
 from codegen.workspace.decorators import requires_init
 
@@ -18,9 +20,9 @@ from codegen.workspace.decorators import requires_init
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("name", type=str)
+@click.argument("name", type=str, required=False)
 @click.option("--description", "-d", default=None, help="Description of what this codemod does")
-def create_command(session: CodegenSession, name: str, description: str | None):
+def create_command(session: CodegenSession, name: str | None = None, description: str | None = None):
     """Create a new codemod in the codegen-sh/codemods directory."""
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
         try:
@@ -42,7 +44,7 @@ def create_command(session: CodegenSession, name: str, description: str | None):
             codemod = CodemodManager.create(
                 session=session,
                 name=name,
-                code=response.code,
+                code=convert_to_cli(response.code, session.config.programming_language or ProgrammingLanguage.PYTHON),
                 codemod_id=response.codemod_id,
                 description=description or f"AI-generated codemod for: {name}",
                 author=session.profile.name,

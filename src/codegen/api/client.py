@@ -24,6 +24,7 @@ from codegen.api.schemas import (
     RunCodemodOutput,
 )
 from codegen.auth.session import CodegenSession
+from codegen.codemod.convert import convert_to_ui
 from codegen.env.global_env import global_env
 from codegen.errors import ServerError
 from codegen.utils.codemods import Codemod
@@ -103,7 +104,7 @@ class RestAPI:
         input_data = RunCodemodInput(
             input=RunCodemodInput.BaseRunCodemodInput(
                 codemod_id=codemod.config.codemod_id,
-                codemod_source=codemod.get_current_source(),
+                codemod_source=convert_to_ui(codemod.get_current_source()),
                 repo_full_name=session.repo_name,
             )
         )

@@ -12,6 +12,7 @@ class AnalyticsConfig(BaseModel):
 class Config(BaseModel):
     repo_name: str = ""
     organization_name: str = ""
+    programming_language: str | None = None
     analytics: AnalyticsConfig = AnalyticsConfig()
 
     @property
