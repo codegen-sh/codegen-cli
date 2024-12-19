@@ -24,7 +24,12 @@ from codegen.workspace.decorators import requires_init
 @click.option("--description", "-d", default=None, help="Description of what this codemod does")
 def create_command(session: CodegenSession, name: str | None = None, description: str | None = None):
     """Create a new codemod in the codegen-sh/codemods directory."""
-    with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
+    if description:
+        status_message = "[bold]Generating codemod (using LLM, this will take ~30s)..."
+    else:
+        status_message = "[bold]Setting up codemod..."
+
+    with Status(status_message, spinner="dots", spinner_style="purple") as status:
         try:
             # Get code from API
             response = RestAPI(session.token).create(description if description else None)
