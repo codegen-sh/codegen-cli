@@ -8,16 +8,16 @@ from codegen.env.enums import Environment
 
 
 class GlobalEnv:
-    def __init__(self) -> None:
-        match os.environ.get("ENV"):
+    def __init__(self) -> None:    
+        self.ENV = self._parse_env()
+
+        match self.ENV:
             case Environment.PRODUCTION:
                 load_dotenv(".config.production")
             case Environment.DEVELOP:
                 load_dotenv(".config.develop") 
             case _:
                 load_dotenv(".config.template")
-
-        self.ENV = self._parse_env()
 
         # =====[ DEV ]=====
         self.DEBUG = self._get_env_var("DEBUG")
