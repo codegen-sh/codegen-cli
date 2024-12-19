@@ -65,6 +65,7 @@ def create_command(session: CodegenSession, name: str | None = None, description
     rich.print(f"[cyan]Main file:[/cyan] {codemod.path}")
     rich.print(f"[cyan]Name:[/cyan] {codemod.name}")
     rich.print(f"[cyan]Helpful hints:[/cyan] {codemod.get_system_prompt_path()}")
+    rich.print(f"[cyan]Author:[/cyan] {session.profile.name}")
     if codemod.config:
         rich.print(f"[cyan]Config:[/cyan] {codemod.path.parent / CODEMOD_CONFIG_PATH}")
     rich.print("\n[bold yellow]💡 Next steps:[/bold yellow]")

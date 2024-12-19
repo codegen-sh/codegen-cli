@@ -79,6 +79,7 @@ class CreateInput(SafeBaseModel):
     class BaseCreateInput(SafeBaseModel):
         query: str | None = None
         repo_full_name: str | None = None
+        author_github_username: str | None = None
 
     input: BaseCreateInput
 
