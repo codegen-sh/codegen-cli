@@ -72,6 +72,8 @@ lint.ignore = [
     "RUF007",
 ]
 
+# disable just linting (allow for formatting)
 lint.exclude = [
     "*.ipynb",
-] # disable just linting for notebooks (allow for formatting)
+    "codegen-sh/**"
+]
