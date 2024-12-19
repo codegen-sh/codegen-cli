@@ -76,9 +76,9 @@ Or select an existing one with:
 
             if truncated:
                 if apply_local:
-                    limited_diff += "\n\ndiff truncated to 100 lines, view the full changes in your local file system using git status"
+                    limited_diff += "\n\n...\n\n[yellow]diff truncated to 100 lines, view the full change set in your local file system[/yellow]"
                 else:
-                    limited_diff += "\n\ndiff truncated to 100 lines, view the full change set on your local file system through git status after using run with `--apply-local`"
+                    limited_diff += "\n\n...\n\n[yellow]diff truncated to 100 lines, view the full change set on your local file system after using run with `--apply-local`[/yellow]"
 
             panel = Panel(limited_diff, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
             rich.print(panel)
