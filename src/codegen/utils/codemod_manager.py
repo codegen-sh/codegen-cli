@@ -58,6 +58,7 @@ class CodemodManager:
         codemod_id: int | None = None,
         description: str | None = None,
         author: str | None = None,
+        system_prompt: str | None = None,
     ) -> Codemod:
         """Create a new codemod.
 
@@ -67,6 +68,7 @@ class CodemodManager:
             codemod_id: Optional ID from the server
             description: Optional description
             author: Optional author name
+            system_prompt: Optional system prompt
 
         Returns:
             Codemod: The created codemod
@@ -89,6 +91,11 @@ class CodemodManager:
         # Create directory and files
         codemod_dir.mkdir()
         run_file.write_text(code)
+
+        # Write system prompt if provided
+        if system_prompt:
+            prompt_file = codemod_dir / "system-prompt.md"
+            prompt_file.write_text(system_prompt)
 
         # Create config if we have an ID
         config = None
