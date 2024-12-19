@@ -1,3 +1,5 @@
+# create a .config or .config.develop file in the root of the project
+# and add the following variables. This config file is used to set the environment variables, that are not sensitive
 DEBUG="false"
 
 CODEGEN_USER_ACCESS_TOKEN="add api access token here"
@@ -6,3 +8,4 @@ ALGOLIA_SEARCH_KEY="add algolia search key here"
 # Posthog
 POSTHOG_API_KEY="add posthog api key here"
 POSTHOG_PROJECT_API_KEY="add posthog project api key here"
+MODAL_WORKSPACE="add modal workspace here"

@@ -7,10 +7,13 @@ src/codegen/__init__.py
 **/.vscode/launch.json
 
 # env files
-.env
+src/codegen/.config.develop
+src/codegen/.config
+
 .idea
 .config.json
 .codegen
 **/.ruff_cache
 **/.pytest_cache
 **/.mypy_cache
+
