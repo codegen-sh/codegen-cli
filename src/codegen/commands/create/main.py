@@ -20,9 +20,9 @@ from codegen.workspace.decorators import requires_init
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("name", type=str, required=False)
+@click.argument("name", type=str)
 @click.option("--description", "-d", default=None, help="Description of what this codemod does")
-def create_command(session: CodegenSession, name: str | None = None, description: str | None = None):
+def create_command(session: CodegenSession, name: str, description: str | None):
     """Create a new codemod in the codegen-sh/codemods directory."""
     if description:
         status_message = "[bold]Generating codemod (using LLM, this will take ~30s)..."
@@ -74,5 +74,5 @@ def create_command(session: CodegenSession, name: str | None = None, description
         rich.print(f"[cyan]Config:[/cyan] {codemod.path.parent / CODEMOD_CONFIG_PATH}")
     rich.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
     rich.print("1. Review and edit [cyan]run.py[/cyan] to customize the codemod")
-    rich.print("2. Run it with: [green]codegen run[/green]")
+    rich.print(f"2. Run it with: [green]codegen run {name}[/green]")
     rich.print("─" * 40 + "\n")

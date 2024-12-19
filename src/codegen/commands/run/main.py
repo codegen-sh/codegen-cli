@@ -19,29 +19,14 @@ from codegen.workspace.decorators import requires_init
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("codemod_name", required=False)
+@click.argument("codemod_name", required=True)
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
-def run_command(session: CodegenSession, codemod_name: str | None = None, web: bool = False, apply_local: bool = False):
+def run_command(session: CodegenSession, codemod_name: str, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
-    # If codemod name is provided, create a Codemod object for it
-    if codemod_name:
-        active_codemod = CodemodManager.get(codemod_name)
-        if not active_codemod:
-            raise click.ClickException(f"Codemod '{codemod_name}' not found. Run 'codegen list' to see available codemods.")
-    else:
-        active_codemod = session.active_codemod
-        if not active_codemod:
-            raise click.ClickException(
-                """No codemod path provided and no active codemod found.
-
-Or create one with:
-    codegen create <name>
-
-Or select an existing one with:
-    codegen set-active <name>
-"""
-            )
+    active_codemod = CodemodManager.get(codemod_name)
+    if not active_codemod:
+        raise click.ClickException(f"Codemod '{codemod_name}' not found. Run 'codegen list' to see available codemods.")
 
     status = Status(f"Running {active_codemod.name}...", spinner="dots", spinner_style="purple")
     status.start()
