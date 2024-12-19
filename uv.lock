@@ -307,7 +307,7 @@ wheels = [
 
 [[package]]
 name = "codegen-sh"
-version = "0.0.0"
+version = "1.11.1.dev7+g9b0ceb2.d20241219"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
@@ -531,15 +531,15 @@ wheels = [
 
 [[package]]
 name = "graph-sitter-types"
-version = "6.2.2"
+version = "6.2.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "rustworkx" },
     { name = "types-networkx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/73/3c81f8255a6f5d179df4904f2c47622ac1fe5c3b15199cb0248b2b3354f5/graph_sitter_types-6.2.2.tar.gz", hash = "sha256:fa1499698055bfed000a60ca53a5389637b3f132042754132a4ca195ee094060", size = 123580 }
+sdist = { url = "https://files.pythonhosted.org/packages/27/77/34600eec4db3fb151ca36ac47464248ece89c221c79fcce584ba51cf8c9f/graph_sitter_types-6.2.4.tar.gz", hash = "sha256:73bf3b6852d01ab387af8cf6fe32365cc3cc69a0a86ed820339cc2f0d6fbd770", size = 123635 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/8d/5347d208433c7bdc8b4a768013dd124ecaed22ae6c142e48156cf559e86a/graph_sitter_types-6.2.2-py3-none-any.whl", hash = "sha256:d399fa98e4c4181c74615d18d81e5390c2ad889b1f9fb1a07fd1110bc115a7e4", size = 260556 },
+    { url = "https://files.pythonhosted.org/packages/f6/4c/2d03651af8b29b64bc646dbc9fea86e0d575ceb0e25dda7ba76c096992e3/graph_sitter_types-6.2.4-py3-none-any.whl", hash = "sha256:2365028fbf668e2559ac9904006e0443d4d93fbb2e4c6ed3086ac65c9c394f7a", size = 260461 },
 ]
 
 [[package]]
