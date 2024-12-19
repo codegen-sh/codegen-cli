@@ -1,4 +1,5 @@
 src/codegen/__init__.py
+src/codegen/_env.py
 .python-version
 **.egg-info
 **/__pycache__
@@ -14,3 +15,4 @@ src/codegen/__init__.py
 **/.ruff_cache
 **/.pytest_cache
 **/.mypy_cache
+**/.DS_Store

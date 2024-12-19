@@ -24,7 +24,7 @@ dynamic = ["version", "urls"]
 codegen = "codegen.cli:main"
 
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling", "hatch-vcs", "hatch-build-scripts"]
 build-backend = "hatchling.build"
 
 [dependency-groups]

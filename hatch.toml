@@ -8,9 +8,20 @@ source = "vcs"
 fallback-version = "0.0.0"
 [build.hooks.vcs]
 version-file = "src/codegen/__init__.py"
+[[build.hooks.build-scripts.scripts]]
+commands = [
+    "bash -c 'echo \"ENV=\\\"${CODEGEN_ENVIRONMENT}\\\"\" > src/codegen/_env.py'",
+]
+artifacts = ["src/codgen/_env.py"]
 [metadata.hooks.vcs]
 Homepage = "https://github.com/codegen-sh/codegen-cli"
 source_archive = "https://github.com/codegen-sh/codegen-cli/archive/{commit_hash}.zip"
-[build.targets.wheel]
+[build]
 macos-max-compat = false
 packages=["src/codegen"]
+exclude = [
+    "src/codegen/.env.*"
+]
+
+[build.force-include]
+'src/codegen/.env.production' = "src/codegen/.env.production"
