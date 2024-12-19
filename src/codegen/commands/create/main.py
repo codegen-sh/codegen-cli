@@ -57,10 +57,12 @@ def create_command(session: CodegenSession, name: str, description: str | None):
             raise click.ClickException(str(e))
 
     # Success message
-    rich.print("\n[bold green]✨ Created new codemod:[/bold green]")
+    rich.print(f"\n[bold green]✨ Created codemod {codemod.name} successfully:[/bold green]")
     rich.print("─" * 40)
     rich.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
     rich.print(f"[cyan]Main file:[/cyan] {codemod.path}")
+    rich.print(f"[cyan]Name:[/cyan] {codemod.name}")
+    rich.print(f"[cyan]Helpful hints:[/cyan] {codemod.get_system_prompt_path()}")
     if codemod.config:
         rich.print(f"[cyan]Config:[/cyan] {codemod.path.parent / CODEMOD_CONFIG_PATH}")
     rich.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
