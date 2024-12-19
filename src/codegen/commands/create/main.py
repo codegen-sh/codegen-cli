@@ -21,9 +21,19 @@ from codegen.workspace.decorators import requires_init
 @requires_auth
 @requires_init
 @click.argument("name", type=str, required=False)
-@click.option("--description", "-d", default=None, help="Description of what this codemod does")
-def create_command(session: CodegenSession, name: str | None = None, description: str | None = None):
+@click.option("--description", "-d", default=None, help="Description of what this codemod does.")
+@click.option("--overwrite", is_flag=True, help="Overwrites codemod if it already exists.")
+def create_command(session: CodegenSession, name: str | None = None, overwrite: bool = False, description: str | None = None):
     """Create a new codemod in the codegen-sh/codemods directory."""
+    overwrote_codemod = False
+    if CodemodManager.exists(name=name):
+        if overwrite:
+            overwrote_codemod = True
+        else:
+            codemod_name = CodemodManager.get_valid_name(name)
+            rich.print(f"[bold red]🔴 Failed to generate codemod[/bold red]: Codemod `{codemod_name}` already exists at {CodemodManager.CODEMODS_DIR / codemod_name}")
+            rich.print("[bold yellow]🧠 Hint[/bold yellow]: Overwrite codemod with `--overwrite` or choose a different name.")
+            return
     with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
         try:
             # Get code from API
@@ -59,7 +69,10 @@ def create_command(session: CodegenSession, name: str | None = None, description
             raise click.ClickException(str(e))
 
     # Success message
-    rich.print(f"\n[bold green]✨ Created codemod {codemod.name} successfully:[/bold green]")
+    if overwrote_codemod:
+        rich.print(f"\n[bold green]✨ Overwrote codemod {codemod.name} successfully:[/bold green]")
+    else:
+        rich.print(f"\n[bold green]✨ Created codemod {codemod.name} successfully:[/bold green]")
     rich.print("─" * 40)
     rich.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
     rich.print(f"[cyan]Main file:[/cyan] {codemod.path}")

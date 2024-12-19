@@ -78,18 +78,16 @@ class CodemodManager:
 
         """
         # Ensure valid codemod name
-        codemod_name = name.lower().replace(" ", "_").replace("-", "_")
+        codemod_name = cls.get_valid_name(name)
 
         # Setup paths
         cls.CODEMODS_DIR.mkdir(parents=True, exist_ok=True)
         codemod_dir = cls.CODEMODS_DIR / codemod_name
         run_file = codemod_dir / "run.py"
         config_file = codemod_dir / CODEMOD_CONFIG_PATH
-        if codemod_dir.exists():
-            raise ValueError(f"Codemod '{codemod_name}' already exists at {codemod_dir}")
 
         # Create directory and files
-        codemod_dir.mkdir()
+        codemod_dir.mkdir(exist_ok=True)
         run_file.write_text(code)
 
         # Write system prompt if provided
@@ -146,3 +144,13 @@ class CodemodManager:
             path=run_file,
             config=config,
         )
+
+    @classmethod
+    def exists(cls, name: str):
+        codemod_name = cls.get_valid_name(name)
+        codemod_dir = cls.CODEMODS_DIR / codemod_name
+        return codemod_dir.exists()
+
+    @staticmethod
+    def get_valid_name(name: str) -> str:
+        return name.lower().replace(" ", "_").replace("-", "_")
