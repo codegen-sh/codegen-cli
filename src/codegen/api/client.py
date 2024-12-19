@@ -26,7 +26,7 @@ from codegen.api.schemas import (
 from codegen.auth.session import CodegenSession
 from codegen.codemod.convert import convert_to_ui
 from codegen.env.global_env import global_env
-from codegen.errors import ServerError, InvalidTokenError
+from codegen.errors import InvalidTokenError, ServerError
 from codegen.utils.codemods import Codemod
 
 InputT = TypeVar("InputT", bound=BaseModel)
