@@ -137,7 +137,6 @@ class RestAPI:
     def create(self, query: str) -> CreateResponse:
         """Get AI-generated starter code for a codemod."""
         session = CodegenSession()
-        print(f"Creating codemod for {session.repo_name} with query: {query} and author: {session.identity.user.github_username}")
         return self._make_request(
             "GET",
             CREATE_ENDPOINT,
