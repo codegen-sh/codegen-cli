@@ -14,4 +14,11 @@ def get_modal_workspace():
             raise ValueError(f"Invalid environment: {global_env.ENV}")
 
 
-MODAL_WORKSPACE = get_modal_workspace()
+def get_modal_prefix():
+    workspace = get_modal_workspace()
+    if global_env.MODAL_ENVIRONMENT:
+        return f"{workspace}-{global_env.MODAL_ENVIRONMENT}"
+    return workspace
+
+
+MODAL_PREFIX = get_modal_prefix()
