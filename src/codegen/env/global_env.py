@@ -11,11 +11,11 @@ class GlobalEnv:
     def __init__(self) -> None:
         match os.environ.get("ENV"):
             case Environment.PRODUCTION:
-                load_dotenv(".env.production")
+                load_dotenv(".config.production")
             case Environment.DEVELOP:
-                load_dotenv(".env.develop") 
+                load_dotenv(".config.develop") 
             case _:
-                load_dotenv(".env.template")
+                load_dotenv(".config.template")
 
         self.ENV = self._parse_env()
 

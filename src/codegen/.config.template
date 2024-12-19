@@ -1,3 +1,5 @@
+# create a .config or .config.develop file in the root of the project
+# and add the following variables. This config file is used to set the environment variables, that are not sensitive
 DEBUG="false"
 
 CODEGEN_USER_ACCESS_TOKEN="add api access token here"

@@ -7,8 +7,8 @@ src/codegen/__init__.py
 **/.vscode/launch.json
 
 # env files
-src/codegen/.env.develop
-src/codegen/.env.production
+src/codegen/.config.develop
+src/codegen/.config
 
 .idea
 .config.json
