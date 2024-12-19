@@ -68,7 +68,7 @@ def run_command(session: CodegenSession, codemod_name: str, web: bool = False, a
             panel = Panel(limited_diff, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
             rich.print(panel)
 
-            if not apply_local:
+            if not apply_local and not truncated:
                 rich.print("")
                 rich.print(f"[yellow]→ Run 'codegen run {active_codemod.name} --apply-local' to apply these changes[/yellow]")
         else:

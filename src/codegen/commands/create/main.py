@@ -20,10 +20,21 @@ from codegen.workspace.decorators import requires_init
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("name", type=str)
-@click.option("--description", "-d", default=None, help="Description of what this codemod does")
-def create_command(session: CodegenSession, name: str, description: str | None):
+@click.argument("name", type=str, required=False)
+@click.option("--description", "-d", default=None, help="Description of what this codemod does.")
+@click.option("--overwrite", is_flag=True, help="Overwrites codemod if it already exists.")
+def create_command(session: CodegenSession, name: str, description: str | None = None, overwrite: bool = False):
     """Create a new codemod in the codegen-sh/codemods directory."""
+    overwrote_codemod = False
+    if CodemodManager.exists(name=name):
+        if overwrite:
+            overwrote_codemod = True
+        else:
+            codemod_name = CodemodManager.get_valid_name(name)
+            rich.print(f"[bold red]🔴 Failed to generate codemod[/bold red]: Codemod `{codemod_name}` already exists at {CodemodManager.CODEMODS_DIR / codemod_name}")
+            rich.print("[bold yellow]🧠 Hint[/bold yellow]: Overwrite codemod with `--overwrite` or choose a different name.")
+            return
+
     if description:
         status_message = "[bold]Generating codemod (using LLM, this will take ~30s)..."
     else:
@@ -64,7 +75,10 @@ def create_command(session: CodegenSession, name: str, description: str | None):
             raise click.ClickException(str(e))
 
     # Success message
-    rich.print(f"\n[bold green]✨ Created codemod {codemod.name} successfully:[/bold green]")
+    if overwrote_codemod:
+        rich.print(f"\n[bold green]✨ Overwrote codemod {codemod.name} successfully:[/bold green]")
+    else:
+        rich.print(f"\n[bold green]✨ Created codemod {codemod.name} successfully:[/bold green]")
     rich.print("─" * 40)
     rich.print(f"[cyan]Location:[/cyan] {codemod.path.parent}")
     rich.print(f"[cyan]Main file:[/cyan] {codemod.path}")
