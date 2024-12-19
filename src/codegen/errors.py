@@ -11,6 +11,18 @@ class AuthError(Exception):
     pass
 
 
+class InvalidTokenError(AuthError):
+    """Error raised if the token is invalid."""
+
+    pass
+
+
+class NoTokenError(AuthError):
+    """Error raised if no token is provided."""
+
+    pass
+
+
 class CodegenError(Exception):
     """Base class for Codegen-specific errors."""
 

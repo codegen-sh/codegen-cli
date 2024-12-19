@@ -34,7 +34,13 @@ def create_command(session: CodegenSession, name: str | None = None, overwrite: 
             rich.print(f"[bold red]🔴 Failed to generate codemod[/bold red]: Codemod `{codemod_name}` already exists at {CodemodManager.CODEMODS_DIR / codemod_name}")
             rich.print("[bold yellow]🧠 Hint[/bold yellow]: Overwrite codemod with `--overwrite` or choose a different name.")
             return
-    with Status("[bold]Generating codemod...", spinner="dots", spinner_style="purple") as status:
+
+    if description:
+        status_message = "[bold]Generating codemod (using LLM, this will take ~30s)..."
+    else:
+        status_message = "[bold]Setting up codemod..."
+
+    with Status(status_message, spinner="dots", spinner_style="purple") as status:
         try:
             # Get code from API
             response = RestAPI(session.token).create(description if description else None)
