@@ -25,5 +25,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+      - name: Handle config files
+        run: python scripts/handle_config_files.py
       - run: uv build
       - run: uv publish --trusted-publishing always
