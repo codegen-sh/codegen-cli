@@ -5,7 +5,7 @@ from pygit2.repository import Repository
 
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import get_current_token
-from codegen.errors import AuthError
+from codegen.errors import AuthError, InvalidTokenError, NoTokenError
 from codegen.git.repo import get_git_repo
 from codegen.utils.codemods import Codemod
 from codegen.utils.config import Config, State, get_config, get_state, read_model, write_config, write_state
@@ -57,23 +57,28 @@ class CodegenSession:
         if not self._identity and self._token:
             from codegen.api.client import RestAPI
 
-            identity = RestAPI(self._token).identify()
-            if identity:
-                self._identity = Identity(
-                    token=self._token,
-                    expires_at=identity.auth_context.expires_at,
-                    status=identity.auth_context.status,
-                    user=User(
-                        full_name=identity.user.full_name,
-                        email=identity.user.email,
-                        github_username=identity.user.github_username,
-                    ),
-                )
-                return self._identity
-            else:
-                raise AuthError("Failed to identify user")
+            try:
+                identity = RestAPI(self._token).identify()
+                if identity:
+                    self._identity = Identity(
+                        token=self._token,
+                        expires_at=identity.auth_context.expires_at,
+                        status=identity.auth_context.status,
+                        user=User(
+                            full_name=identity.user.full_name,
+                            email=identity.user.email,
+                            github_username=identity.user.github_username,
+                        ),
+                    )
+                    return self._identity
+                else:
+                    raise InvalidTokenError("Invalid authentication token")
+            except InvalidTokenError:
+                raise
+            except Exception as e:
+                raise AuthError(f"Failed to identify user: {e}")
         elif not self._token:
-            raise AuthError("No authentication token found")
+            raise NoTokenError("No authentication token found")
         elif self._identity:
             return self._identity
 
