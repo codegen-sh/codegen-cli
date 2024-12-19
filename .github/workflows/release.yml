@@ -26,5 +26,5 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen
-      - run: CODEGEN_ENVIRONMENT=prod uv build
+      - run: CODEGEN_ENVIRONMENT=prod uv build --sdist --wheel
       - run: uv publish --trusted-publishing always
