@@ -16,7 +16,7 @@ def get_modal_workspace():
 
 def get_modal_prefix():
     workspace = get_modal_workspace()
-    if global_env.MODAL_ENVIRONMENT:
+    if global_env.ENV == Environment.DEVELOP and global_env.MODAL_ENVIRONMENT:
         return f"{workspace}-{global_env.MODAL_ENVIRONMENT}"
     return workspace
 
