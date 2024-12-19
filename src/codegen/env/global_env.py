@@ -6,16 +6,15 @@ from codegen.env.constants import DEFAULT_ENV
 from codegen.env.enums import Environment
 
 
-
 class GlobalEnv:
-    def __init__(self) -> None:    
+    def __init__(self) -> None:
         self.ENV = self._parse_env()
 
         match self.ENV:
             case Environment.PRODUCTION:
                 load_dotenv(".config.production")
             case Environment.DEVELOP:
-                load_dotenv(".config.develop") 
+                load_dotenv(".config.develop")
             case _:
                 load_dotenv(".config.template")
 
@@ -32,7 +31,7 @@ class GlobalEnv:
         self.POSTHOG_PROJECT_API_KEY = self._get_env_var("POSTHOG_PROJECT_API_KEY")
         self.POSTHOG_API_KEY = self._get_env_var("POSTHOG_API_KEY")
 
-        self.MODAL_WORKSPACE = self._get_env_var("MODAL_WORKSPACE") 
+        self.MODAL_WORKSPACE = self._get_env_var("MODAL_WORKSPACE")
 
     def _get_env_var(self, var_name, required: bool = False) -> str:
         if self.ENV == "local":

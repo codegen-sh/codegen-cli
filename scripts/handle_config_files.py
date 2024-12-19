@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+import glob
 import os
 import subprocess
-import glob
+
 
 def get_current_tag():
     try:
         # Get tag from git? TODO: there may be a better way to do this
-        result = subprocess.run(['git', 'describe', '--tags', '--exact-match'], 
+        result = subprocess.run(['git', 'describe', '--tags', '--exact-match'],
                               capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError:
@@ -17,7 +18,7 @@ def handle_config_files():
     if not current_tag:
         print("No tag found")
         return
-    
+
     # If tag contains 'dev', remove all .config.* files except .config.production
     # The idea here is to eliminate non prod configuration from being published
         config_files = glob.glob('.config.*')
@@ -32,4 +33,4 @@ def handle_config_files():
         print("Not a dev tag, keeping all config files")
 
 if __name__ == "__main__":
-    handle_config_files() 
+    handle_config_files()
