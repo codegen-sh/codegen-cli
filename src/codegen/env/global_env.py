@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from codegen.env.constants import DEFAULT_ENV
 from codegen.env.enums import Environment
 
-
 class GlobalEnv:
     def __init__(self) -> None:
         load_dotenv()
