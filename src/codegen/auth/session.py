@@ -7,9 +7,7 @@ from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import get_current_token
 from codegen.errors import AuthError, InvalidTokenError, NoTokenError
 from codegen.git.repo import get_git_repo
-from codegen.utils.codemods import Codemod
-from codegen.utils.config import Config, State, get_config, get_state, read_model, write_config, write_state
-from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
+from codegen.utils.config import Config, get_config, write_config
 
 
 @dataclass
@@ -40,16 +38,13 @@ class CodegenSession:
     """Represents an authenticated codegen session with user and repository context"""
 
     config: Config
-    state: State
 
     def __init__(self, token: str | None = None):
         self._token = token or get_current_token()
         self._identity: Identity | None = None
         self._profile: UserProfile | None = None
         self._repo_name: str | None = None
-        self._active_codemod: Codemod | None = None
         self.config = get_config(self.codegen_dir)
-        self.state = get_state(self.codegen_dir)
 
     @property
     def identity(self) -> Identity:
@@ -112,31 +107,6 @@ class CodegenSession:
         return self.config.repo_full_name
 
     @property
-    def active_codemod(self) -> Codemod | None:
-        """Get the active codemod information if one exists."""
-        if self._active_codemod is None:
-            codemods_dir = Path.cwd() / CODEGEN_DIR / "codemods"
-
-            codemod_dir = codemods_dir / self.state.active_codemod
-            run_file = codemod_dir / "run.py"
-            config_file = codemod_dir / CODEMOD_CONFIG_PATH
-
-            if not run_file.exists():
-                return None
-
-            # Try to load config if it exists
-            config = None
-            if config_file.exists():
-                try:
-                    config = read_model(CodemodConfig, config_file)
-                except Exception:
-                    pass  # Config is optional
-
-            self._active_codemod = Codemod(name=self.state.active_codemod, path=run_file, config=config)
-
-        return self._active_codemod
-
-    @property
     def codegen_dir(self) -> Path:
         """Get the path to the  codegen-sh directory"""
         return Path.cwd() / CODEGEN_DIR
@@ -163,7 +133,3 @@ class CodegenSession:
     def write_config(self) -> None:
         """Write the config to the codegen-sh/config.toml file"""
         write_config(self.config, self.codegen_dir)
-
-    def write_state(self) -> None:
-        """Write the state to the codegen-sh/state.toml file"""
-        write_state(self.state, self.codegen_dir)

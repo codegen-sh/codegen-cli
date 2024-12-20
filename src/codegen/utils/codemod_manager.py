@@ -107,10 +107,6 @@ class CodemodManager:
             )
             write_model(config, config_file)
 
-        # Set as active codemod
-        session.state.active_codemod = codemod_name
-        session.write_state()
-
         return Codemod(name=codemod_name, path=run_file, config=config)
 
     @classmethod
@@ -124,6 +120,7 @@ class CodemodManager:
             Codemod if found, None otherwise
 
         """
+        codemod_name = cls.get_valid_name(codemod_name)
         codemod_dir = cls.CODEMODS_DIR / codemod_name
         run_file = codemod_dir / "run.py"
         config_file = codemod_dir / CODEMOD_CONFIG_PATH
