@@ -54,10 +54,6 @@ def set_active_command(session: CodegenSession):
             idx = int(choice) - 1
             if 0 <= idx < len(codemods):
                 selected_codemod = codemods[idx]
-
-                # Set as active
-                session.state.active_codemod = selected_codemod.name
-                session.write_state()
                 console.print(
                     Panel(
                         f"[green]✓ Set active codemod to:[/green] {selected_codemod.name}\n" f"[dim]You can now use 'codegen run' to run this codemod[/dim]",

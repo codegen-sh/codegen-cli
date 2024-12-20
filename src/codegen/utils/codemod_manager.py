@@ -107,10 +107,6 @@ class CodemodManager:
             )
             write_model(config, config_file)
 
-        # Set as active codemod
-        session.state.active_codemod = codemod_name
-        session.write_state()
-
         return Codemod(name=codemod_name, path=run_file, config=config)
 
     @classmethod
