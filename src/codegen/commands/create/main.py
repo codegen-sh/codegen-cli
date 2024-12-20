@@ -33,8 +33,18 @@ def create_command(session: CodegenSession, name: str, description: str | None =
             overwrote_codemod = True
         else:
             codemod_name = CodemodManager.get_valid_name(name)
-            rich.print(f"[bold red]🔴 Failed to generate codemod[/bold red]: Codemod `{codemod_name}` already exists at {CodemodManager.CODEMODS_DIR / codemod_name}")
-            rich.print("[bold yellow]🧠 Hint[/bold yellow]: Overwrite codemod with `--overwrite` or choose a different name.")
+            text = f"""[bold red]🔴 Failed to generate codemod[/bold red]: Codemod `{codemod_name}` already exists at {CodemodManager.CODEMODS_DIR / codemod_name}
+[bold yellow]🧠 Hint[/bold yellow]: Overwrite codemod with `--overwrite` or choose a different name."""
+            rich.print(
+                Panel(
+                    text,
+                    title="Error Generating Codemod",
+                    border_style="red",
+                    box=box.ROUNDED,
+                    padding=(1, 2),
+                )
+            )
+            rich.print()
             return
 
     if description:
