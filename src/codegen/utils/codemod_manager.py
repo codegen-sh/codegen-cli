@@ -120,6 +120,7 @@ class CodemodManager:
             Codemod if found, None otherwise
 
         """
+        codemod_name = cls.get_valid_name(codemod_name)
         codemod_dir = cls.CODEMODS_DIR / codemod_name
         run_file = codemod_dir / "run.py"
         config_file = codemod_dir / CODEMOD_CONFIG_PATH
