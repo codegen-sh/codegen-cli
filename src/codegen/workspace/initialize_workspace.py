@@ -9,7 +9,6 @@ from codegen.api.client import RestAPI
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
 from codegen.auth.session import CodegenSession
 from codegen.git.repo import get_git_repo
-from codegen.utils.config import STATE_PATH
 from codegen.workspace.docs_workspace import populate_api_docs
 from codegen.workspace.examples_workspace import populate_examples
 
@@ -70,4 +69,3 @@ def modify_gitignore(repo: Repository):
     gitignore_path = CODEGEN_DIR / ".gitignore"
     add_to_gitignore_if_not_present(gitignore_path, "docs")
     add_to_gitignore_if_not_present(gitignore_path, "examples")
-    add_to_gitignore_if_not_present(gitignore_path, STATE_PATH)
