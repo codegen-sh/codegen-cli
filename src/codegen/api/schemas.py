@@ -68,6 +68,7 @@ class DocsInput(SafeBaseModel):
 class DocsResponse(SafeBaseModel):
     docs: dict[str, str]
     examples: list[SerializedExample]
+    language: ProgrammingLanguage
 
 
 ###########################################################################

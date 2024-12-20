@@ -62,6 +62,7 @@ def create_command(session: CodegenSession, name: str, description: str | None =
             codemod = CodemodManager.create(
                 session=session,
                 name=name,
+                # TODO - this is wrong, need to fetch this language or set it properly
                 code=convert_to_cli(response.code, session.config.programming_language or ProgrammingLanguage.PYTHON),
                 codemod_id=response.codemod_id,
                 description=description or f"AI-generated codemod for: {name}",
