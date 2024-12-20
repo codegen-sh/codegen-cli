@@ -40,7 +40,7 @@ class GlobalEnv:
 
     def _parse_env(self) -> Environment:
         envvar = os.environ.get("ENV")
-    
+
         if not envvar:
             return DEFAULT_ENV
         if envvar not in Environment:
