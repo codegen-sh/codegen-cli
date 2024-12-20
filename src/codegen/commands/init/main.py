@@ -24,8 +24,7 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
     is_update = codegen_dir.exists()
 
     action = "Updating" if is_update else "Initializing"
-    with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
-        folders = initialize_codegen(status, is_update=is_update)
+
     if organization_name is not None:
         session.config.organization_name = organization_name
     if repo_name is not None:
@@ -35,6 +34,9 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
         session.config.organization_name = session.config.organization_name or cwd_org
         session.config.repo_name = session.config.repo_name or cwd_repo
     session.write_config()
+
+    with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
+        folders = initialize_codegen(status, is_update=is_update)
     rich.print(f"Organization name: {session.config.organization_name}")
     rich.print(f"Repo name: {session.config.repo_name}")
 

@@ -54,7 +54,7 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     populate_examples(session, EXAMPLES_FOLDER, response.examples, status)
 
     # Set programming language
-    session.config.programming_language = response.language
+    session.config.programming_language = str(response.language)
     session.write_config()
 
     status.update("[bold green]Done! 🎉")
