@@ -87,7 +87,7 @@ class CreateInput(SafeBaseModel):
 class CreateResponse(SafeBaseModel):
     success: bool
     response: str
-    code: str
+    code: str | None = None
     codemod_id: int
     context: str | None = None
 
