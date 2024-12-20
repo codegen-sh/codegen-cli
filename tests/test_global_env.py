@@ -16,7 +16,7 @@ from codegen.env.global_env import GlobalEnv
     ],
 )
 def test_global_env_parse_env_expected(env_envvar: str | None, expected_env: Environment):
-    os.environ["ENV"] = env_envvar 
+    os.environ["ENV"] = env_envvar
     global_env = GlobalEnv()
     assert global_env.ENV == expected_env
 
