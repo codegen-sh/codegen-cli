@@ -9,7 +9,7 @@ from codegen.env.global_env import GlobalEnv
 @pytest.mark.parametrize(
     "env_envvar,expected_env",
     [
-        ("", Environment.PRODUCTION),
+        ("", Environment.STAGING),
         ("develop", Environment.DEVELOP),
         ("staging", Environment.STAGING),
         ("prod", Environment.PRODUCTION),
@@ -24,7 +24,7 @@ def test_global_env_parse_env_expected(env_envvar: str | None, expected_env: Env
 def test_global_env_parse_env_env_unset():
     del os.environ["ENV"]
     global_env = GlobalEnv()
-    assert global_env.ENV == Environment.PRODUCTION
+    assert global_env.ENV == Environment.STAGING
 
 
 def test_global_env_parse_env_bad_value_raises():
