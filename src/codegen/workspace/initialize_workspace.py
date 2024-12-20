@@ -53,6 +53,10 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     populate_api_docs(DOCS_FOLDER, response.docs, status)
     populate_examples(session, EXAMPLES_FOLDER, response.examples, status)
 
+    # Set programming language
+    session.config.programming_language = response.language
+    session.write_config()
+
     status.update("[bold green]Done! 🎉")
 
     return CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
