@@ -19,7 +19,7 @@ def login_command(token: str):
 
     # Use provided token or go through login flow
     if token:
-        session = CodegenSession()
+        session = CodegenSession(token=token)
         try:
             session.assert_authenticated()
             token_manager.save_token(token)
