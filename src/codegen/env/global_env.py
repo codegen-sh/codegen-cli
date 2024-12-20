@@ -41,6 +41,7 @@ class GlobalEnv:
 
     def _parse_env(self) -> Environment:
         from codegen._env import ENV
+
         envvar = os.environ.get("ENV") or ENV
         if not envvar:
             return DEFAULT_ENV
