@@ -1,5 +1,6 @@
-from rich.text import Text
 from pathlib import Path
+
+from rich.text import Text
 
 
 def get_success_message(codegen_folder, codemods_folder, docs_folder, examples_folder, config_file) -> Text:

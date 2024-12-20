@@ -7,9 +7,7 @@ from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.auth.token_manager import get_current_token
 from codegen.errors import AuthError, InvalidTokenError, NoTokenError
 from codegen.git.repo import get_git_repo
-from codegen.utils.codemods import Codemod
-from codegen.utils.config import Config, get_config, read_model, write_config
-from codegen.utils.schema import CODEMOD_CONFIG_PATH, CodemodConfig
+from codegen.utils.config import Config, get_config, write_config
 
 
 @dataclass

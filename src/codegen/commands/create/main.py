@@ -1,9 +1,10 @@
+from pathlib import Path
+
 import rich
 import rich_click as click
 from rich import box
 from rich.panel import Panel
 from rich.status import Status
-from pathlib import Path
 
 from codegen.analytics.decorators import track_command
 from codegen.api.client import RestAPI
