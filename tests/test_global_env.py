@@ -51,9 +51,9 @@ def test_global_env_load_dotenv_env_specific_file_exists():
 def test_global_env_load_dotenv_env_specific_file_does_not_exist():
     os.environ["ENV"] = "develop"
     env_file = Path(".env")
-    env_file.write_text("MODAL_ENVIRONMENT=bot")
+    env_file.write_text("ALGOLIA_SEARCH_KEY=secret")
     try:
         global_env = GlobalEnv()
-        assert global_env.MODAL_ENVIRONMENT == "bot"
+        assert global_env.ALGOLIA_SEARCH_KEY == "secret"
     finally:
         env_file.unlink()
