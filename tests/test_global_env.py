@@ -22,7 +22,8 @@ def test_global_env_parse_env_expected(env_envvar: str | None, expected_env: Env
 
 
 def test_global_env_parse_env_env_unset():
-    del os.environ["ENV"]
+    if "ENV" in os.environ:
+        del os.environ["ENV"]
     global_env = GlobalEnv()
     assert global_env.ENV == Environment.PRODUCTION
 

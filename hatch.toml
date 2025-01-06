@@ -24,4 +24,4 @@ exclude = [
 ]
 
 [build.force-include]
-'src/codegen/.env.production' = "src/codegen/.env.production"
+'src/codegen/.env.prod' = "src/codegen/.env.prod"
