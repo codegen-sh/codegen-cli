@@ -1,6 +1,6 @@
 import os
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 from codegen.env.constants import DEFAULT_ENV
 from codegen.env.enums import Environment
@@ -8,9 +8,8 @@ from codegen.env.enums import Environment
 
 class GlobalEnv:
     def __init__(self) -> None:
-        load_dotenv()
-
         self.ENV = self._parse_env()
+        self._load_dotenv()
 
         # =====[ DEV ]=====
         self.DEBUG = self._get_env_var("DEBUG")
@@ -28,6 +27,19 @@ class GlobalEnv:
         # =====[ MODAL ]=====
         self.MODAL_ENVIRONMENT = self._get_env_var("MODAL_ENVIRONMENT")
 
+    def _parse_env(self) -> Environment:
+        env_envvar = os.environ.get("ENV")
+        if not env_envvar:
+            return DEFAULT_ENV
+        if env_envvar not in Environment:
+            raise ValueError(f"Invalid environment: {env_envvar}")
+        return Environment(env_envvar)
+
+    def _load_dotenv(self) -> None:
+        env_file = find_dotenv(filename=f".env.{self.ENV}")
+        # if env specific .env file does not exist, try to load .env
+        load_dotenv(env_file or None)
+
     def _get_env_var(self, var_name, required: bool = False) -> str:
         if self.ENV == "local":
             return ""
@@ -38,14 +50,6 @@ class GlobalEnv:
         if required:
             raise ValueError(f"Environment variable {var_name} is not set with ENV={self.ENV}!")
         return ""
-
-    def _parse_env(self) -> Environment:
-        env_envvar = os.environ.get("ENV")
-        if not env_envvar:
-            return DEFAULT_ENV
-        if env_envvar not in Environment:
-            raise ValueError(f"Invalid environment: {env_envvar}")
-        return Environment(env_envvar)
 
 
 # NOTE: load and store envvars once
