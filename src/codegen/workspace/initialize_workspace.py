@@ -9,7 +9,6 @@ from codegen.api.client import RestAPI
 from codegen.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
 from codegen.auth.session import CodegenSession
 from codegen.git.repo import get_git_repo
-from codegen.utils.config import STATE_PATH
 from codegen.workspace.docs_workspace import populate_api_docs
 from codegen.workspace.examples_workspace import populate_examples
 
@@ -54,6 +53,10 @@ def initialize_codegen(status: Status, is_update: bool = False) -> tuple[Path, P
     populate_api_docs(DOCS_FOLDER, response.docs, status)
     populate_examples(session, EXAMPLES_FOLDER, response.examples, status)
 
+    # Set programming language
+    session.config.programming_language = str(response.language)
+    session.write_config()
+
     status.update("[bold green]Done! 🎉")
 
     return CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
@@ -70,4 +73,3 @@ def modify_gitignore(repo: Repository):
     gitignore_path = CODEGEN_DIR / ".gitignore"
     add_to_gitignore_if_not_present(gitignore_path, "docs")
     add_to_gitignore_if_not_present(gitignore_path, "examples")
-    add_to_gitignore_if_not_present(gitignore_path, STATE_PATH)

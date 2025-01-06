@@ -24,26 +24,3 @@ def profile_command(session: CodegenSession):
             padding=(1, 2),
         )
     )
-
-    # Show active codemod if one exists
-    active_codemod = session.active_codemod
-    if active_codemod:
-        content = []
-        content.append(f"[cyan]Name:[/cyan] {active_codemod.name}")
-        content.append(f"[cyan]Path:[/cyan] {active_codemod.relative_path()}")
-
-        if active_codemod.config:
-            if active_codemod.config.codemod_id:
-                content.append(f"[cyan]ID:[/cyan]   {active_codemod.config.codemod_id}")
-            if active_codemod.config.description:
-                content.append(f"[cyan]Desc:[/cyan] {active_codemod.config.description}")
-
-        rich.print(
-            Panel(
-                "\n".join(str(line) for line in content),
-                title="[bold]Active Codemod[/bold]",
-                border_style="cyan",
-                box=box.ROUNDED,
-                padding=(1, 2),
-            )
-        )

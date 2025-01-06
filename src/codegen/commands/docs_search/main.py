@@ -4,6 +4,8 @@ import json
 import rich
 import rich_click as click
 from algoliasearch.search.client import SearchClient
+from rich import box
+from rich.panel import Panel
 
 from codegen.analytics.decorators import track_command
 from codegen.env.global_env import global_env
@@ -70,7 +72,15 @@ def docs_search_command(query: str, page: int, hits: int, doctype: str | None):
                 rich.print(f"Next page: codegen docs-search -p {page + 1}{doctype_param} '{query}'")
 
     except Exception as e:
-        rich.print(f"Error searching docs: {e!s}", err=True)
+        rich.print(
+            Panel(
+                f"[bold red]🔴 Error:[/bold red] {e!s}",
+                title="Error searching docs",
+                border_style="red",
+                box=box.ROUNDED,
+                padding=(1, 2),
+            )
+        )
         return 1
 
 

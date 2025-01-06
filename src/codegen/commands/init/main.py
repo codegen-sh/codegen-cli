@@ -24,8 +24,7 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
     is_update = codegen_dir.exists()
 
     action = "Updating" if is_update else "Initializing"
-    with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
-        folders = initialize_codegen(status, is_update=is_update)
+
     if organization_name is not None:
         session.config.organization_name = organization_name
     if repo_name is not None:
@@ -35,27 +34,21 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
         session.config.organization_name = session.config.organization_name or cwd_org
         session.config.repo_name = session.config.repo_name or cwd_repo
     session.write_config()
+
+    with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
+        folders = initialize_codegen(status, is_update=is_update)
     rich.print(f"Organization name: {session.config.organization_name}")
     rich.print(f"Repo name: {session.config.repo_name}")
+
+    config_file = session.codegen_dir / "config.toml"
 
     # Print success message
     rich.print("\n")
     rich.print(
         Panel(
-            get_success_message(*folders),
+            get_success_message(*folders, config_file),
             title=f"[bold green]🚀 Codegen CLI {action} Successfully!",
             border_style="green",
-            box=box.ROUNDED,
-            padding=(1, 2),
-        )
-    )
-    rich.print("\n")
-    # Print config file location
-    rich.print(
-        Panel(
-            f"[dim]Config file location:[/dim] [cyan]{session.codegen_dir / 'config.toml'}[/cyan]",
-            title="[bold white]📝 Configuration[/bold white]",
-            border_style="blue",
             box=box.ROUNDED,
             padding=(1, 2),
         )
@@ -67,11 +60,11 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
         Panel(
             "[bold white]Create a codemod with:[/bold white]\n\n"
             '[cyan]\tcodegen create my-codemod-name --description "describe what you want to do"[/cyan]\n\n'
-            "[dim]This will create a new codemod in the codegen-sh/codemods folder.[/dim]\n\n"
+            "[dim]This will create a new codemod in the codegen-sh/codemods folder and initialize it with an AI-generated v0.1.[/dim]\n\n"
             "[bold white]Then run it with:[/bold white]\n\n"
-            "[cyan]\tcodegen run --apply-local[/cyan]\n\n"
+            "[cyan]\tcodegen run my-codemod-name --apply-local[/cyan]\n\n"
             "[dim]This will apply your codemod and show you the results.[/dim]",
-            title="[bold white ]✨ What's Next?[/bold white]",
+            title="[bold white]✨ What's Next?[/bold white]",
             border_style="blue",
             box=box.ROUNDED,
             padding=(1, 2),

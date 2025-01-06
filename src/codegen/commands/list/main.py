@@ -25,12 +25,10 @@ def list_command(session: CodegenSession):
 
     table = Table(title="Available Codemods", border_style="blue")
     table.add_column("Name", style="cyan")
-    table.add_column("Active", style="yellow")
 
     for codemod in codemods:
         name = codemod.name
-        is_active = "✓" if session.active_codemod and session.active_codemod.name == name else ""
-        table.add_row(name, is_active)
+        table.add_row(name)
 
     rich.print(table)
     rich.print("\nRun a codemod with:")

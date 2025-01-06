@@ -26,7 +26,7 @@ from codegen.api.schemas import (
 from codegen.auth.session import CodegenSession
 from codegen.codemod.convert import convert_to_ui
 from codegen.env.global_env import global_env
-from codegen.errors import ServerError
+from codegen.errors import InvalidTokenError, ServerError
 from codegen.utils.codemods import Codemod
 
 InputT = TypeVar("InputT", bound=BaseModel)
@@ -79,10 +79,10 @@ class RestAPI:
                     return output_model.model_validate(response.json())
                 except ValueError as e:
                     raise ServerError(f"Invalid response format: {e}")
-
+            elif response.status_code == 401:
+                raise InvalidTokenError("Invalid or expired authentication token")
             elif response.status_code == 500:
                 raise ServerError("The server encountered an error while processing your request")
-
             else:
                 try:
                     error_json = response.json()
@@ -154,5 +154,5 @@ class RestAPI:
                 IdentifyResponse,
             )
         except ServerError as e:
-            print(f"Error identifying user: {e}")
+            # print(f"Error identifying user: {e}")
             return None

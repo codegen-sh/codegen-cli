@@ -19,29 +19,14 @@ from codegen.workspace.decorators import requires_init
 @track_command()
 @requires_auth
 @requires_init
-@click.argument("codemod_name", required=False)
+@click.argument("codemod_name", required=True)
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
-def run_command(session: CodegenSession, codemod_name: str | None = None, web: bool = False, apply_local: bool = False):
+def run_command(session: CodegenSession, codemod_name: str, web: bool = False, apply_local: bool = False):
     """Run code transformation on the provided Python code."""
-    # If codemod name is provided, create a Codemod object for it
-    if codemod_name:
-        active_codemod = CodemodManager.get(codemod_name)
-        if not active_codemod:
-            raise click.ClickException(f"Codemod '{codemod_name}' not found. Run 'codegen list' to see available codemods.")
-    else:
-        active_codemod = session.active_codemod
-        if not active_codemod:
-            raise click.ClickException(
-                """No codemod path provided and no active codemod found.
-
-Or create one with:
-    codegen create <name>
-
-Or select an existing one with:
-    codegen set-active <name>
-"""
-            )
+    active_codemod = CodemodManager.get(codemod_name)
+    if not active_codemod:
+        raise click.ClickException(f"Codemod '{codemod_name}' not found. Run 'codegen list' to see available codemods.")
 
     status = Status(f"Running {active_codemod.name}...", spinner="dots", spinner_style="purple")
     status.start()
@@ -68,10 +53,22 @@ Or select an existing one with:
 
         if run_output.observation:
             rich.print("")  # Add some spacing
-            panel = Panel(run_output.observation, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
+
+            # Split and limit diff to 100 lines
+            diff_lines = run_output.observation.splitlines()
+            truncated = len(diff_lines) > 100
+            limited_diff = "\n".join(diff_lines[:100])
+
+            if truncated:
+                if apply_local:
+                    limited_diff += "\n\n...\n\n[yellow]diff truncated to 100 lines, view the full change set in your local file system[/yellow]"
+                else:
+                    limited_diff += "\n\n...\n\n[yellow]diff truncated to 100 lines, view the full change set on your local file system after using run with `--apply-local`[/yellow]"
+
+            panel = Panel(limited_diff, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
             rich.print(panel)
 
-            if not apply_local:
+            if not apply_local and not truncated:
                 rich.print("")
                 rich.print(f"[yellow]→ Run 'codegen run {active_codemod.name} --apply-local' to apply these changes[/yellow]")
         else:
