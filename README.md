@@ -58,7 +58,7 @@ When passed the `--description` argument, a Codegen expert AI will generate this
 Execute this codemod and view output with `codegen run`:
 
 ```
-~$: codegen run --apply-local
+~$: codegen run my-codemod-name --apply-local
 ```
 
 `--apply-local` will apply the changes to your current local filesystem.
