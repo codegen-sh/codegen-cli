@@ -15,7 +15,7 @@ To install the latest release:
 To install for development run:
 
 ```
-~$: pipx uninstall codegen-sh 
+~$: pipx uninstall codegen-sh
 ~$: pipx install -e .
 ```
 
