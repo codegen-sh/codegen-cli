@@ -3,6 +3,9 @@ import rich_click as click
 from rich import box
 from rich.panel import Panel
 from rich.status import Status
+import subprocess
+import click
+import sys
 
 from codegen.cli.analytics.decorators import track_command
 from codegen.cli.auth.decorators import requires_auth
@@ -19,6 +22,35 @@ from codegen.cli.workspace.initialize_workspace import initialize_codegen
 @requires_auth
 def init_command(session: CodegenSession, repo_name: str | None = None, organization_name: str | None = None):
     """Initialize or update the Codegen folder."""
+    
+    # Print a message if not in a git repo
+    try:
+        subprocess.run(
+            ['git', 'rev-parse', '--is-inside-work-tree'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        rich.print("\n")
+        rich.print(
+            Panel(
+                "[bold red]Error:[/bold red] Not in a git repository\n\n"
+                "[white]Please run this command from within a git repository.[/white]\n\n"
+                "[dim]To initialize a new git repository:[/dim]\n"
+                "  1. [cyan]git init[/cyan]\n"
+                "  2. [cyan]git remote add origin <your-repo-url>[/cyan]\n"
+                "  3. Run [cyan]codegen init[/cyan] again",
+                title="[bold red]❌ Git Repository Required",
+                border_style="red",
+                box=box.ROUNDED,
+                padding=(1, 2),
+            )
+        )
+        rich.print("\n")
+        sys.exit(1)
+
     codegen_dir = session.codegen_dir
 
     is_update = codegen_dir.exists()
