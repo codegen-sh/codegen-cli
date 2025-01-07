@@ -1,11 +1,12 @@
+import subprocess
+import sys
+
+import click
 import rich
 import rich_click as click
 from rich import box
 from rich.panel import Panel
 from rich.status import Status
-import subprocess
-import click
-import sys
 
 from codegen.cli.analytics.decorators import track_command
 from codegen.cli.auth.decorators import requires_auth
@@ -22,7 +23,6 @@ from codegen.cli.workspace.initialize_workspace import initialize_codegen
 @requires_auth
 def init_command(session: CodegenSession, repo_name: str | None = None, organization_name: str | None = None):
     """Initialize or update the Codegen folder."""
-    
     # Print a message if not in a git repo
     try:
         subprocess.run(
