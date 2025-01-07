@@ -1,4 +1,6 @@
+src/codegen/cli/__init__.py
 src/codegen/__init__.py
+src/codegen/cli/_env.py
 src/codegen/_env.py
 .python-version
 **.egg-info

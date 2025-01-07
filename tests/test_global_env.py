@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from codegen.env.enums import Environment
-from codegen.env.global_env import GlobalEnv
+from codegen.cli.env.enums import Environment
+from codegen.cli.env.global_env import GlobalEnv
 
 
 @pytest.mark.parametrize(
