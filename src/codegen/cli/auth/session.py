@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pygit2.repository import Repository
 
-from codegen.cli.auth.config import CODEGEN_DIR, CODEMODS_DIR
+from codegen.cli.auth.constants import CODEGEN_DIR, CODEMODS_DIR
 from codegen.cli.auth.token_manager import get_current_token
 from codegen.cli.errors import AuthError, NoTokenError
 from codegen.cli.git.repo import get_git_repo
