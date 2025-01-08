@@ -79,7 +79,7 @@ class CodegenSession:
 
     @property
     def token(self) -> str:
-        """Get the authentication token"""
+        """Get the authenticatian token"""
         return self._token
 
     @property
