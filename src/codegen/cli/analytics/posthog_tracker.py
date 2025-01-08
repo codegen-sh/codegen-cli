@@ -4,7 +4,7 @@ import platform
 import uuid
 from typing import Any
 
-import posthog
+from posthog import Posthog
 
 from codegen.cli.analytics.utils import print_debug_message
 from codegen.cli.auth.config import ANALYTICS_FILE
@@ -14,6 +14,7 @@ from codegen.cli.env.global_env import global_env
 
 class PostHogTracker:
     session: CodegenSession
+    posthog: Posthog
 
     def __init__(self, session: CodegenSession):
         self.session = session
@@ -22,10 +23,7 @@ class PostHogTracker:
 
     def _initialize_posthog(self):
         """Initialize PostHog with the given API key and host."""
-        # posthog.api_key = api_key
-        posthog.project_api_key = global_env.POSTHOG_PROJECT_API_KEY
-        posthog.personal_api_key = global_env.POSTHOG_API_KEY
-        posthog.host = "https://us.i.posthog.com"
+        self.posthog = Posthog(global_env.POSTHOG_PROJECT_API_KEY, host="https://us.i.posthog.com")
 
     def _initialize_config(self):
         """Initialize or load the config file."""
@@ -71,8 +69,12 @@ class PostHogTracker:
             return
 
         try:
-            posthog.capture(distinct_id=self.session.config.analytics.distinct_id, event=event_name, properties=base_properties, groups={"codegen_app": "cli"})
+            self.posthog.capture(
+                distinct_id=self.session.identity.user.github_username,
+                event=event_name,
+                properties=base_properties,
+                groups={"codegen_app": "cli"},
+            )
         except Exception as e:
-            # Silently fail for telemetry
             print_debug_message("Failed to send event to PostHog.")
             print_debug_message(e)
