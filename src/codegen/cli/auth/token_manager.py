@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-from codegen.cli.auth.config import AUTH_FILE, CONFIG_DIR
+from codegen.cli.auth.constants import AUTH_FILE, CONFIG_DIR
 
 
 class TokenManager:
