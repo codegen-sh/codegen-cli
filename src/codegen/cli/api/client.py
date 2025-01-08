@@ -185,13 +185,27 @@ class RestAPI:
         except ServerError as e:
             return None
 
-    def deploy(self, codemod_name: str, codemod_source: str) -> DeployResponse:
+    def deploy(
+        self,
+        codemod_name: str,
+        codemod_source: str,
+        lint_mode: bool = False,
+        lint_user_whitelist: list[str] | None = None,
+    ) -> DeployResponse:
         """Deploy a codemod to the Modal backend."""
         session = CodegenSession()
         return self._make_request(
             "POST",
             DEPLOY_ENDPOINT,
-            DeployInput(input=DeployInput.BaseDeployInput(codemod_name=codemod_name, codemod_source=codemod_source, repo_full_name=session.repo_name)),
+            DeployInput(
+                input=DeployInput.BaseDeployInput(
+                    codemod_name=codemod_name,
+                    codemod_source=codemod_source,
+                    repo_full_name=session.repo_name,
+                    lint_mode=lint_mode,
+                    lint_user_whitelist=lint_user_whitelist or [],
+                )
+            ),
             DeployResponse,
         )
 

@@ -37,14 +37,23 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 and isinstance(decorator.func, ast.Attribute)
                 and isinstance(decorator.func.value, ast.Name)
                 and decorator.func.value.id == "codegen"
-                and decorator.func.attr == "function"
+                and decorator.func.attr in ("function", "pr_check")
                 and len(decorator.args) >= 1
             ):
                 # Get the function name from the decorator argument
                 func_name = ast.literal_eval(decorator.args[0])
+
+                # Get additional metadata for pr_check
+                lint_mode = decorator.func.attr == "pr_check"
+                lint_user_whitelist = []
+                if lint_mode and len(decorator.keywords) > 0:
+                    for keyword in decorator.keywords:
+                        if keyword.arg == "users" and isinstance(keyword.value, ast.List):
+                            lint_user_whitelist = [ast.literal_eval(elt).lstrip("@") for elt in keyword.value.elts]
+
                 # Get just the function body, unindented
                 body_source = self.get_function_body(node)
-                self.functions.append({"name": func_name, "source": body_source})
+                self.functions.append({"name": func_name, "source": body_source, "lint_mode": lint_mode, "lint_user_whitelist": lint_user_whitelist})
 
     def visit_Module(self, node):
         # Store the full source code for later use
@@ -83,7 +92,12 @@ def deploy_command(session: CodegenSession, filepath: Path):
     for func in visitor.functions:
         with Status(f"[bold]Deploying function '{func['name']}'...", spinner="dots") as status:
             start_time = time.time()
-            response = api_client.deploy(codemod_name=func["name"], codemod_source=func["source"])
+            response = api_client.deploy(
+                codemod_name=func["name"],
+                codemod_source=func["source"],
+                lint_mode=func["lint_mode"],
+                lint_user_whitelist=func["lint_user_whitelist"],
+            )
             deploy_time = time.time() - start_time
 
         rich.print(f"[green]✓[/green] Function '{func['name']}' deployed in {deploy_time:.3f}s! 🎉")

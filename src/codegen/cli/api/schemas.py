@@ -143,6 +143,8 @@ class DeployInput(BaseModel):
         codemod_name: str = Field(..., description="Name of the codemod to deploy")
         codemod_source: str = Field(..., description="Source code of the codemod")
         repo_full_name: str = Field(..., description="Full name of the repository")
+        lint_mode: bool = Field(default=False, description="Whether this is a PR check/lint mode function")
+        lint_user_whitelist: list[str] = Field(default_factory=list, description="List of GitHub usernames to notify")
 
     input: BaseDeployInput = Field(..., description="Input data for deployment")
 
