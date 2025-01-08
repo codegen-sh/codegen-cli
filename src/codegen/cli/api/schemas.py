@@ -2,6 +2,7 @@ from typing import TypeVar
 
 from codegen.cli.utils.constants import ProgrammingLanguage
 from codegen.cli.utils.schema import SafeBaseModel
+from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
@@ -118,3 +119,26 @@ class IdentifyResponse(SafeBaseModel):
 
     auth_context: AuthContext
     user: User
+
+
+###########################################################################
+# DEPLOY
+###########################################################################
+
+
+class DeployInput(BaseModel):
+    """Input for deploying a codemod."""
+
+    class BaseDeployInput(BaseModel):
+        codemod_name: str = Field(..., description="Name of the codemod to deploy")
+        codemod_source: str = Field(..., description="Source code of the codemod")
+
+    input: BaseDeployInput = Field(..., description="Input data for deployment")
+
+
+class DeployResponse(BaseModel):
+    """Response from deploying a codemod."""
+
+    success: bool = Field(..., description="Whether the deployment was successful")
+    codemod_id: int = Field(..., description="ID of the deployed codemod")
+    version_id: int = Field(..., description="Version ID of the deployed codemod")

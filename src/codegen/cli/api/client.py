@@ -7,6 +7,7 @@ from rich import print as rprint
 
 from codegen.cli.api.endpoints import (
     CREATE_ENDPOINT,
+    DEPLOY_ENDPOINT,
     DOCS_ENDPOINT,
     EXPERT_ENDPOINT,
     IDENTIFY_ENDPOINT,
@@ -17,6 +18,8 @@ from codegen.cli.api.schemas import (
     AskExpertResponse,
     CreateInput,
     CreateResponse,
+    DeployInput,
+    DeployResponse,
     DocsInput,
     DocsResponse,
     IdentifyResponse,
@@ -154,5 +157,13 @@ class RestAPI:
                 IdentifyResponse,
             )
         except ServerError as e:
-            # print(f"Error identifying user: {e}")
             return None
+
+    def deploy(self, codemod_name: str, codemod_source: str) -> DeployResponse:
+        """Deploy a codemod to the Modal backend."""
+        return self._make_request(
+            "POST",
+            DEPLOY_ENDPOINT,
+            DeployInput(input=DeployInput.BaseDeployInput(codemod_name=codemod_name, codemod_source=codemod_source)),
+            DeployResponse,
+        )
