@@ -17,6 +17,7 @@ from codegen.cli.api.endpoints import (
 from codegen.cli.api.schemas import (
     AskExpertInput,
     AskExpertResponse,
+    CodemodRunType,
     CreateInput,
     CreateResponse,
     DeployInput,
@@ -106,17 +107,36 @@ class RestAPI:
     def run(
         self,
         codemod: Codemod,
+        include_source: bool = True,
+        run_type: CodemodRunType = CodemodRunType.DIFF,
+        template_context: dict[str, str] | None = None,
     ) -> RunCodemodOutput:
-        """Run a codemod transformation."""
+        """Run a codemod transformation.
+
+        Args:
+            codemod: The codemod to run
+            include_source: Whether to include the source code in the request.
+                          If False, uses the deployed version.
+            run_type: Type of run (diff or pr)
+            template_context: Context variables to pass to the codemod
+        """
         session = CodegenSession()
 
-        input_data = RunCodemodInput(
-            input=RunCodemodInput.BaseRunCodemodInput(
-                codemod_id=codemod.config.codemod_id,
-                codemod_source=convert_to_ui(codemod.get_current_source()),
-                repo_full_name=session.repo_name,
-            )
-        )
+        base_input = {
+            "codemod_id": codemod.config.codemod_id,
+            "repo_full_name": session.repo_name,
+            "codemod_run_type": run_type,
+        }
+
+        # Only include source if requested
+        if include_source:
+            base_input["codemod_source"] = convert_to_ui(codemod.get_current_source())
+
+        # Add template context if provided
+        if template_context:
+            base_input["template_context"] = template_context
+
+        input_data = RunCodemodInput(input=RunCodemodInput.BaseRunCodemodInput(**base_input))
         return self._make_request(
             "POST",
             RUN_ENDPOINT,

@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TypeVar
 
 from codegen.cli.utils.constants import ProgrammingLanguage
@@ -12,11 +13,20 @@ T = TypeVar("T")
 ###########################################################################
 
 
+class CodemodRunType(str, Enum):
+    """Type of codemod run."""
+
+    DIFF = "diff"
+    PR = "pr"
+
+
 class RunCodemodInput(SafeBaseModel):
     class BaseRunCodemodInput(SafeBaseModel):
         codemod_id: int
         repo_full_name: str
-        codemod_source: str
+        codemod_source: str | None = None
+        codemod_run_type: CodemodRunType = CodemodRunType.DIFF
+        template_context: dict[str, str] = Field(default_factory=dict)
 
     input: BaseRunCodemodInput
 
