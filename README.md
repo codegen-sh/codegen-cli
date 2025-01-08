@@ -12,14 +12,26 @@ To install the latest release:
 ~$: pipx install codegen-sh
 ```
 
-To install for development run:
+## Development
+
+- Clone a repo onto your filesystem, e.g. `codegen-staging`
+- Set up a uv environment:
 
 ```
-~$: pipx uninstall codegen-sh
-~$: pipx install -e .
+uv venv --python 3.13.0
+source .venv/bin/activate
 ```
+
+- pip install the `codegen-cli` package locally
+
+```
+uv pip install -e path/to/codegen-cli
+```
+
+- changes to the `codegen-cli` directory are now immediately reflected.
 
 ## Installation in Devin
+
 ```bash
 pipx install codegen-sh
 pipx upgrade codegen-sh # to update to latest version
