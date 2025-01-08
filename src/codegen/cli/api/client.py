@@ -142,14 +142,10 @@ class RestAPI:
             CreateResponse,
         )
 
-    def identify(self) -> IdentifyResponse | None:
-        try:
-            return self._make_request(
-                "POST",
-                IDENTIFY_ENDPOINT,
-                None,
-                IdentifyResponse,
-            )
-        except ServerError as e:
-            # print(f"Error identifying user: {e}")
-            return None
+    def identify(self) -> IdentifyResponse:
+        return self._make_request(
+            "POST",
+            IDENTIFY_ENDPOINT,
+            None,
+            IdentifyResponse,
+        )

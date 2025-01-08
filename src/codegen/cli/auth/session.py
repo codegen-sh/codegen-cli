@@ -3,7 +3,6 @@ from pathlib import Path
 
 from pygit2.repository import Repository
 
-from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.config import CODEGEN_DIR, CODEMODS_DIR
 from codegen.cli.auth.token_manager import get_current_token
 from codegen.cli.errors import AuthError, NoTokenError
@@ -42,7 +41,7 @@ class CodegenSession:
     token: str | None = None
 
     # =====[ Lazy instance attributes ]=====
-    _config: Config
+    _config: Config | None = None
     _identity: Identity | None = None
     _profile: UserProfile | None = None
 
@@ -55,6 +54,7 @@ class CodegenSession:
         if self._config:
             return self._config
         self._config = get_config(self.codegen_dir)
+        return self._config
 
     @property
     def identity(self) -> Identity | None:
@@ -63,6 +63,8 @@ class CodegenSession:
             return self._identity
         if not self.token:
             raise NoTokenError("No authentication token found")
+
+        from codegen.cli.api.client import RestAPI
 
         identity = RestAPI(self.token).identify()
         if not identity:
