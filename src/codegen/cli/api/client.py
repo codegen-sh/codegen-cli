@@ -11,6 +11,7 @@ from codegen.cli.api.endpoints import (
     DOCS_ENDPOINT,
     EXPERT_ENDPOINT,
     IDENTIFY_ENDPOINT,
+    LOOKUP_ENDPOINT,
     RUN_ENDPOINT,
 )
 from codegen.cli.api.schemas import (
@@ -23,6 +24,8 @@ from codegen.cli.api.schemas import (
     DocsInput,
     DocsResponse,
     IdentifyResponse,
+    LookupInput,
+    LookupOutput,
     RunCodemodInput,
     RunCodemodOutput,
 )
@@ -87,6 +90,9 @@ class RestAPI:
             elif response.status_code == 500:
                 raise ServerError("The server encountered an error while processing your request")
             else:
+                print(method)
+                print(endpoint)
+                print(response)
                 try:
                     error_json = response.json()
                     error_msg = error_json.get("detail", error_json)
@@ -167,4 +173,14 @@ class RestAPI:
             DEPLOY_ENDPOINT,
             DeployInput(input=DeployInput.BaseDeployInput(codemod_name=codemod_name, codemod_source=codemod_source, repo_full_name=session.repo_name)),
             DeployResponse,
+        )
+
+    def lookup(self, codemod_name: str) -> LookupOutput:
+        """Look up a codemod by name."""
+        session = CodegenSession()
+        return self._make_request(
+            "GET",
+            LOOKUP_ENDPOINT,
+            LookupInput(input=LookupInput.BaseLookupInput(codemod_name=codemod_name, repo_full_name=session.repo_name)),
+            LookupOutput,
         )

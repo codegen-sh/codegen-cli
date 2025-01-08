@@ -145,3 +145,25 @@ class DeployResponse(BaseModel):
     codemod_id: int = Field(..., description="ID of the deployed codemod")
     version_id: int = Field(..., description="Version ID of the deployed codemod")
     url: str = Field(..., description="URL of the deployed codemod")
+
+
+###########################################################################
+# LOOKUP
+###########################################################################
+
+
+class LookupInput(BaseModel):
+    """Input for looking up a codemod."""
+
+    class BaseLookupInput(BaseModel):
+        codemod_name: str = Field(..., description="Name of the codemod to look up")
+        repo_full_name: str = Field(..., description="Full name of the repository")
+
+    input: BaseLookupInput = Field(..., description="Input data for lookup")
+
+
+class LookupOutput(BaseModel):
+    """Response from looking up a codemod."""
+
+    codemod_id: int = Field(..., description="ID of the codemod")
+    version_id: int = Field(..., description="Version ID of the codemod")
