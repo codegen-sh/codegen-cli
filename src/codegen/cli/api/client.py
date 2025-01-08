@@ -45,9 +45,7 @@ class RestAPI:
 
     def _get_headers(self) -> dict[str, str]:
         """Get headers with authentication token."""
-        return {
-            "Authorization": f"Bearer {self.auth_token}",
-        }
+        return {"Authorization": f"Bearer {self.auth_token}"}
 
     def _make_request(
         self,
@@ -144,15 +142,10 @@ class RestAPI:
             CreateResponse,
         )
 
-    def identify(self) -> IdentifyResponse | None:
-        """Identify the user's codemod."""
-        try:
-            return self._make_request(
-                "POST",
-                IDENTIFY_ENDPOINT,
-                None,
-                IdentifyResponse,
-            )
-        except ServerError as e:
-            # print(f"Error identifying user: {e}")
-            return None
+    def identify(self) -> IdentifyResponse:
+        return self._make_request(
+            "POST",
+            IDENTIFY_ENDPOINT,
+            None,
+            IdentifyResponse,
+        )
