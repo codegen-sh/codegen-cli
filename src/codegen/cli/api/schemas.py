@@ -132,6 +132,7 @@ class DeployInput(BaseModel):
     class BaseDeployInput(BaseModel):
         codemod_name: str = Field(..., description="Name of the codemod to deploy")
         codemod_source: str = Field(..., description="Source code of the codemod")
+        repo_full_name: str = Field(..., description="Full name of the repository")
 
     input: BaseDeployInput = Field(..., description="Input data for deployment")
 
@@ -140,5 +141,7 @@ class DeployResponse(BaseModel):
     """Response from deploying a codemod."""
 
     success: bool = Field(..., description="Whether the deployment was successful")
+    new: bool = Field(..., description="Whether the codemod is newly created")
     codemod_id: int = Field(..., description="ID of the deployed codemod")
     version_id: int = Field(..., description="Version ID of the deployed codemod")
+    url: str = Field(..., description="URL of the deployed codemod")
