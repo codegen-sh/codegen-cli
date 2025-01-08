@@ -41,7 +41,7 @@ This will open your browser to get an authentication token. You can also pass a 
 ~$: codegen init
 ```
 
-This creates the necessary folder structure and downloads documentation and examples.
+This creates the necessary folder structure and downloads documentation and examples. An error will be thrown if you are not in a git repository.
 
 3. Create a codemod:
 
