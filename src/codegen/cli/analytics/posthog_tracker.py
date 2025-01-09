@@ -18,7 +18,6 @@ class PostHogTracker:
 
     def capture_event(self, event_name: str, properties: dict[str, Any] | None = None):
         """Capture an event if user has opted in."""
-        # Add default properties
         base_properties = {
             "platform": platform.system(),
             "platform_release": platform.release(),
@@ -28,13 +27,8 @@ class PostHogTracker:
         if properties:
             base_properties.update(properties)
 
-        print_debug_message(f"About to send: {event_name} with properties: {base_properties}")
-
-        if not self.session.config.analytics.telemetry_enabled:
-            print_debug_message("User not opted_in. Posthog message won't be sent! ")
-            return
-
         try:
+            print_debug_message(f"Capturing: {event_name} with properties: {base_properties} ...")
             self.posthog.capture(
                 distinct_id=self.session.identity.user.github_username,
                 event=event_name,
