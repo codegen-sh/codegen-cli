@@ -1,9 +1,10 @@
 from enum import Enum
 from typing import TypeVar
 
+from pydantic import BaseModel, Field
+
 from codegen.cli.utils.constants import ProgrammingLanguage
 from codegen.cli.utils.schema import SafeBaseModel
-from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 

@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Optional
 from pathlib import Path
 
 from codegen.cli.api.client import RestAPI
-from codegen.cli.api.schemas import RunCodemodOutput, CodemodRunType
+from codegen.cli.api.schemas import CodemodRunType, RunCodemodOutput
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.utils.codemods import Codemod
 from codegen.cli.utils.schema import CodemodConfig
@@ -25,7 +24,7 @@ class Function:
     name: str
     codemod_id: int
     version_id: int
-    _api_client: Optional[RestAPI] = None
+    _api_client: RestAPI | None = None
 
     @classmethod
     def lookup(cls, name: str) -> "Function":
@@ -50,6 +49,7 @@ class Function:
             - logs: Optional[str]
             - observation: Optional[str] (the diff)
             - error: Optional[str]
+
         """
         if self._api_client is None:
             session = CodegenSession()

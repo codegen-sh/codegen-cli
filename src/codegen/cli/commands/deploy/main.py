@@ -1,7 +1,7 @@
 import ast
 import textwrap
-from pathlib import Path
 import time
+from pathlib import Path
 
 import rich
 import rich_click as click
@@ -67,14 +67,13 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 @click.argument("filepath", type=click.Path(exists=True, path_type=Path))
 def deploy_command(session: CodegenSession, filepath: Path):
     """Deploy codegen functions found in the specified file."""
-
     # Read and parse the file
     try:
         with open(filepath) as f:
             file_content = f.read()
             tree = ast.parse(file_content)
     except Exception as e:
-        raise click.ClickException(f"Failed to parse {filepath}: {str(e)}")
+        raise click.ClickException(f"Failed to parse {filepath}: {e!s}")
 
     # Find all codegen.function decorators
     visitor = CodegenFunctionVisitor()
