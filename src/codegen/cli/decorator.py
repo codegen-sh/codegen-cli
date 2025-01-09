@@ -1,6 +1,7 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from functools import wraps
-from typing import ParamSpec, TypeVar, get_type_hints
+from inspect import signature
+from typing import Optional, ParamSpec, TypeVar, get_type_hints, Sequence
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -9,7 +10,7 @@ T = TypeVar("T")
 class Function:
     def __init__(self, name: str, *, lint_mode: bool = False, lint_user_whitelist: Sequence[str] | None = None):
         self.name = name
-        self.func: Callable | None = None
+        self.func: Optional[Callable] = None
         self.params_type = None
         self.lint_mode = lint_mode
         self.lint_user_whitelist = list(lint_user_whitelist) if lint_user_whitelist else []
@@ -39,7 +40,6 @@ def function(name: str) -> Function:
         @codegen.function('my-function')
         def run(codebase: PyCodebase, params: MyPydanticType):
             pass
-
     """
     return Function(name)
 
@@ -55,7 +55,6 @@ def pr_check(name: str, users: Sequence[str]) -> Function:
         @codegen.pr_check('notify-multiple-suspense-queries', users=['@fmunir_ramp'])
         def run(codebase: Codebase, pr: PullRequest):
             pass
-
     """
     # Normalize usernames by removing @ if present
     normalized_users = [user.lstrip("@") for user in users]

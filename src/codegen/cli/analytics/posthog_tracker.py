@@ -30,10 +30,6 @@ class PostHogTracker:
 
         print_debug_message(f"About to send: {event_name} with properties: {base_properties}")
 
-        if not self.session.config.analytics.telemetry_enabled:
-            print_debug_message("User not opted_in. Posthog message won't be sent! ")
-            return
-
         try:
             self.posthog.capture(
                 distinct_id=self.session.identity.user.github_username,
