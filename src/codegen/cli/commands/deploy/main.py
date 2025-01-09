@@ -5,12 +5,11 @@ from pathlib import Path
 
 import rich
 import rich_click as click
-from rich.status import Status
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
+from codegen.cli.rich.spinners import create_spinner
 
 
 class CodegenFunctionVisitor(ast.NodeVisitor):
@@ -37,14 +36,14 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 and isinstance(decorator.func, ast.Attribute)
                 and isinstance(decorator.func.value, ast.Name)
                 and decorator.func.value.id == "codegen"
-                and decorator.func.attr in ("function", "pr_check")
+                and decorator.func.attr in ("function", "webhook")
                 and len(decorator.args) >= 1
             ):
                 # Get the function name from the decorator argument
                 func_name = ast.literal_eval(decorator.args[0])
 
-                # Get additional metadata for pr_check
-                lint_mode = decorator.func.attr == "pr_check"
+                # Get additional metadata for webhook
+                lint_mode = decorator.func.attr == "webhook"
                 lint_user_whitelist = []
                 if lint_mode and len(decorator.keywords) > 0:
                     for keyword in decorator.keywords:
@@ -62,7 +61,6 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 
 
 @click.command(name="deploy")
-@track_command()
 @requires_auth
 @click.argument("filepath", type=click.Path(exists=True, path_type=Path))
 def deploy_command(session: CodegenSession, filepath: Path):
@@ -89,7 +87,7 @@ def deploy_command(session: CodegenSession, filepath: Path):
     rich.print()  # Add a blank line before deployments
 
     for func in visitor.functions:
-        with Status(f"[bold]Deploying function '{func['name']}'...", spinner="dots") as status:
+        with create_spinner(f"Deploying function '{func['name']}'...") as status:
             start_time = time.time()
             response = api_client.deploy(
                 codemod_name=func["name"],
@@ -99,5 +97,6 @@ def deploy_command(session: CodegenSession, filepath: Path):
             )
             deploy_time = time.time() - start_time
 
-        rich.print(f"[green]✓[/green] Function '{func['name']}' deployed in {deploy_time:.3f}s! 🎉")
-        rich.print(f"View Deployment: {response.url}\n")
+        func_type = "Webhook" if func["lint_mode"] else "Function"
+        rich.print(f"✅ {func_type} '{func['name']}' deployed in {deploy_time:.3f}s! 🎉")
+        rich.print(f"  → view deployment: {response.url}\n")

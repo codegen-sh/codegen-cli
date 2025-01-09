@@ -7,7 +7,6 @@ from algoliasearch.search.client import SearchClient
 from rich import box
 from rich.panel import Panel
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.env.global_env import global_env
 
 ALGOLIA_APP_ID = "Q48PJS245N"
@@ -16,7 +15,6 @@ ALGOLIA_INDEX_NAME = "prod_knowledge"
 
 
 @click.command(name="docs-search")
-@track_command()
 @click.argument("query")
 @click.option(
     "--page",

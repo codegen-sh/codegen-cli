@@ -11,6 +11,7 @@ from codegen.cli.commands.login.main import login_command
 from codegen.cli.commands.logout.main import logout_command
 from codegen.cli.commands.profile.main import profile_command
 from codegen.cli.commands.run.main import run_command
+from codegen.cli.commands.style_debug.main import style_debug_command
 
 click.rich_click.USE_RICH_MARKUP = True
 install(show_locals=True)
@@ -32,6 +33,7 @@ main.add_command(create_command)
 main.add_command(expert_command)
 main.add_command(list_command)
 main.add_command(deploy_command)
+main.add_command(style_debug_command)
 
 if __name__ == "__main__":
     main()
