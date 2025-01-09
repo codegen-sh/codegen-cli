@@ -89,9 +89,6 @@ class RestAPI:
             elif response.status_code == 500:
                 raise ServerError("The server encountered an error while processing your request")
             else:
-                print(method)
-                print(endpoint)
-                print(response)
                 try:
                     error_json = response.json()
                     error_msg = error_json.get("detail", error_json)
@@ -173,15 +170,12 @@ class RestAPI:
 
     def identify(self) -> IdentifyResponse | None:
         """Identify the user's codemod."""
-        try:
-            return self._make_request(
-                "POST",
-                IDENTIFY_ENDPOINT,
-                None,
-                IdentifyResponse,
-            )
-        except ServerError as e:
-            return None
+        return self._make_request(
+            "POST",
+            IDENTIFY_ENDPOINT,
+            None,
+            IdentifyResponse,
+        )
 
     def deploy(
         self,
