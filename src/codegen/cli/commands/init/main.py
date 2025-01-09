@@ -1,17 +1,14 @@
 import subprocess
 import sys
 
-import click
 import rich
 import rich_click as click
-from rich import box
-from rich.panel import Panel
-from rich.status import Status
 
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.commands.init.render import get_success_message
 from codegen.cli.git.url import get_git_organization_and_repo
+from codegen.cli.rich.codeblocks import format_command
 from codegen.cli.workspace.initialize_workspace import initialize_codegen
 
 
@@ -25,29 +22,16 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
     try:
         subprocess.run(["git", "rev-parse", "--is-inside-work-tree"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
-        rich.print("\n")
-        rich.print(
-            Panel(
-                "[bold red]Error:[/bold red] Not in a git repository\n\n"
-                "[white]Please run this command from within a git repository.[/white]\n\n"
-                "[dim]To initialize a new git repository:[/dim]\n"
-                "  1. [cyan]git init[/cyan]\n"
-                "  2. [cyan]git remote add origin <your-repo-url>[/cyan]\n"
-                "  3. Run [cyan]codegen init[/cyan] again",
-                title="[bold red]❌ Git Repository Required",
-                border_style="red",
-                box=box.ROUNDED,
-                padding=(1, 2),
-            )
-        )
-        rich.print("\n")
+        rich.print("\n[bold red]Error:[/bold red] Not in a git repository")
+        rich.print("[white]Please run this command from within a git repository.[/white]")
+        rich.print("\n[dim]To initialize a new git repository:[/dim]")
+        rich.print(format_command("git init"))
+        rich.print(format_command("git remote add origin <your-repo-url>"))
+        rich.print(format_command("codegen init"))
         sys.exit(1)
 
     codegen_dir = session.codegen_dir
-
     is_update = codegen_dir.exists()
-
-    action = "Updating" if is_update else "Initializing"
 
     if organization_name is not None:
         session.config.organization_name = organization_name
@@ -59,39 +43,20 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
         session.config.repo_name = session.config.repo_name or cwd_repo
     session.write_config()
 
-    with Status(f"[bold]{action} Codegen...", spinner="dots", spinner_style="purple") as status:
-        folders = initialize_codegen(status, is_update=is_update)
-    rich.print(f"Organization name: {session.config.organization_name}")
-    rich.print(f"Repo name: {session.config.repo_name}")
-
-    config_file = session.codegen_dir / "config.toml"
+    action = "Updating" if is_update else "Initializing"
+    rich.print("")  # Add a newline before the spinner
+    folders = initialize_codegen(action=action)
 
     # Print success message
-    rich.print("\n")
-    rich.print(
-        Panel(
-            get_success_message(*folders, config_file),
-            title=f"[bold green]🚀 Codegen CLI {action} Successfully!",
-            border_style="green",
-            box=box.ROUNDED,
-            padding=(1, 2),
-        )
-    )
+    rich.print(f"\n✅ {action} complete")
+    rich.print("")
+    rich.print(get_success_message(*folders))
+    rich.print(f"\n[dim]Organization:[/dim] [cyan]{session.config.organization_name}[/cyan]")
+    rich.print(f"[dim]Repository:[/dim]  [cyan]{session.config.repo_name}[/cyan]")
 
-    # Print next steps panel
-    rich.print("\n")
-    rich.print(
-        Panel(
-            "[bold white]Create a codemod with:[/bold white]\n\n"
-            '[cyan]\tcodegen create my-codemod-name --description "describe what you want to do"[/cyan]\n\n'
-            "[dim]This will create a new codemod in the codegen-sh/codemods folder and initialize it with an AI-generated v0.1.[/dim]\n\n"
-            "[bold white]Then run it with:[/bold white]\n\n"
-            "[cyan]\tcodegen run my-codemod-name --apply-local[/cyan]\n\n"
-            "[dim]This will apply your codemod and show you the results.[/dim]",
-            title="[bold white]✨ What's Next?[/bold white]",
-            border_style="blue",
-            box=box.ROUNDED,
-            padding=(1, 2),
-        )
-    )
-    rich.print("\n")
+    # Print next steps
+    rich.print("\n[bold]What's next?[/bold]")
+    rich.print("1. Create a codemod:")
+    rich.print(format_command('codegen create my-codemod-name -d "describe what you want to do"'))
+    rich.print("2. Run it:")
+    rich.print(format_command("codegen run my-codemod-name --apply-local"))

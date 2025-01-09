@@ -2,15 +2,14 @@ from pathlib import Path
 
 import rich
 import rich_click as click
-from rich import box
-from rich.panel import Panel
-from rich.status import Status
 
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.codemod.convert import convert_to_cli
 from codegen.cli.errors import ServerError
+from codegen.cli.rich.codeblocks import format_command, format_path
+from codegen.cli.rich.spinners import create_spinner
 from codegen.cli.utils.codemod_manager import CodemodManager
 from codegen.cli.utils.constants import ProgrammingLanguage
 from codegen.cli.utils.schema import CODEMOD_CONFIG_PATH
@@ -30,41 +29,22 @@ def create_command(session: CodegenSession, name: str, description: str | None =
         if overwrite:
             overwrote_codemod = True
         else:
-            codemod_name = CodemodManager.get_valid_name(name)
-            text = f"""[bold red]🔴 Failed to generate codemod[/bold red]: Codemod `{codemod_name}` already exists at {CodemodManager.CODEMODS_DIR / codemod_name}
-[bold yellow]🧠 Hint[/bold yellow]: Overwrite codemod with `--overwrite` or choose a different name."""
-            rich.print(
-                Panel(
-                    text,
-                    title="Error Generating Codemod",
-                    border_style="red",
-                    box=box.ROUNDED,
-                    padding=(1, 2),
-                )
-            )
-            rich.print()
+            rich.print("\n[bold red]Error:[/bold red] Codemod already exists")
+            rich.print(f"[white]Codemod `{name}` already exists at {format_path(str(CodemodManager.CODEMODS_DIR / name))}[/white]")
+            rich.print("[dim]To overwrite the codemod:[/dim]")
+            rich.print(f"{format_command(f'codegen create {name} --overwrite')}")
             return
 
     if description:
-        status_message = "[bold]Generating codemod (using LLM, this will take ~30s)..."
+        status_message = "Generating codemod (using LLM, this will take ~30s)"
     else:
-        status_message = "[bold]Setting up codemod..."
+        status_message = "Setting up codemod"
 
-    with Status(status_message, spinner="dots", spinner_style="purple") as status:
+    rich.print("")  # Add a newline before the spinner
+    with create_spinner(status_message) as status:
         try:
             # Get code from API
             response = RestAPI(session.token).create(description if description else None)
-            # Show the AI's explanation
-            rich.print("\n[bold]🤖 AI Assistant:[/bold]")
-            rich.print(
-                Panel(
-                    response.response,
-                    title="[bold blue]Generated Codemod Explanation",
-                    border_style="blue",
-                    box=box.ROUNDED,
-                    padding=(1, 2),
-                )
-            )
 
             # Create the codemod
             codemod = CodemodManager.create(
@@ -89,18 +69,16 @@ def create_command(session: CodegenSession, name: str, description: str | None =
         return f"./{path.relative_to(Path.cwd())}"
 
     # Success message
-    if overwrote_codemod:
-        rich.print(f"\n[bold green]✨ Overwrote codemod {codemod.name} successfully:[/bold green]")
-    else:
-        rich.print(f"\n[bold green]✨ Created codemod {codemod.name} successfully:[/bold green]")
-    rich.print("─" * 40)
-    rich.print(f"[cyan]Location:[/cyan] {make_relative(codemod.path.parent)}")
-    rich.print(f"[cyan]Main file:[/cyan] {make_relative(codemod.path)}")
-    rich.print(f"[cyan]Name:[/cyan] {codemod.name}")
-    rich.print(f"[cyan]Helpful hints:[/cyan] {make_relative(codemod.get_system_prompt_path())}")
+    rich.print(f"\n✅ {'Overwrote' if overwrote_codemod else 'Created'} codemod {codemod.name}")
+    rich.print("")
+    rich.print("📁 Files Created:")
+    rich.print(f"   📦 Location:  {make_relative(codemod.path.parent)}")
+    rich.print(f"   🔧 Main file: {make_relative(codemod.path)}")
+    rich.print(f"   📚 Hints:     {make_relative(codemod.get_system_prompt_path())}")
     if codemod.config:
-        rich.print(f"[cyan]Config:[/cyan] {make_relative(codemod.path.parent / CODEMOD_CONFIG_PATH)}")
-    rich.print("\n[bold yellow]💡 Next steps:[/bold yellow]")
-    rich.print("1. Review and edit [cyan]run.py[/cyan] to customize the codemod")
-    rich.print(f"2. Run it with: [green]codegen run {name}[/green]")
-    rich.print("─" * 40 + "\n")
+        rich.print(f"   ⚙️  Config:    {make_relative(codemod.path.parent / CODEMOD_CONFIG_PATH)}")
+
+    # Next steps
+    rich.print("\n[bold]What's next?[/bold]")
+    rich.print("1. Review and edit run.py to customize the codemod")
+    rich.print(f"2. Run it with: \n{format_command(f'codegen run {name}')}")

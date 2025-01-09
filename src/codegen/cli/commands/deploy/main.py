@@ -5,11 +5,11 @@ from pathlib import Path
 
 import rich
 import rich_click as click
-from rich.status import Status
 
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
+from codegen.cli.rich.spinners import create_spinner
 
 
 class CodegenFunctionVisitor(ast.NodeVisitor):
@@ -87,7 +87,7 @@ def deploy_command(session: CodegenSession, filepath: Path):
     rich.print()  # Add a blank line before deployments
 
     for func in visitor.functions:
-        with Status(f"[bold]Deploying function '{func['name']}'...", spinner="dots") as status:
+        with create_spinner(f"Deploying function '{func['name']}'...") as status:
             start_time = time.time()
             response = api_client.deploy(
                 codemod_name=func["name"],
