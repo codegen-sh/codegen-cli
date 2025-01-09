@@ -39,6 +39,7 @@ def function(name: str) -> Function:
         @codegen.function('my-function')
         def run(codebase: PyCodebase, params: MyPydanticType):
             pass
+
     """
     return Function(name)
 
@@ -54,6 +55,7 @@ def pr_check(name: str, users: Sequence[str]) -> Function:
         @codegen.pr_check('notify-multiple-suspense-queries', users=['@fmunir_ramp'])
         def run(codebase: Codebase, pr: PullRequest):
             pass
+
     """
     # Normalize usernames by removing @ if present
     normalized_users = [user.lstrip("@") for user in users]
