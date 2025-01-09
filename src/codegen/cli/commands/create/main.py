@@ -6,7 +6,6 @@ from rich import box
 from rich.panel import Panel
 from rich.status import Status
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
@@ -19,7 +18,6 @@ from codegen.cli.workspace.decorators import requires_init
 
 
 @click.command(name="create")
-@track_command()
 @requires_auth
 @requires_init
 @click.argument("name", type=str, required=False)

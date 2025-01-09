@@ -2,7 +2,6 @@ import rich
 import rich_click as click
 from rich.table import Table
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.utils.codemod_manager import CodemodManager
@@ -10,7 +9,6 @@ from codegen.cli.workspace.decorators import requires_init
 
 
 @click.command(name="list")
-@track_command()
 @requires_auth
 @requires_init
 def list_command(session: CodegenSession):

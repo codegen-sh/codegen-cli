@@ -7,7 +7,6 @@ import rich
 import rich_click as click
 from rich.status import Status
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
@@ -62,7 +61,6 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 
 
 @click.command(name="deploy")
-@track_command()
 @requires_auth
 @click.argument("filepath", type=click.Path(exists=True, path_type=Path))
 def deploy_command(session: CodegenSession, filepath: Path):
@@ -99,5 +97,5 @@ def deploy_command(session: CodegenSession, filepath: Path):
             )
             deploy_time = time.time() - start_time
 
-        rich.print(f"[green]✓[/green] Function '{func['name']}' deployed in {deploy_time:.3f}s! 🎉")
-        rich.print(f"View Deployment: {response.url}\n")
+        rich.print(f"✅ Function '{func['name']}' deployed in {deploy_time:.3f}s! 🎉")
+        rich.print(f"  → view deployment: {response.url}\n")

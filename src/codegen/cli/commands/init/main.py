@@ -8,7 +8,6 @@ from rich import box
 from rich.panel import Panel
 from rich.status import Status
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.commands.init.render import get_success_message
@@ -17,7 +16,6 @@ from codegen.cli.workspace.initialize_workspace import initialize_codegen
 
 
 @click.command(name="init")
-@track_command()
 @click.option("--repo-name", type=str, help="The name of the repository")
 @click.option("--organization-name", type=str, help="The name of the organization")
 @requires_auth
@@ -25,13 +23,7 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
     """Initialize or update the Codegen folder."""
     # Print a message if not in a git repo
     try:
-        subprocess.run(
-            ['git', 'rev-parse', '--is-inside-work-tree'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True,
-            text=True
-        )
+        subprocess.run(["git", "rev-parse", "--is-inside-work-tree"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
         rich.print("\n")
         rich.print(

@@ -1,14 +1,12 @@
 import rich
 import rich_click as click
 
-from codegen.cli.analytics.decorators import track_command
 from codegen.cli.auth.login import login_routine
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.auth.token_manager import TokenManager
 
 
 @click.command(name="login")
-@track_command()
 @click.option("--token", required=False, help="API token for authentication")
 def login_command(token: str):
     """Store authentication token."""
