@@ -6,7 +6,7 @@ from pygit2.repository import Repository
 from rich.status import Status
 
 from codegen.cli.api.client import RestAPI
-from codegen.cli.auth.config import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
+from codegen.cli.auth.constants import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.git.repo import get_git_repo
 from codegen.cli.workspace.docs_workspace import populate_api_docs

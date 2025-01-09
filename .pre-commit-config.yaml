@@ -55,11 +55,11 @@ repos:
           - tomli
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 39.93.1
+    rev: 39.96.2
     hooks:
       - id: renovate-config-validator
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.5.15"
+    rev: "0.5.16"
     hooks:
       - id: uv-lock
         entry: bash -c "SETUPTOOLS_SCM_PRETEND_VERSION=0.0.0 uv lock"

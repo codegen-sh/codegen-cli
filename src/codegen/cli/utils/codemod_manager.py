@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import ClassVar
 
-from codegen.cli.auth.config import CODEMODS_DIR
+from codegen.cli.auth.constants import CODEMODS_DIR
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.utils.codemods import Codemod
 from codegen.cli.utils.config import read_model, write_model

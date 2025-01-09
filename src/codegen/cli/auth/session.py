@@ -3,9 +3,9 @@ from pathlib import Path
 
 from pygit2.repository import Repository
 
-from codegen.cli.auth.config import CODEGEN_DIR, CODEMODS_DIR
+from codegen.cli.auth.constants import CODEGEN_DIR, CODEMODS_DIR
 from codegen.cli.auth.token_manager import get_current_token
-from codegen.cli.errors import AuthError, InvalidTokenError, NoTokenError
+from codegen.cli.errors import AuthError, NoTokenError
 from codegen.cli.git.repo import get_git_repo
 from codegen.cli.utils.config import Config, get_config, write_config
 
@@ -37,61 +37,64 @@ class UserProfile:
 class CodegenSession:
     """Represents an authenticated codegen session with user and repository context"""
 
-    config: Config
+    # =====[ Instance attributes ]=====
+    token: str | None = None
+
+    # =====[ Lazy instance attributes ]=====
+    _config: Config | None = None
+    _identity: Identity | None = None
+    _profile: UserProfile | None = None
 
     def __init__(self, token: str | None = None):
-        self._token = token or get_current_token()
-        self._identity: Identity | None = None
-        self._profile: UserProfile | None = None
-        self._repo_name: str | None = None
-        self.config = get_config(self.codegen_dir)
+        self.token = token or get_current_token()
 
     @property
-    def identity(self) -> Identity:
+    def config(self) -> Config:
+        """Get the config for the current session"""
+        if self._config:
+            return self._config
+        self._config = get_config(self.codegen_dir)
+        return self._config
+
+    @property
+    def identity(self) -> Identity | None:
         """Get the identity of the user, if a token has been provided"""
-        if not self._identity and self._token:
-            from codegen.cli.api.client import RestAPI
-
-            try:
-                identity = RestAPI(self._token).identify()
-                if identity:
-                    self._identity = Identity(
-                        token=self._token,
-                        expires_at=identity.auth_context.expires_at,
-                        status=identity.auth_context.status,
-                        user=User(
-                            full_name=identity.user.full_name,
-                            email=identity.user.email,
-                            github_username=identity.user.github_username,
-                        ),
-                    )
-                    return self._identity
-                else:
-                    raise InvalidTokenError("Invalid authentication token")
-            except InvalidTokenError:
-                raise
-            except Exception as e:
-                raise AuthError(f"Failed to identify user: {e}")
-        elif not self._token:
-            raise NoTokenError("No authentication token found")
-        elif self._identity:
+        if self._identity:
             return self._identity
+        if not self.token:
+            raise NoTokenError("No authentication token found")
 
-    @property
-    def token(self) -> str:
-        """Get the authentication token"""
-        return self._token
+        from codegen.cli.api.client import RestAPI
 
-    @property
-    def profile(self) -> UserProfile:
-        """Get the user profile information"""
-        if not self._profile:
-            identity = self.identity
-            self._profile = UserProfile(
-                name=identity.user.full_name,
+        identity = RestAPI(self.token).identify()
+        if not identity:
+            return None
+
+        self._identity = Identity(
+            token=self.token,
+            expires_at=identity.auth_context.expires_at,
+            status=identity.auth_context.status,
+            user=User(
+                full_name=identity.user.full_name,
                 email=identity.user.email,
-                username=identity.user.github_username,
-            )
+                github_username=identity.user.github_username,
+            ),
+        )
+        return self._identity
+
+    @property
+    def profile(self) -> UserProfile | None:
+        """Get the user profile information"""
+        if self._profile:
+            return self._profile
+        if not self.identity:
+            return None
+
+        self._profile = UserProfile(
+            name=self.identity.user.full_name,
+            email=self.identity.user.email,
+            username=self.identity.user.github_username,
+        )
         return self._profile
 
     @property

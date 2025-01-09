@@ -5,8 +5,8 @@ import click
 import rich
 
 from codegen.cli.auth.login import login_routine
-from codegen.cli.auth.session import CodegenSession, InvalidTokenError, NoTokenError
-from codegen.cli.errors import AuthError
+from codegen.cli.auth.session import CodegenSession
+from codegen.cli.errors import AuthError, InvalidTokenError, NoTokenError
 
 
 def requires_auth(f: Callable) -> Callable:
