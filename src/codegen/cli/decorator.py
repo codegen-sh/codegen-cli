@@ -39,7 +39,7 @@ def function(name: str) -> Function:
         @codegen.function('my-function')
         def run(codebase: PyCodebase, params: MyPydanticType):
             pass
-
+    
     """
     return Function(name)
 
