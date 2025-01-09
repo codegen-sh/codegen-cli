@@ -27,7 +27,7 @@ Codegen Cloud provides several benefits:
 There are two types of functions you can create:
 
 1. Regular functions (using `@codegen.function`)
-2. PR check functions (using `@codegen.pr_check`)
+2. PR check functions (using `@codegen.webhook`)
 
 ## Regular Functions
 
@@ -55,7 +55,7 @@ def run(codebase: Codebase, params: MyParams):
 PR check functions are special functions that run on pull requests. They can notify specific users and perform checks:
 
 ```python
-@codegen.pr_check('check-suspense-queries', users=['@john', '@jane'])
+@codegen.webhook('check-suspense-queries', users=['@john', '@jane'])
 def run(codebase, pr: PullRequest):
     # Your PR check logic here
     if has_issues(codebase):
