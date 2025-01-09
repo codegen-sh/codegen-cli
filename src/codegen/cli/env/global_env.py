@@ -22,7 +22,6 @@ class GlobalEnv:
 
         # =====[ POSTHOG ]=====
         self.POSTHOG_PROJECT_API_KEY = self._get_env_var("POSTHOG_PROJECT_API_KEY")
-        self.POSTHOG_API_KEY = self._get_env_var("POSTHOG_API_KEY")
 
         # =====[ MODAL ]=====
         self.MODAL_ENVIRONMENT = self._get_env_var("MODAL_ENVIRONMENT")
