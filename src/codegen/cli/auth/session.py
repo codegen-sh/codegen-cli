@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pygit2.repository import Repository
 
-from codegen.cli.auth.constants import CODEGEN_DIR, CODEMODS_DIR
+from codegen.cli.auth.constants import CODEGEN_DIR
 from codegen.cli.auth.token_manager import get_current_token
 from codegen.cli.errors import AuthError, NoTokenError
 from codegen.cli.git.repo import get_git_repo
@@ -113,11 +113,6 @@ class CodegenSession:
     def codegen_dir(self) -> Path:
         """Get the path to the  codegen-sh directory"""
         return Path.cwd() / CODEGEN_DIR
-
-    @property
-    def codemods_dir(self) -> Path:
-        """Get the path to the codemods directory"""
-        return Path.cwd() / CODEMODS_DIR
 
     def __str__(self) -> str:
         return f"CodegenSession(user={self.profile.name}, repo={self.repo_name})"

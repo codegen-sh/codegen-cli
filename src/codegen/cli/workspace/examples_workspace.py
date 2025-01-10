@@ -39,4 +39,4 @@ def format_example(example: SerializedExample, language: str) -> str:
 
     sections = [f"{name}-({example.language})", format_section("Description", example.description), format_section("Docstring", example.docstring)]
 
-    return '"' * 3 + "\n".join(filter(None, sections)) + '"' * 3 + "\n\n" + convert_to_cli(example.source, language)
+    return '"' * 3 + "\n".join(filter(None, sections)) + '"' * 3 + "\n\n" + convert_to_cli(example.source, language, "demo-function")
