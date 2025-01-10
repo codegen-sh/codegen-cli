@@ -132,6 +132,8 @@ class RestAPI:
             source = function.get_current_source() if isinstance(function, Codemod) else function.source
             base_input["codemod_source"] = convert_to_ui(source)
 
+        print(source)
+
         # Add template context if provided
         if template_context:
             base_input["template_context"] = template_context

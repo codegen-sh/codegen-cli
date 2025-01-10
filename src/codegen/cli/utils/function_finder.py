@@ -1,5 +1,4 @@
 import ast
-import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,16 +20,33 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 
     def get_function_body(self, node: ast.FunctionDef) -> str:
         """Extract and unindent the function body."""
-        # Get the source lines for all body nodes
-        body_source = []
-        for stmt in node.body:
-            source = ast.get_source_segment(self.source, stmt)
-            if source:
-                body_source.append(source)
+        # Get the start and end positions of the function body
+        first_stmt = node.body[0]
+        last_stmt = node.body[-1]
 
-        # Join the lines and dedent
-        body = "\n".join(body_source)
-        return textwrap.dedent(body)
+        # Get the line numbers (1-based in source lines)
+        start_line = first_stmt.lineno - 1  # Convert to 0-based
+        end_line = last_stmt.end_lineno if hasattr(last_stmt, "end_lineno") else last_stmt.lineno
+
+        # Get the raw source lines for the entire body
+        source_lines = self.source.splitlines()[start_line:end_line]
+
+        # Find the minimum indentation of non-empty lines
+        indents = [len(line) - len(line.lstrip()) for line in source_lines if line.strip()]
+        if not indents:
+            return ""
+
+        min_indent = min(indents)
+
+        # Remove the minimum indentation from each line
+        unindented_lines = []
+        for line in source_lines:
+            if line.strip():  # Non-empty line
+                unindented_lines.append(line[min_indent:])
+            else:  # Empty line
+                unindented_lines.append("")
+
+        return "\n".join(unindented_lines)
 
     def visit_FunctionDef(self, node):
         for decorator in node.decorator_list:
