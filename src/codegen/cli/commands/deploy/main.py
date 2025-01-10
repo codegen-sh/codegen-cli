@@ -10,6 +10,7 @@ from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.rich.spinners import create_spinner
+from codegen.cli.utils.url import generate_webapp_url
 
 
 class CodegenFunctionVisitor(ast.NodeVisitor):
@@ -36,6 +37,18 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 and isinstance(decorator.func, ast.Attribute)
                 and isinstance(decorator.func.value, ast.Name)
                 and decorator.func.value.id == "codegen"
+                and decorator.func.attr in ("function", "webhook")
+                and len(decorator.args) >= 1
+            ) or (
+                # NOTE: temp hack as we are figuring out how to import the sdk
+                isinstance(decorator, ast.Call)
+                and isinstance(decorator.func, ast.Attribute)
+                and isinstance(decorator.func.value, ast.Attribute)
+                and isinstance(decorator.func.value.value, ast.Attribute)
+                and isinstance(decorator.func.value.value.value, ast.Name)
+                and decorator.func.value.value.value.id == "codegen"
+                and decorator.func.value.value.attr == "cli"
+                and decorator.func.value.attr == "sdk"
                 and decorator.func.attr in ("function", "webhook")
                 and len(decorator.args) >= 1
             ):
@@ -99,4 +112,5 @@ def deploy_command(session: CodegenSession, filepath: Path):
 
         func_type = "Webhook" if func["lint_mode"] else "Function"
         rich.print(f"✅ {func_type} '{func['name']}' deployed in {deploy_time:.3f}s! 🎉")
-        rich.print(f"  → view deployment: {response.url}\n")
+        url = generate_webapp_url(path=f"functions/{response.codemod_id}")
+        rich.print(f"  → view deployment: {url}\n")
