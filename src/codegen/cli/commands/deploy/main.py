@@ -34,29 +34,20 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         for decorator in node.decorator_list:
             if (
                 isinstance(decorator, ast.Call)
-                and isinstance(decorator.func, ast.Attribute)
-                and isinstance(decorator.func.value, ast.Name)
-                and decorator.func.value.id == "codegen"
-                and decorator.func.attr in ("function", "webhook")
                 and len(decorator.args) >= 1
-            ) or (
-                # NOTE: temp hack as we are figuring out how to import the sdk
-                isinstance(decorator, ast.Call)
-                and isinstance(decorator.func, ast.Attribute)
-                and isinstance(decorator.func.value, ast.Attribute)
-                and isinstance(decorator.func.value.value, ast.Attribute)
-                and isinstance(decorator.func.value.value.value, ast.Name)
-                and decorator.func.value.value.value.id == "codegen"
-                and decorator.func.value.value.attr == "cli"
-                and decorator.func.value.attr == "sdk"
-                and decorator.func.attr in ("function", "webhook")
-                and len(decorator.args) >= 1
+                and (
+                    # Check if it's a direct codegen.X call
+                    (isinstance(decorator.func, ast.Attribute) and isinstance(decorator.func.value, ast.Name) and decorator.func.value.id == "codegen")
+                    or
+                    # Check if it starts with codegen.anything.anything...
+                    (isinstance(decorator.func, ast.Attribute) and isinstance(decorator.func.value, ast.Attribute) and self._has_codegen_root(decorator.func.value))
+                )
             ):
                 # Get the function name from the decorator argument
                 func_name = ast.literal_eval(decorator.args[0])
 
                 # Get additional metadata for webhook
-                lint_mode = decorator.func.attr == "webhook"
+                lint_mode = any(attr == "webhook" for attr in self._get_decorator_attrs(decorator))
                 lint_user_whitelist = []
                 if lint_mode and len(decorator.keywords) > 0:
                     for keyword in decorator.keywords:
@@ -66,6 +57,22 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 # Get just the function body, unindented
                 body_source = self.get_function_body(node)
                 self.functions.append({"name": func_name, "source": body_source, "lint_mode": lint_mode, "lint_user_whitelist": lint_user_whitelist})
+
+    def _has_codegen_root(self, node):
+        """Recursively check if an AST node chain starts with codegen."""
+        if isinstance(node, ast.Name):
+            return node.id == "codegen"
+        elif isinstance(node, ast.Attribute):
+            return self._has_codegen_root(node.value)
+        return False
+
+    def _get_decorator_attrs(self, node):
+        """Get all attribute names in a decorator chain."""
+        attrs = []
+        while isinstance(node, ast.Attribute):
+            attrs.append(node.attr)
+            node = node.value
+        return attrs
 
     def visit_Module(self, node):
         # Store the full source code for later use

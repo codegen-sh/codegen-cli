@@ -43,7 +43,7 @@ def initialize_codegen(action: str = "Initializing") -> tuple[Path, Path, Path, 
             modify_gitignore(repo)
 
         # Always fetch and update docs & examples
-        status.update("   Fetching latest docs & examples...")
+        status.update("Fetching latest docs & examples...")
         shutil.rmtree(DOCS_FOLDER, ignore_errors=True)
         shutil.rmtree(EXAMPLES_FOLDER, ignore_errors=True)
 
