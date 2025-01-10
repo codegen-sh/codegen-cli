@@ -4,6 +4,7 @@ import rich
 import rich_click as click
 
 from codegen.cli.api.client import RestAPI
+from codegen.cli.auth.constants import PROMPTS_DIR
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.codemod.convert import convert_to_cli
@@ -16,8 +17,7 @@ from codegen.cli.workspace.decorators import requires_init
 
 def get_prompts_dir() -> Path:
     """Get the directory for storing prompts, creating it if needed."""
-    prompts_dir = Path.cwd() / "codegen-sh" / "prompts"
-    prompts_dir.mkdir(parents=True, exist_ok=True)
+    PROMPTS_DIR.mkdir(parents=True, exist_ok=True)
 
     # Ensure .gitignore exists and contains the prompts directory
     gitignore = Path.cwd() / ".gitignore"
@@ -25,7 +25,7 @@ def get_prompts_dir() -> Path:
         with open(gitignore, "a") as f:
             f.write("\n# Codegen prompts\ncodegen-sh/prompts/\n")
 
-    return prompts_dir
+    return PROMPTS_DIR
 
 
 def get_target_path(name: str, path: Path) -> Path:

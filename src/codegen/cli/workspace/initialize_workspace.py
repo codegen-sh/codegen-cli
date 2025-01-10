@@ -5,7 +5,7 @@ import rich
 from pygit2.repository import Repository
 
 from codegen.cli.api.client import RestAPI
-from codegen.cli.auth.constants import CODEGEN_DIR, CODEMODS_DIR, DOCS_DIR, EXAMPLES_DIR
+from codegen.cli.auth.constants import CODEGEN_DIR, DOCS_DIR, EXAMPLES_DIR, PROMPTS_DIR
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.git.repo import get_git_repo
 from codegen.cli.rich.spinners import create_spinner
@@ -13,27 +13,27 @@ from codegen.cli.workspace.docs_workspace import populate_api_docs
 from codegen.cli.workspace.examples_workspace import populate_examples
 
 
-def initialize_codegen(action: str = "Initializing") -> tuple[Path, Path, Path, Path]:
+def initialize_codegen(action: str = "Initializing") -> tuple[Path, Path, Path]:
     """Initialize or update the codegen directory structure and content.
 
     Args:
         action: The action being performed ("Initializing" or "Updating")
 
     Returns:
-        Tuple of (codegen_folder, codemods_folder, docs_folder, examples_folder)
+        Tuple of (codegen_folder, docs_folder, examples_folder)
 
     """
     repo = get_git_repo()
     REPO_PATH = Path(repo.workdir)
     CODEGEN_FOLDER = REPO_PATH / CODEGEN_DIR
-    CODEMODS_FOLDER = REPO_PATH / CODEMODS_DIR
+    PROMPTS_FOLDER = REPO_PATH / PROMPTS_DIR
     DOCS_FOLDER = REPO_PATH / DOCS_DIR
     EXAMPLES_FOLDER = REPO_PATH / EXAMPLES_DIR
 
     with create_spinner(f"   {action} folders...") as status:
         # Create folders if they don't exist
         CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
-        CODEMODS_FOLDER.mkdir(parents=True, exist_ok=True)
+        PROMPTS_FOLDER.mkdir(parents=True, exist_ok=True)
         DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
         EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
         if not repo:
@@ -56,7 +56,7 @@ def initialize_codegen(action: str = "Initializing") -> tuple[Path, Path, Path, 
         session.config.programming_language = str(response.language)
         session.write_config()
 
-    return CODEGEN_FOLDER, CODEMODS_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
+    return CODEGEN_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
 
 
 def add_to_gitignore_if_not_present(gitignore: Path, line: str):
@@ -67,6 +67,7 @@ def add_to_gitignore_if_not_present(gitignore: Path, line: str):
 
 
 def modify_gitignore(repo: Repository):
-    gitignore_path = CODEGEN_DIR / ".gitignore"
-    add_to_gitignore_if_not_present(gitignore_path, "docs")
-    add_to_gitignore_if_not_present(gitignore_path, "examples")
+    gitignore_path = Path(repo.workdir) / ".gitignore"
+    add_to_gitignore_if_not_present(gitignore_path, ".codegen-sh/prompts/")
+    add_to_gitignore_if_not_present(gitignore_path, ".codegen-sh/docs/")
+    add_to_gitignore_if_not_present(gitignore_path, ".codegen-sh/examples/")

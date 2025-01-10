@@ -45,18 +45,18 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
 
     action = "Updating" if is_update else "Initializing"
     rich.print("")  # Add a newline before the spinner
-    folders = initialize_codegen(action=action)
+    codegen_dir, docs_dir, examples_dir = initialize_codegen(action=action)
 
     # Print success message
     rich.print(f"\n✅ {action} complete")
     rich.print("")
-    rich.print(get_success_message(*folders))
+    rich.print(get_success_message(codegen_dir, docs_dir, examples_dir))
     rich.print(f"\n[dim]Organization:[/dim] [cyan]{session.config.organization_name}[/cyan]")
     rich.print(f"[dim]Repository:[/dim]  [cyan]{session.config.repo_name}[/cyan]")
 
     # Print next steps
     rich.print("\n[bold]What's next?[/bold]")
-    rich.print("1. Create a codemod:")
-    rich.print(format_command('codegen create my-codemod-name -d "describe what you want to do"'))
+    rich.print("1. Create a function:")
+    rich.print(format_command('codegen create my-function -d "describe what you want to do"'))
     rich.print("2. Run it:")
-    rich.print(format_command("codegen run my-codemod-name --apply-local"))
+    rich.print(format_command("codegen run my-function --apply-local"))
