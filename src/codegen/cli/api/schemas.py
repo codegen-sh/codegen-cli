@@ -23,8 +23,9 @@ class CodemodRunType(str, Enum):
 
 class RunCodemodInput(SafeBaseModel):
     class BaseRunCodemodInput(SafeBaseModel):
-        codemod_id: int
         repo_full_name: str
+        codemod_id: int | None = None
+        codemod_name: str | None = None
         codemod_source: str | None = None
         codemod_run_type: CodemodRunType = CodemodRunType.DIFF
         template_context: dict[str, str] = Field(default_factory=dict)

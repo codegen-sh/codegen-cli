@@ -35,6 +35,7 @@ from codegen.cli.codemod.convert import convert_to_ui
 from codegen.cli.env.global_env import global_env
 from codegen.cli.errors import InvalidTokenError, ServerError
 from codegen.cli.utils.codemods import Codemod
+from codegen.cli.utils.function_finder import DecoratedFunction
 
 InputT = TypeVar("InputT", bound=BaseModel)
 OutputT = TypeVar("OutputT", bound=BaseModel)
@@ -101,7 +102,7 @@ class RestAPI:
 
     def run(
         self,
-        codemod: Codemod,
+        function: DecoratedFunction | Codemod,
         include_source: bool = True,
         run_type: CodemodRunType = CodemodRunType.DIFF,
         template_context: dict[str, str] | None = None,
@@ -110,7 +111,7 @@ class RestAPI:
         """Run a codemod transformation.
 
         Args:
-            codemod: The codemod to run
+            function: The function or codemod to run
             include_source: Whether to include the source code in the request.
                           If False, uses the deployed version.
             run_type: Type of run (diff or pr)
@@ -121,14 +122,15 @@ class RestAPI:
         session = CodegenSession()
 
         base_input = {
-            "codemod_id": codemod.config.codemod_id,
+            "codemod_name": function.name,
             "repo_full_name": session.repo_name,
             "codemod_run_type": run_type,
         }
 
         # Only include source if requested
         if include_source:
-            base_input["codemod_source"] = convert_to_ui(codemod.get_current_source())
+            source = function.get_current_source() if isinstance(function, Codemod) else function.source
+            base_input["codemod_source"] = convert_to_ui(source)
 
         # Add template context if provided
         if template_context:
