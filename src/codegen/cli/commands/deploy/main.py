@@ -31,6 +31,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node):
         for decorator in node.decorator_list:
+            print(decorator)
             if (
                 isinstance(decorator, ast.Call)
                 and isinstance(decorator.func, ast.Attribute)
@@ -39,6 +40,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 and decorator.func.attr in ("function", "webhook")
                 and len(decorator.args) >= 1
             ):
+                print(decorator.func.attr)
                 # Get the function name from the decorator argument
                 func_name = ast.literal_eval(decorator.args[0])
 
