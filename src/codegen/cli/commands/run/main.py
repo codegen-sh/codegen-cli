@@ -20,7 +20,8 @@ from codegen.cli.workspace.decorators import requires_init
 @click.argument("codemod_name", required=True)
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
-def run_command(session: CodegenSession, codemod_name: str, web: bool = False, apply_local: bool = False):
+@click.option("--message", help="Optional message to include with the run")
+def run_command(session: CodegenSession, codemod_name: str, web: bool = False, apply_local: bool = False, message: str | None = None):
     """Run code transformation on the provided Python code."""
     active_codemod = CodemodManager.get(codemod_name)
     if not active_codemod:
@@ -32,6 +33,7 @@ def run_command(session: CodegenSession, codemod_name: str, web: bool = False, a
     try:
         run_output = RestAPI(session.token).run(
             codemod=active_codemod,
+            message=message,
         )
 
         status.stop()

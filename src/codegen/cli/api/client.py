@@ -105,6 +105,7 @@ class RestAPI:
         include_source: bool = True,
         run_type: CodemodRunType = CodemodRunType.DIFF,
         template_context: dict[str, str] | None = None,
+        message: str | None = None,
     ) -> RunCodemodOutput:
         """Run a codemod transformation.
 
@@ -114,6 +115,7 @@ class RestAPI:
                           If False, uses the deployed version.
             run_type: Type of run (diff or pr)
             template_context: Context variables to pass to the codemod
+            message: Optional message to include with the run
 
         """
         session = CodegenSession()
@@ -131,6 +133,10 @@ class RestAPI:
         # Add template context if provided
         if template_context:
             base_input["template_context"] = template_context
+
+        # Add message if provided
+        if message:
+            base_input["message"] = message
 
         input_data = RunCodemodInput(input=RunCodemodInput.BaseRunCodemodInput(**base_input))
         return self._make_request(

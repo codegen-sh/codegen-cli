@@ -28,6 +28,7 @@ class RunCodemodInput(SafeBaseModel):
         codemod_source: str | None = None
         codemod_run_type: CodemodRunType = CodemodRunType.DIFF
         template_context: dict[str, str] = Field(default_factory=dict)
+        message: str | None = None
 
     input: BaseRunCodemodInput
 
