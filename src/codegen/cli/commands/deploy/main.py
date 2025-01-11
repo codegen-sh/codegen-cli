@@ -7,10 +7,10 @@ import rich_click as click
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
+from codegen.cli.rich.codeblocks import format_command
 from codegen.cli.rich.spinners import create_spinner
 from codegen.cli.utils.codemod_manager import CodemodManager
 from codegen.cli.utils.function_finder import DecoratedFunction
-from codegen.cli.utils.url import generate_webapp_url
 
 
 def deploy_functions(session: CodegenSession, functions: list[DecoratedFunction]) -> None:
@@ -36,44 +36,39 @@ def deploy_functions(session: CodegenSession, functions: list[DecoratedFunction]
 
         func_type = "Webhook" if func.lint_mode else "Function"
         rich.print(f"✅ {func_type} '{func.name}' deployed in {deploy_time:.3f}s! 🎉")
-        url = generate_webapp_url(path=f"functions/{response.codemod_id}")
-        rich.print(f"  → view deployment: {url}\n")
+        rich.print("   [dim]View deployment:[/dim]")
+        rich.print(format_command(f"codegen run {func.name}"))
 
 
 @click.command(name="deploy")
 @requires_auth
-@click.option("-p", "--path", type=click.Path(exists=True, path_type=Path), help="Path to file or directory to deploy functions from")
-@click.option("-l", "--label", help="Label of specific function to deploy")
-def deploy_command(session: CodegenSession, path: Path | None = None, label: str | None = None):
+@click.argument("name", required=False)
+@click.option("-d", "--directory", type=click.Path(exists=True, path_type=Path), help="Directory to search for functions")
+def deploy_command(session: CodegenSession, name: str | None = None, directory: Path | None = None):
     """Deploy codegen functions.
 
-    Either specify a path to deploy all functions in that location,
-    or specify a label to deploy a specific function by name.
+    If NAME is provided, deploys a specific function by that name.
+    If no NAME is provided, deploys all functions in the current directory or specified directory.
     """
-    if path and label:
-        raise click.ClickException("Cannot specify both --path and --label")
-
-    if not path and not label:
-        # Default to current directory if neither is specified
-        path = Path.cwd()
-
     try:
-        if path:
-            # Deploy all functions in the path
-            functions = CodemodManager.get_decorated(path)
-            deploy_functions(session, functions)
-        else:
-            # Find and deploy specific function by label
-            functions = CodemodManager.get_decorated()
-            matching = [f for f in functions if f.name == label]
+        search_path = directory or Path.cwd()
+
+        if name:
+            # Find and deploy specific function by name
+            functions = CodemodManager.get_decorated(search_path)
+            matching = [f for f in functions if f.name == name]
             if not matching:
-                raise click.ClickException(f"No function found with label '{label}'")
+                raise click.ClickException(f"No function found with name '{name}'")
             if len(matching) > 1:
                 # If multiple matches, show their locations
-                rich.print(f"[yellow]Multiple functions found with label '{label}':[/yellow]")
+                rich.print(f"[yellow]Multiple functions found with name '{name}':[/yellow]")
                 for func in matching:
                     rich.print(f"  • {func.filepath}")
-                raise click.ClickException("Please specify the exact file with --path")
+                raise click.ClickException("Please specify the exact directory with --directory")
             deploy_functions(session, matching)
+        else:
+            # Deploy all functions in the directory
+            functions = CodemodManager.get_decorated(search_path)
+            deploy_functions(session, functions)
     except Exception as e:
         raise click.ClickException(f"Failed to deploy: {e!s}")
