@@ -6,7 +6,7 @@ from rich.table import Table
 
 from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
-from codegen.cli.rich.codeblocks import format_code, format_command
+from codegen.cli.rich.codeblocks import format_codeblock, format_command
 from codegen.cli.utils.codemod_manager import CodemodManager
 from codegen.cli.workspace.decorators import requires_init
 
@@ -33,4 +33,4 @@ def list_command(session: CodegenSession):
     else:
         rich.print("[yellow]No codegen functions found in current directory.[/yellow]")
         rich.print("\nAdd a function with @codegen.function decorator:")
-        rich.print(format_code("@codegen.function('label')"))
+        rich.print(format_codeblock("@codegen.function('label')"))

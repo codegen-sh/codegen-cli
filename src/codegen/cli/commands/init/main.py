@@ -48,14 +48,14 @@ def init_command(session: CodegenSession, repo_name: str | None = None, organiza
     codegen_dir, docs_dir, examples_dir = initialize_codegen(action=action)
 
     # Print success message
-    rich.print(f"\n✅ {action} complete")
+    rich.print(f"✅ {action} complete")
+    rich.print(f"   [dim]Organization:[/dim] {session.config.organization_name}")
+    rich.print(f"   [dim]Repository:[/dim]  {session.config.repo_name}")
     rich.print("")
     rich.print(get_success_message(codegen_dir, docs_dir, examples_dir))
-    rich.print(f"\n[dim]Organization:[/dim] [cyan]{session.config.organization_name}[/cyan]")
-    rich.print(f"[dim]Repository:[/dim]  [cyan]{session.config.repo_name}[/cyan]")
 
     # Print next steps
-    rich.print("\n[bold]What's next?[/bold]")
+    rich.print("\n[bold]What's next?[/bold]\n")
     rich.print("1. Create a function:")
     rich.print(format_command('codegen create my-function -d "describe what you want to do"'))
     rich.print("2. Run it:")

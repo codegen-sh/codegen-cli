@@ -9,12 +9,14 @@ from codegen.cli.auth.decorators import requires_auth
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.errors import ServerError
 from codegen.cli.git.patch import apply_patch
+from codegen.cli.rich.codeblocks import format_command
 from codegen.cli.rich.spinners import create_spinner
 from codegen.cli.utils.codemod_manager import CodemodManager
+from codegen.cli.utils.url import generate_webapp_url
 from codegen.cli.workspace.decorators import requires_init
 
 
-def run_function(session: CodegenSession, function, web: bool = False, apply_local: bool = False, message: str | None = None):
+def run_function(session: CodegenSession, function, web: bool = False, apply_local: bool = False, message: str | None = None, diff_preview: int | None = None):
     """Run a function and handle its output."""
     with create_spinner(f"Running {function.name}...") as status:
         try:
@@ -24,9 +26,15 @@ def run_function(session: CodegenSession, function, web: bool = False, apply_loc
             )
 
             status.stop()
-            rich.print(f"[green]✓[/green] Ran {function.name} successfully")
+            rich.print(f"✅ Ran {function.name} successfully")
             if run_output.web_link:
-                rich.print(f"[blue]→[/blue] Web viewer (for humans): {run_output.web_link}")
+                # Extract the run ID from the web link
+                run_id = run_output.web_link.split("/run/")[1].split("/")[0]
+                function_id = run_output.web_link.split("/codemod/")[1].split("/")[0]
+
+                rich.print("   [dim]Web viewer:[/dim] [blue underline]" + run_output.web_link + "[/blue underline]")
+                run_details_url = generate_webapp_url(f"functions/{function_id}/run/{run_id}")
+                rich.print(f"   [dim]Run details:[/dim] [blue underline]{run_details_url}[/blue underline]")
 
             if run_output.logs:
                 rich.print("")
@@ -39,25 +47,32 @@ def run_function(session: CodegenSession, function, web: bool = False, apply_loc
                 rich.print(panel)
 
             if run_output.observation:
-                rich.print("")  # Add some spacing
+                # Only show diff preview if requested
+                if diff_preview:
+                    rich.print("")  # Add some spacing
 
-                # Split and limit diff to 100 lines
-                diff_lines = run_output.observation.splitlines()
-                truncated = len(diff_lines) > 100
-                limited_diff = "\n".join(diff_lines[:100])
+                    # Split and limit diff to requested number of lines
+                    diff_lines = run_output.observation.splitlines()
+                    truncated = len(diff_lines) > diff_preview
+                    limited_diff = "\n".join(diff_lines[:diff_preview])
 
-                if truncated:
-                    if apply_local:
-                        limited_diff += "\n\n...\n\n[yellow]diff truncated to 100 lines, view the full change set in your local file system[/yellow]"
-                    else:
-                        limited_diff += "\n\n...\n\n[yellow]diff truncated to 100 lines, view the full change set on your local file system after using run with `--apply-local`[/yellow]"
+                    if truncated:
+                        if apply_local:
+                            limited_diff += "\n\n...\n\n[yellow]diff truncated to {diff_preview} lines, view the full change set in your local file system[/yellow]"
+                        else:
+                            limited_diff += (
+                                "\n\n...\n\n[yellow]diff truncated to {diff_preview} lines, view the full change set on your local file system after using run with `--apply-local`[/yellow]"
+                            )
 
-                panel = Panel(limited_diff, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
-                rich.print(panel)
+                    panel = Panel(limited_diff, title="[bold]Diff Preview[/bold]", border_style="blue", padding=(1, 2), expand=False)
+                    rich.print(panel)
 
-                if not apply_local and not truncated:
+                if not apply_local:
                     rich.print("")
-                    rich.print(f"[yellow]→ Run 'codegen run {function.name} --apply-local' to apply these changes[/yellow]")
+                    rich.print("Apply changes locally:")
+                    rich.print(format_command(f"codegen run {function.name} --apply-local"))
+                    rich.print("Create a PR:")
+                    rich.print(format_command(f"codegen run {function.name} --create-pr"))
             else:
                 rich.print("")
                 rich.print("[yellow]ℹ No changes were produced by this codemod[/yellow]")
@@ -71,8 +86,8 @@ def run_function(session: CodegenSession, function, web: bool = False, apply_loc
                     rich.print("")
                     rich.print("[green]✓ Changes have been applied to your local filesystem[/green]")
                     rich.print("[yellow]→ Don't forget to commit your changes:[/yellow]")
-                    rich.print("  [blue]git add .[/blue]")
-                    rich.print("  [blue]git commit -m 'Applied codemod changes'[/blue]")
+                    rich.print(format_command("git add ."))
+                    rich.print(format_command("git commit -m 'Applied codemod changes'"))
                 except Exception as e:
                     rich.print("")
                     rich.print("[red]✗ Failed to apply changes locally[/red]")
@@ -100,12 +115,13 @@ def run_function(session: CodegenSession, function, web: bool = False, apply_loc
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
 @click.option("--message", help="Optional message to include with the run")
-def run_command(session: CodegenSession, label: str, web: bool = False, apply_local: bool = False, message: str | None = None):
+@click.option("--diff-preview", type=int, help="Show a preview of the first N lines of the diff")
+def run_command(session: CodegenSession, label: str, web: bool = False, apply_local: bool = False, message: str | None = None, diff_preview: int | None = None):
     """Run a codegen function by its label."""
     # First try to find it as a stored codemod
     codemod = CodemodManager.get(label)
     if codemod:
-        run_function(session, codemod, web, apply_local, message)
+        run_function(session, codemod, web, apply_local, message, diff_preview)
         return
 
     # If not found as a stored codemod, look for decorated functions
@@ -122,4 +138,4 @@ def run_command(session: CodegenSession, label: str, web: bool = False, apply_lo
             rich.print(f"  • {func.filepath}")
         raise click.ClickException("Please specify the exact file with codegen run <path>")
 
-    run_function(session, matching[0], web, apply_local, message)
+    run_function(session, matching[0], web, apply_local, message, diff_preview)

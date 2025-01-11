@@ -10,6 +10,7 @@ from codegen.cli.auth.session import CodegenSession
 from codegen.cli.codemod.convert import convert_to_cli
 from codegen.cli.errors import ServerError
 from codegen.cli.rich.codeblocks import format_command, format_path
+from codegen.cli.rich.pretty_print import pretty_print_error
 from codegen.cli.rich.spinners import create_spinner
 from codegen.cli.utils.constants import ProgrammingLanguage
 from codegen.cli.workspace.decorators import requires_init
@@ -41,6 +42,24 @@ def get_target_path(name: str, path: Path) -> Path:
         return path / f"{name_snake}.py"
 
 
+def make_relative(path: Path) -> str:
+    """Convert a path to a relative path from cwd, handling non-existent paths."""
+    # If it's just a filename in the current directory, return it directly
+    if str(path.parent) == ".":
+        return f"./{path.name}"
+
+    try:
+        return f"./{path.relative_to(Path.cwd())}"
+    except ValueError:
+        # For paths in subdirectories, try to make the parent relative
+        try:
+            parent_rel = path.parent.relative_to(Path.cwd())
+            return f"./{parent_rel}/{path.name}"
+        except ValueError:
+            # If all else fails, just return the filename
+            return f"./{path.name}"
+
+
 @click.command(name="create")
 @requires_auth
 @requires_init
@@ -59,10 +78,8 @@ def create_command(session: CodegenSession, name: str, path: Path, description: 
 
     # Check if file exists
     if target_path.exists() and not overwrite:
-        rich.print("\n[bold red]Error:[/bold red] File already exists")
-        rich.print(f"[white]File already exists at {format_path(str(target_path))}[/white]")
-        rich.print("[dim]To overwrite the file:[/dim]")
-        rich.print(f"{format_command(f'codegen create {name} {path} --overwrite')}")
+        rel_path = make_relative(target_path)
+        pretty_print_error(f"File already exists at {format_path(rel_path)}\n\n" "To overwrite the file:\n" f"{format_command(f'codegen create {name} {rel_path} --overwrite')}")
         return
 
     if description:
@@ -97,32 +114,15 @@ def create_command(session: CodegenSession, name: str, path: Path, description: 
             status.stop()
             raise click.ClickException(str(e))
 
-    def make_relative(path: Path) -> str:
-        """Convert a path to a relative path from cwd, handling non-existent paths."""
-        # If it's just a filename in the current directory, return it directly
-        if str(path.parent) == ".":
-            return f"./{path.name}"
-
-        try:
-            return f"./{path.relative_to(Path.cwd())}"
-        except ValueError:
-            # For paths in subdirectories, try to make the parent relative
-            try:
-                parent_rel = path.parent.relative_to(Path.cwd())
-                return f"./{parent_rel}/{path.name}"
-            except ValueError:
-                # If all else fails, just return the filename
-                return f"./{path.name}"
-
     # Success message
     rich.print(f"\n✅ {'Overwrote' if overwrite and target_path.exists() else 'Created'} function '{name}'")
     rich.print("")
     rich.print("📁 Files Created:")
-    rich.print(f"   🔧 Function:  {make_relative(target_path)}")
+    rich.print(f"   [dim]Function:[/dim]  {make_relative(target_path)}")
     if response.context:
-        rich.print(f"   📚 Prompt:    {make_relative(get_prompts_dir() / f'{name.lower().replace(' ', '-')}-system-prompt.md')}")
+        rich.print(f"   [dim]Prompt:[/dim]    {make_relative(get_prompts_dir() / f'{name.lower().replace(' ', '-')}-system-prompt.md')}")
 
     # Next steps
-    rich.print("\n[bold]What's next?[/bold]")
+    rich.print("\n[bold]What's next?[/bold]\n")
     rich.print("1. Review and edit the function to customize its behavior")
     rich.print(f"2. Run it with: \n{format_command(f'codegen run {name}')}")

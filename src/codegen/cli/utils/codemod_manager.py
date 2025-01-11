@@ -26,6 +26,48 @@ class CodemodManager:
         return name.lower().replace(" ", "_").replace("-", "_")
 
     @classmethod
+    def list(cls, start_path: Path | None = None) -> builtins.list[DecoratedFunction]:
+        """List all codegen decorated functions in Python files under the given path.
+
+        This is an alias for get_decorated for better readability.
+        """
+        return cls.get_decorated(start_path)
+
+    @classmethod
+    def get(cls, name: str, start_path: Path | None = None) -> DecoratedFunction | None:
+        """Get a specific codegen decorated function by name.
+
+        Args:
+            name: Name of the function to find (case-insensitive, spaces/hyphens converted to underscores)
+            start_path: Directory or file to start searching from. Defaults to current working directory.
+
+        Returns:
+            The DecoratedFunction if found, None otherwise
+
+        """
+        valid_name = cls.get_valid_name(name)
+        functions = cls.get_decorated(start_path)
+
+        for func in functions:
+            if cls.get_valid_name(func.name) == valid_name:
+                return func
+        return None
+
+    @classmethod
+    def exists(cls, name: str, start_path: Path | None = None) -> bool:
+        """Check if a codegen decorated function with the given name exists.
+
+        Args:
+            name: Name of the function to check (case-insensitive, spaces/hyphens converted to underscores)
+            start_path: Directory or file to start searching from. Defaults to current working directory.
+
+        Returns:
+            True if the function exists, False otherwise
+
+        """
+        return cls.get(name, start_path) is not None
+
+    @classmethod
     def get_decorated(cls, start_path: Path | None = None) -> builtins.list[DecoratedFunction]:
         """Find all codegen decorated functions in Python files under the given path.
 
