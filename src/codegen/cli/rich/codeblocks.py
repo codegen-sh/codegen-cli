@@ -11,7 +11,7 @@ def format_command(command: str) -> str:
     return f"\n\t[cyan]~$: {command}[/cyan]\n"
 
 
-def format_code(code: str) -> str:
+def format_codeblock(code: str) -> str:
     """Format a code block in a consistent style.
 
     Args:
@@ -21,6 +21,11 @@ def format_code(code: str) -> str:
         The formatted code with consistent styling
 
     """
+    return f"\n\t[cyan]{code}[/cyan]\n"
+
+
+def format_code(code: str) -> str:
+    """Just blue for a span"""
     return f"[cyan]{code}[/cyan]"
 
 
