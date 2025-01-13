@@ -13,6 +13,7 @@ from codegen.cli.api.endpoints import (
     IDENTIFY_ENDPOINT,
     LOOKUP_ENDPOINT,
     RUN_ENDPOINT,
+    TEST_WEBHOOK_ENDPOINT,
 )
 from codegen.cli.api.schemas import (
     AskExpertInput,
@@ -29,6 +30,8 @@ from codegen.cli.api.schemas import (
     LookupOutput,
     RunCodemodInput,
     RunCodemodOutput,
+    TestWebhookInput,
+    TestWebhookResponse,
 )
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.codemod.convert import convert_to_ui
@@ -218,4 +221,19 @@ class RestAPI:
             LOOKUP_ENDPOINT,
             LookupInput(input=LookupInput.BaseLookupInput(codemod_name=codemod_name, repo_full_name=session.repo_name)),
             LookupOutput,
+        )
+
+    def test_webhook(self, codemod_name: str, repo_full_name: str, github_pr_number: int) -> TestWebhookResponse:
+        """Test a webhook against a specific PR."""
+        return self._make_request(
+            "POST",
+            TEST_WEBHOOK_ENDPOINT,
+            TestWebhookInput(
+                input=TestWebhookInput.BaseTestWebhookInput(
+                    codemod_name=codemod_name,
+                    repo_full_name=repo_full_name,
+                    github_pr_number=github_pr_number,
+                )
+            ),
+            TestWebhookResponse,
         )

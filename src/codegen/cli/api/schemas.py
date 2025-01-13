@@ -182,3 +182,27 @@ class LookupOutput(BaseModel):
 
     codemod_id: int = Field(..., description="ID of the codemod")
     version_id: int = Field(..., description="Version ID of the codemod")
+
+
+###########################################################################
+# TEST WEBHOOK
+###########################################################################
+
+
+class TestWebhookInput(BaseModel):
+    """Input for testing a webhook against a PR."""
+
+    class BaseTestWebhookInput(BaseModel):
+        codemod_name: str = Field(..., description="Name of the codemod to test")
+        repo_full_name: str = Field(..., description="Full name of the repository")
+        github_pr_number: int = Field(..., description="GitHub PR number to test against")
+
+    input: BaseTestWebhookInput = Field(..., description="Input data for webhook test")
+
+
+class TestWebhookResponse(BaseModel):
+    """Response from testing a webhook."""
+
+    codemod_id: int = Field(..., description="ID of the codemod")
+    codemod_run_id: int = Field(..., description="ID of the codemod run")
+    web_url: str = Field(..., description="URL to view the test results")
