@@ -8,7 +8,7 @@ def format_command(command: str) -> str:
         The formatted command with consistent styling and spacing
 
     """
-    return f"\n\t[cyan]~$: {command}[/cyan]\n"
+    return f"\n\t[cyan]{command}[/cyan]\n"
 
 
 def format_codeblock(code: str) -> str:

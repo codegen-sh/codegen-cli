@@ -41,7 +41,7 @@ uv tool install --upgrade codegen
 1. Log in to authenticate with Codegen:
 
 ```
-~$: codegen login
+codegen login
 ```
 
 This will open your browser to get an authentication token. You can also pass a token directly with `--token`.
@@ -49,7 +49,7 @@ This will open your browser to get an authentication token. You can also pass a 
 2. Initialize `codegen` from within your Git repository:
 
 ```
-~$: codegen init
+codegen init
 ```
 
 This creates the necessary folder structure and downloads documentation and examples. An error will be thrown if you are not in a git repository.
@@ -57,7 +57,7 @@ This creates the necessary folder structure and downloads documentation and exam
 3. Create a codemod:
 
 ```
-~$: codegen create my-codemod-name --description "delete all my unused functions"
+codegen create my-codemod-name --description "delete all my unused functions"
 ```
 
 This will create a new codemod in the folder `codegen-sh/codemod/my-codemod-name/run.py`
@@ -69,7 +69,7 @@ When passed the `--description` argument, a Codegen expert AI will generate this
 Execute this codemod and view output with `codegen run`:
 
 ```
-~$: codegen run my-codemod-name --apply-local
+codegen run my-codemod-name --apply-local
 ```
 
 `--apply-local` will apply the changes to your current local filesystem.
