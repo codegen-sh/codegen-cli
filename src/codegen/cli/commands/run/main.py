@@ -16,13 +16,12 @@ from codegen.cli.utils.url import generate_webapp_url
 from codegen.cli.workspace.decorators import requires_init
 
 
-def run_function(session: CodegenSession, function, web: bool = False, apply_local: bool = False, message: str | None = None, diff_preview: int | None = None):
+def run_function(session: CodegenSession, function, web: bool = False, apply_local: bool = False, diff_preview: int | None = None):
     """Run a function and handle its output."""
     with create_spinner(f"Running {function.name}...") as status:
         try:
             run_output = RestAPI(session.token).run(
                 function=function,
-                message=message,
             )
 
             status.stop()
@@ -114,14 +113,13 @@ def run_function(session: CodegenSession, function, web: bool = False, apply_loc
 @click.argument("label", required=True)
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
-@click.option("--message", help="Optional message to include with the run")
 @click.option("--diff-preview", type=int, help="Show a preview of the first N lines of the diff")
-def run_command(session: CodegenSession, label: str, web: bool = False, apply_local: bool = False, message: str | None = None, diff_preview: int | None = None):
+def run_command(session: CodegenSession, label: str, web: bool = False, apply_local: bool = False, diff_preview: int | None = None):
     """Run a codegen function by its label."""
     # First try to find it as a stored codemod
     codemod = CodemodManager.get(label)
     if codemod:
-        run_function(session, codemod, web, apply_local, message, diff_preview)
+        run_function(session, codemod, web, apply_local, diff_preview)
         return
 
     # If not found as a stored codemod, look for decorated functions
@@ -138,4 +136,4 @@ def run_command(session: CodegenSession, label: str, web: bool = False, apply_lo
             rich.print(f"  • {func.filepath}")
         raise click.ClickException("Please specify the exact file with codegen run <path>")
 
-    run_function(session, matching[0], web, apply_local, message, diff_preview)
+    run_function(session, matching[0], web, apply_local, diff_preview)
