@@ -16,9 +16,9 @@ dependencies = [
     "pydantic>=2.10.3",
     "toml>=0.10.2",
     "rich-click>=1.8.5",
-    "graph-sitter-types>=6.2.1",
     "codegen-types>=0.263.0",
     "unidiff>=0.7.5",
+    "graph-sitter[types]>=6.6.5",
 ]
 dynamic = ["version", "urls"]
 [project.scripts]
@@ -29,10 +29,7 @@ requires = ["hatchling>=1.14.0", "hatch-vcs>=0.4.0", "hatch-build-scripts"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "ruff<1.0.0,>=0.6.3",
-    "ruff-lsp<1.0.0,>=0.0.55",
-]
+dev = ["ruff<1.0.0,>=0.6.3", "ruff-lsp<1.0.0,>=0.0.55"]
 [tool.uv]
 cache-keys = [{ git = { commit = true } }]
 dev-dependencies = [
@@ -65,7 +62,7 @@ lint.ignore = [
     "D404",
     "D415",
     "D417",
-    "E712", # https://github.com/astral-sh/ruff/issues/4560
+    "E712",   # https://github.com/astral-sh/ruff/issues/4560
     "F841",
     "F842",
     "RUF001",
@@ -74,7 +71,4 @@ lint.ignore = [
 ]
 
 # disable just linting (allow for formatting)
-lint.exclude = [
-    "*.ipynb",
-    "codegen-sh/**"
-]
+lint.exclude = ["*.ipynb", "codegen-sh/**"]
