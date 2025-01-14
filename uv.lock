@@ -366,15 +366,14 @@ wheels = [
 
 [[package]]
 name = "codegen"
-version = "1.19.1.dev2+g6938a3f.d20250114"
+version = "1.19.1.dev3+gea987c9.d20250114"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
     { name = "click" },
     { name = "codegen-types" },
     { name = "giturlparse" },
-    { name = "graph-sitter" },
-    { name = "graph-sitter-types" },
+    { name = "graph-sitter", extra = ["types"] },
     { name = "pathlib" },
     { name = "posthog" },
     { name = "pydantic" },
@@ -404,8 +403,7 @@ requires-dist = [
     { name = "click" },
     { name = "codegen-types", specifier = ">=0.263.0" },
     { name = "giturlparse" },
-    { name = "graph-sitter", specifier = ">=6.6.4" },
-    { name = "graph-sitter-types", specifier = ">=6.2.1" },
+    { name = "graph-sitter", extras = ["types"], specifier = ">=6.6.4" },
     { name = "pathlib" },
     { name = "posthog" },
     { name = "pydantic", specifier = ">=2.10.3" },
@@ -820,6 +818,12 @@ dependencies = [
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c4/ed/6c038afc0e0641992e90b5c8c08802f538dfa8aefdf57429f47625779c5a/graph_sitter-6.6.4-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:1eeae219275c0b8372f06df226cd44e307b09603052baf1baddd82847e53add6", size = 905823 },
     { url = "https://files.pythonhosted.org/packages/86/87/87b3f63c7d2469abade68cbc1348dd1407865ccbdee3614d8297fb4b8e76/graph_sitter-6.6.4-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_34_x86_64.whl", hash = "sha256:8020b02e209a9c69d566827fe9287dc6f9d1f51f6bc1c591430e782da74e1426", size = 2946867 },
+]
+
+[package.optional-dependencies]
+types = [
+    { name = "types-networkx" },
+    { name = "types-tabulate" },
 ]
 
 [[package]]
@@ -2857,6 +2861,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a9/60/47d92293d9bc521cd2301e423a358abfac0ad409b3a1606d8fbae1321961/types_python_dateutil-2.9.0.20241206.tar.gz", hash = "sha256:18f493414c26ffba692a72369fea7a154c502646301ebfe3d56a04b3767284cb", size = 13802 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0f/b3/ca41df24db5eb99b00d97f89d7674a90cb6b3134c52fb8121b6d8d30f15c/types_python_dateutil-2.9.0.20241206-py3-none-any.whl", hash = "sha256:e248a4bc70a486d3e3ec84d0dc30eec3a5f979d6e7ee4123ae043eedbb987f53", size = 14384 },
+]
+
+[[package]]
+name = "types-tabulate"
+version = "0.9.0.20241207"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/43/16030404a327e4ff8c692f2273854019ed36718667b2993609dc37d14dd4/types_tabulate-0.9.0.20241207.tar.gz", hash = "sha256:ac1ac174750c0a385dfd248edc6279fa328aaf4ea317915ab879a2ec47833230", size = 8195 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/86/a9ebfd509cbe74471106dffed320e208c72537f9aeb0a55eaa6b1b5e4d17/types_tabulate-0.9.0.20241207-py3-none-any.whl", hash = "sha256:b8dad1343c2a8ba5861c5441370c3e35908edd234ff036d4298708a1d4cf8a85", size = 8307 },
 ]
 
 [[package]]
