@@ -366,7 +366,7 @@ wheels = [
 
 [[package]]
 name = "codegen"
-version = "1.19.1.dev9+g5b6a161"
+version = "1.19.1.dev10+g94a3bef.d20250114"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
@@ -403,7 +403,7 @@ requires-dist = [
     { name = "click" },
     { name = "codegen-types", specifier = ">=0.263.0" },
     { name = "giturlparse" },
-    { name = "graph-sitter", extras = ["types"], specifier = ">=6.6.4" },
+    { name = "graph-sitter", extras = ["types"], specifier = ">=6.6.5" },
     { name = "pathlib" },
     { name = "posthog" },
     { name = "pydantic", specifier = ">=2.10.3" },
@@ -763,7 +763,7 @@ wheels = [
 
 [[package]]
 name = "graph-sitter"
-version = "6.6.4"
+version = "6.6.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anthropic" },
@@ -816,8 +816,8 @@ dependencies = [
     { name = "xmltodict" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c4/ed/6c038afc0e0641992e90b5c8c08802f538dfa8aefdf57429f47625779c5a/graph_sitter-6.6.4-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:1eeae219275c0b8372f06df226cd44e307b09603052baf1baddd82847e53add6", size = 905823 },
-    { url = "https://files.pythonhosted.org/packages/86/87/87b3f63c7d2469abade68cbc1348dd1407865ccbdee3614d8297fb4b8e76/graph_sitter-6.6.4-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_34_x86_64.whl", hash = "sha256:8020b02e209a9c69d566827fe9287dc6f9d1f51f6bc1c591430e782da74e1426", size = 2946867 },
+    { url = "https://files.pythonhosted.org/packages/5d/a8/0e8152411fc1858ccc0829c55c43ab1550e338786d6ba1e9cf0707eedb11/graph_sitter-6.6.5-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:29269d4f03f0fe42956d17f90b83023f0ea46352285cb35b7522fcd89ba05e54", size = 907428 },
+    { url = "https://files.pythonhosted.org/packages/3a/29/e4e3b404821583323275cc705933da75231fe0f951848a2d617828f1a529/graph_sitter-6.6.5-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_34_x86_64.whl", hash = "sha256:2fa5f2797ba70c56a8741c73fdfe395ce3d9699076ea96f1121eabe47822f002", size = 2948456 },
 ]
 
 [package.optional-dependencies]
