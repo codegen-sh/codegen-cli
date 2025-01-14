@@ -9,7 +9,7 @@ A command-line interface for the Codegen API that helps you transform your code 
 To install the latest release:
 
 ```
-~$: pipx install codegen-sh
+~$: uv tool install codegen
 ```
 
 ## Development
@@ -33,8 +33,7 @@ uv pip install -e path/to/codegen-cli
 ## Installation in Devin
 
 ```bash
-pipx install codegen-sh
-pipx upgrade codegen-sh # to update to latest version
+uv tool install --upgrade codegen
 ```
 
 ## Quick Start
