@@ -185,6 +185,31 @@ class LookupOutput(BaseModel):
 
 
 ###########################################################################
+# PR LOOKUP
+###########################################################################
+
+
+class PRSchema(BaseModel):
+    url: str
+    title: str
+    body: str
+    github_pr_number: int
+    codegen_pr_id: int
+
+
+class PRLookupInput(BaseModel):
+    class BasePRLookupInput(BaseModel):
+        repo_full_name: str
+        github_pr_number: int
+
+    input: BasePRLookupInput
+
+
+class PRLookupResponse(BaseModel):
+    pr: PRSchema
+
+
+###########################################################################
 # TEST WEBHOOK
 ###########################################################################
 
