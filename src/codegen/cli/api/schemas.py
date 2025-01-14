@@ -189,18 +189,19 @@ class LookupOutput(BaseModel):
 ###########################################################################
 
 
-class TestWebhookInput(BaseModel):
+class RunOnPRInput(BaseModel):
     """Input for testing a webhook against a PR."""
 
-    class BaseTestWebhookInput(BaseModel):
+    class BaseRunOnPRInput(BaseModel):
         codemod_name: str = Field(..., description="Name of the codemod to test")
         repo_full_name: str = Field(..., description="Full name of the repository")
         github_pr_number: int = Field(..., description="GitHub PR number to test against")
+        language: str | None = Field(..., description="Language of the codemod")
 
-    input: BaseTestWebhookInput = Field(..., description="Input data for webhook test")
+    input: BaseRunOnPRInput = Field(..., description="Input data for webhook test")
 
 
-class TestWebhookResponse(BaseModel):
+class RunOnPRResponse(BaseModel):
     """Response from testing a webhook."""
 
     codemod_id: int = Field(..., description="ID of the codemod")
