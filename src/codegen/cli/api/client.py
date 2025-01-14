@@ -113,7 +113,6 @@ class RestAPI:
         include_source: bool = True,
         run_type: CodemodRunType = CodemodRunType.DIFF,
         template_context: dict[str, str] | None = None,
-        message: str | None = None,
     ) -> RunCodemodOutput:
         """Run a codemod transformation.
 
@@ -123,7 +122,6 @@ class RestAPI:
                           If False, uses the deployed version.
             run_type: Type of run (diff or pr)
             template_context: Context variables to pass to the codemod
-            message: Optional message to include with the run
 
         """
         session = CodegenSession()
@@ -142,10 +140,6 @@ class RestAPI:
         # Add template context if provided
         if template_context:
             base_input["template_context"] = template_context
-
-        # Add message if provided
-        if message:
-            base_input["message"] = message
 
         input_data = RunCodemodInput(input=RunCodemodInput.BaseRunCodemodInput(**base_input))
         return self._make_request(
@@ -193,13 +187,7 @@ class RestAPI:
             IdentifyResponse,
         )
 
-    def deploy(
-        self,
-        codemod_name: str,
-        codemod_source: str,
-        lint_mode: bool = False,
-        lint_user_whitelist: list[str] | None = None,
-    ) -> DeployResponse:
+    def deploy(self, codemod_name: str, codemod_source: str, lint_mode: bool = False, lint_user_whitelist: list[str] | None = None, message: str | None = None) -> DeployResponse:
         """Deploy a codemod to the Modal backend."""
         session = CodegenSession()
         return self._make_request(
@@ -207,11 +195,7 @@ class RestAPI:
             DEPLOY_ENDPOINT,
             DeployInput(
                 input=DeployInput.BaseDeployInput(
-                    codemod_name=codemod_name,
-                    codemod_source=codemod_source,
-                    repo_full_name=session.repo_name,
-                    lint_mode=lint_mode,
-                    lint_user_whitelist=lint_user_whitelist or [],
+                    codemod_name=codemod_name, codemod_source=codemod_source, repo_full_name=session.repo_name, lint_mode=lint_mode, lint_user_whitelist=lint_user_whitelist or [], message=message
                 )
             ),
             DeployResponse,
