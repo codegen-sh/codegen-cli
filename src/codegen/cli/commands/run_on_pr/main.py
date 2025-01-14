@@ -8,7 +8,7 @@ from codegen.cli.rich.spinners import create_spinner
 from codegen.cli.utils.codemod_manager import CodemodManager
 
 
-def test_webhook(session: CodegenSession, codemod_name: str, pr_number: int) -> None:
+def run_on_pr(session: CodegenSession, codemod_name: str, pr_number: int) -> None:
     """Test a webhook against a specific PR."""
     # Find the codemod
     codemod = CodemodManager.get(codemod_name)
@@ -17,7 +17,7 @@ def test_webhook(session: CodegenSession, codemod_name: str, pr_number: int) -> 
 
     with create_spinner(f"Testing webhook '{codemod_name}' on PR #{pr_number}...") as status:
         try:
-            response = RestAPI(session.token).test_webhook(
+            response = RestAPI(session.token).run_on_pr(
                 codemod_name=codemod_name,
                 repo_full_name=session.repo_name,
                 github_pr_number=pr_number,
@@ -30,14 +30,14 @@ def test_webhook(session: CodegenSession, codemod_name: str, pr_number: int) -> 
             raise click.ClickException(f"Failed to test webhook: {e!s}")
 
 
-@click.command(name="test-webhook")
+@click.command(name="run-on-pr")
 @requires_auth
 @click.argument("codemod_name", type=str)
 @click.argument("pr_number", type=int)
-def test_webhook_command(session: CodegenSession, codemod_name: str, pr_number: int):
+def run_on_pr_command(session: CodegenSession, codemod_name: str, pr_number: int):
     """Test a webhook against a specific PR.
 
     CODEMOD_NAME is the name of the codemod to test
     PR_NUMBER is the GitHub PR number to test against
     """
-    test_webhook(session, codemod_name, pr_number)
+    run_on_pr(session, codemod_name, pr_number)

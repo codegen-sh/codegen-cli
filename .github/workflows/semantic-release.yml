@@ -11,8 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.CODEGEN_BOT_TOKEN }}
       - uses: docker://ghcr.io/codfish/semantic-release-action:v3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CODEGEN_BOT_TOKEN }}
         with:
           additional-packages: "conventional-changelog-conventionalcommits@4.6.3"
