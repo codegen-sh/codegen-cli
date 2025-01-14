@@ -12,6 +12,7 @@ from codegen.cli.api.endpoints import (
     EXPERT_ENDPOINT,
     IDENTIFY_ENDPOINT,
     LOOKUP_ENDPOINT,
+    PR_LOOKUP_ENDPOINT,
     RUN_ENDPOINT,
     RUN_ON_PR_ENDPOINT,
 )
@@ -28,6 +29,9 @@ from codegen.cli.api.schemas import (
     IdentifyResponse,
     LookupInput,
     LookupOutput,
+    PRLookupInput,
+    PRLookupResponse,
+    PRSchema,
     RunCodemodInput,
     RunCodemodOutput,
     RunOnPRInput,
@@ -237,4 +241,13 @@ class RestAPI:
                 )
             ),
             RunOnPRResponse,
+        )
+
+    def lookup_pr(self, repo_full_name: str, github_pr_number: int) -> PRSchema:
+        """Look up a PR by repository and PR number."""
+        return self._make_request(
+            "GET",
+            PR_LOOKUP_ENDPOINT,
+            PRLookupInput(input=PRLookupInput.BasePRLookupInput(repo_full_name=repo_full_name, github_pr_number=github_pr_number)),
+            PRLookupResponse,
         )
