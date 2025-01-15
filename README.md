@@ -9,7 +9,7 @@ A command-line interface for the Codegen API that helps you transform your code 
 To install the latest release:
 
 ```
-~$: uv tool install codegen
+uv tool install codegen
 ```
 
 ## Development
