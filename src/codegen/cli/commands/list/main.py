@@ -4,17 +4,12 @@ import rich
 import rich_click as click
 from rich.table import Table
 
-from codegen.cli.auth.decorators import requires_auth
-from codegen.cli.auth.session import CodegenSession
 from codegen.cli.rich.codeblocks import format_codeblock, format_command
 from codegen.cli.utils.codemod_manager import CodemodManager
-from codegen.cli.workspace.decorators import requires_init
 
 
 @click.command(name="list")
-@requires_auth
-@requires_init
-def list_command(session: CodegenSession):
+def list_command():
     """List available codegen functions."""
     functions = CodemodManager.get_decorated()
     if functions:
