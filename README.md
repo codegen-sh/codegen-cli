@@ -60,7 +60,7 @@ This creates the necessary folder structure and downloads documentation and exam
 ~$: codegen create my-codemod-name --description "delete all my unused functions"
 ```
 
-This will create a new codemod in the folder `codegen-sh/codemod/my-codemod-name/run.py`
+This will create a new codemod in the folder `codegen-sh/codemods/my-codemod-name/run.py`
 
 When passed the `--description` argument, a Codegen expert AI will generate this first draft. Therefore, it's helpful to provide as much info as possible.
 
