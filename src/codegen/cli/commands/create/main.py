@@ -91,7 +91,7 @@ def create_command(session: CodegenSession, name: str, path: Path, description: 
     with create_spinner(status_message) as status:
         try:
             # Get code from API
-            response = RestAPI(session.token).create(description if description else None)
+            response = RestAPI(session.token).create(name=name, query=description if description else None)
 
             # Convert the code to include the decorator
             code = convert_to_cli(response.code, session.config.programming_language or ProgrammingLanguage.PYTHON, name)
