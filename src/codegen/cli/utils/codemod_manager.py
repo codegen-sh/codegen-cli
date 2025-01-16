@@ -1,5 +1,6 @@
 import builtins
 from pathlib import Path
+import traceback
 
 from codegen.cli.utils.function_finder import DecoratedFunction, find_codegen_functions
 
@@ -104,14 +105,13 @@ class CodemodManager:
         }
 
         all_functions = []
-
         if start_path.is_file():
             # If it's a file, just check that one
             if start_path.suffix == ".py" and _might_have_decorators(start_path):
                 try:
                     functions = find_codegen_functions(start_path)
                     all_functions.extend(functions)
-                except Exception:
+                except Exception as e:
                     pass  # Skip files we can't parse
         else:
             # Walk the directory tree, skipping irrelevant directories
@@ -124,7 +124,6 @@ class CodemodManager:
                     try:
                         functions = find_codegen_functions(path)
                         all_functions.extend(functions)
-                    except Exception:
+                    except Exception as e:
                         pass  # Skip files we can't parse
-
         return all_functions

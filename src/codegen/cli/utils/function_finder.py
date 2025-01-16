@@ -1,6 +1,10 @@
 import ast
 from dataclasses import dataclass
+import dataclasses
+import importlib
+import importlib.util
 from pathlib import Path
+from typing import Optional
 
 
 @dataclass
@@ -12,7 +16,8 @@ class DecoratedFunction:
     lint_mode: bool
     lint_user_whitelist: list[str]
     filepath: Path | None = None
-
+    parameters: list[tuple[str, Optional[str]]] = dataclasses.field(default_factory=list)
+    arguments_type_schema: dict | None = None
 
 class CodegenFunctionVisitor(ast.NodeVisitor):
     def __init__(self):
@@ -47,6 +52,68 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 unindented_lines.append("")
 
         return "\n".join(unindented_lines)
+    
+    def _get_annotation(self, annotation) -> str:
+        """
+        Helper function to retrieve the string representation of an annotation.
+
+        Args:
+            annotation: The annotation node.
+
+        Returns:
+            str: The string representation of the annotation.
+        """
+        if isinstance(annotation, ast.Name):
+            return annotation.id
+        elif isinstance(annotation, ast.Subscript):
+            return f"{self._get_annotation(annotation.value)}[{self._get_annotation(annotation.slice)}]"
+        elif isinstance(annotation, ast.Attribute):
+            return f"{self._get_annotation(annotation.value)}.{annotation.attr}"
+        elif isinstance(annotation, ast.Tuple):
+            return ', '.join(self._get_annotation(elt) for elt in annotation.elts)
+        else:
+            return "Any"
+        
+    
+    def get_function_parameters(self, node: ast.FunctionDef) -> list[tuple[str, Optional[str]]]:
+        """
+        Extracts the parameters and their types from an AST FunctionDef node.
+
+        Args:
+            node (ast.FunctionDef): The AST node of the function.
+
+        Returns:
+            List[Tuple[str, Optional[str]]]: A list of tuples containing parameter names and their type annotations.
+                                            The type is `None` if no annotation is present.
+        """
+        parameters = []
+        for arg in node.args.args:
+            param_name = arg.arg
+            if arg.annotation:
+                param_type = ast.unparse(arg.annotation) if hasattr(ast, 'unparse') else self._get_annotation(arg.annotation)
+            else:
+                param_type = None
+            parameters.append((param_name, param_type))
+        
+        # Handle *args
+        if node.args.vararg:
+            param_name = f"*{node.args.vararg.arg}"
+            if node.args.vararg.annotation:
+                param_type = ast.unparse(node.args.vararg.annotation) if hasattr(ast, 'unparse') else self._get_annotation(node.args.vararg)
+            else:
+                param_type = None
+            parameters.append((param_name, param_type))
+        
+        # Handle **kwargs
+        if node.args.kwarg:
+            param_name = f"**{node.args.kwarg.arg}"
+            if node.args.kwarg.annotation:
+                param_type = ast.unparse(node.args.kwarg.annotation) if hasattr(ast, 'unparse') else self._get_annotation(node.args.kwarg)
+            else:
+                param_type = None
+            parameters.append((param_name, param_type))
+        
+        return parameters
 
     def visit_FunctionDef(self, node):
         for decorator in node.decorator_list:
@@ -74,7 +141,8 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 
                 # Get just the function body, unindented
                 body_source = self.get_function_body(node)
-                self.functions.append(DecoratedFunction(name=func_name, source=body_source, lint_mode=lint_mode, lint_user_whitelist=lint_user_whitelist))
+                parameters = self.get_function_parameters(node)
+                self.functions.append(DecoratedFunction(name=func_name, source=body_source, lint_mode=lint_mode, lint_user_whitelist=lint_user_whitelist, parameters=parameters))
 
     def _has_codegen_root(self, node):
         """Recursively check if an AST node chain starts with codegen."""
@@ -97,6 +165,28 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         self.source = self.file_content
         self.generic_visit(node)
 
+def _extract_arguments_type_schema(func: DecoratedFunction) -> dict | None:
+    """Extracts the arguments type schema from a DecoratedFunction object."""
+
+    try:
+        spec=importlib.util.spec_from_file_location('module', func.filepath)
+        module = importlib.util.module_from_spec(spec)
+
+        fn_arguments_param_type = None
+        for p in func.parameters:
+            if p[0] == "arguments":
+                fn_arguments_param_type = p[1]  
+        
+        if fn_arguments_param_type is not None:
+            spec.loader.exec_module(module)
+
+            schema =  getattr(module, fn_arguments_param_type).model_json_schema()
+            return schema
+        return None
+    except Exception as e:
+        print(f"Error parsing {func.filepath}, could not introspect for arguments parameter")
+        print(e)
+        return None
 
 def find_codegen_functions(filepath: Path) -> list[DecoratedFunction]:
     """Find all codegen functions in a Python file.
@@ -124,5 +214,7 @@ def find_codegen_functions(filepath: Path) -> list[DecoratedFunction]:
     # Add filepath to each function
     for func in visitor.functions:
         func.filepath = filepath
+        func.arguments_type_schema = _extract_arguments_type_schema(func)
+
 
     return visitor.functions

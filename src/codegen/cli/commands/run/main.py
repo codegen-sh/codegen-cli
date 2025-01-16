@@ -1,3 +1,4 @@
+import json
 import webbrowser
 
 import rich
@@ -12,6 +13,7 @@ from codegen.cli.git.patch import apply_patch
 from codegen.cli.rich.codeblocks import format_command
 from codegen.cli.rich.spinners import create_spinner
 from codegen.cli.utils.codemod_manager import CodemodManager
+from codegen.cli.utils.json_schema import validate_json
 from codegen.cli.utils.url import generate_webapp_url
 from codegen.cli.workspace.decorators import requires_init
 
@@ -114,16 +116,28 @@ def run_function(session: CodegenSession, function, web: bool = False, apply_loc
 @click.option("--web", is_flag=True, help="Automatically open the diff in the web app")
 @click.option("--apply-local", is_flag=True, help="Applies the generated diff to the repository")
 @click.option("--diff-preview", type=int, help="Show a preview of the first N lines of the diff")
-def run_command(session: CodegenSession, label: str, web: bool = False, apply_local: bool = False, diff_preview: int | None = None):
+@click.option("--arguments", type=str, help="Arguments as a json string to pass as the function's 'arguments' parameter")
+def run_command(session: CodegenSession, label: str, web: bool = False, apply_local: bool = False, diff_preview: int | None = None, arguments: str | None = None):
     """Run a codegen function by its label."""
     # First try to find it as a stored codemod
     codemod = CodemodManager.get(label)
     if codemod:
+
+
+        if codemod.arguments_type_schema and not arguments:
+            raise click.ClickException(f"This function requires the --arguments parameter. Expected schema: {codemod.arguments_type_schema}")
+
+        if codemod.arguments_type_schema and arguments:
+            arguments_json = json.loads(arguments)
+            is_valid = validate_json(codemod.arguments_type_schema, arguments_json)
+            print(f"is_valid: {is_valid}")
+
         run_function(session, codemod, web, apply_local, diff_preview)
         return
 
     # If not found as a stored codemod, look for decorated functions
     functions = CodemodManager.get_decorated()
+    print(f"found some functions", functions)
     matching = [f for f in functions if f.name == label]
 
     if not matching:
