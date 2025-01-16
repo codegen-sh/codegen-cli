@@ -1,7 +1,0 @@
-repo_name = "codegen"
-organization_name = "codegen-sh"
-programming_language = "PYTHON"
-
-[analytics]
-telemetry_enabled = true
-distinct_id = ""

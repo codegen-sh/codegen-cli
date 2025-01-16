@@ -2,7 +2,6 @@ import shutil
 from pathlib import Path
 
 import rich
-from pygit2.repository import Repository
 
 from codegen.cli.api.client import RestAPI
 from codegen.cli.auth.constants import CODEGEN_DIR, DOCS_DIR, EXAMPLES_DIR, PROMPTS_DIR
@@ -40,7 +39,7 @@ def initialize_codegen(action: str = "Initializing") -> tuple[Path, Path, Path]:
             rich.print("No git repository found. Please run this command in a git repository.")
         else:
             status.update(f"   {action} .gitignore...")
-            modify_gitignore(repo)
+            modify_gitignore(CODEGEN_FOLDER)
 
         # Always fetch and update docs & examples
         status.update("Fetching latest docs & examples...")
@@ -66,8 +65,8 @@ def add_to_gitignore_if_not_present(gitignore: Path, line: str):
         gitignore.write_text(gitignore.read_text() + "\n" + line)
 
 
-def modify_gitignore(repo: Repository):
-    gitignore_path = Path(repo.workdir) / ".gitignore"
-    add_to_gitignore_if_not_present(gitignore_path, ".codegen-sh/prompts/")
-    add_to_gitignore_if_not_present(gitignore_path, ".codegen-sh/docs/")
-    add_to_gitignore_if_not_present(gitignore_path, ".codegen-sh/examples/")
+def modify_gitignore(codegen_folder: Path):
+    gitignore_path = codegen_folder / ".gitignore"
+    add_to_gitignore_if_not_present(gitignore_path, "prompts")
+    add_to_gitignore_if_not_present(gitignore_path, "docs")
+    add_to_gitignore_if_not_present(gitignore_path, "examples")
