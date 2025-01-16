@@ -79,7 +79,7 @@ def create_command(session: CodegenSession, name: str, path: Path, description: 
     # Check if file exists
     if target_path.exists() and not overwrite:
         rel_path = make_relative(target_path)
-        pretty_print_error(f"File already exists at {format_path(rel_path)}\n\n" "To overwrite the file:\n" f"{format_command(f'codegen create {name} {rel_path} --overwrite')}")
+        pretty_print_error(f"File already exists at {format_path(rel_path)}\n\nTo overwrite the file:\n{format_command(f'codegen create {name} {rel_path} --overwrite')}")
         return
 
     if description:
@@ -120,7 +120,7 @@ def create_command(session: CodegenSession, name: str, path: Path, description: 
     rich.print("📁 Files Created:")
     rich.print(f"   [dim]Function:[/dim]  {make_relative(target_path)}")
     if response.context:
-        rich.print(f"   [dim]Prompt:[/dim]    {make_relative(get_prompts_dir() / f'{name.lower().replace(' ', '-')}-system-prompt.md')}")
+        rich.print(f"   [dim]Prompt:[/dim]    {make_relative(get_prompts_dir() / f'{name.lower().replace(" ", "-")}-system-prompt.md')}")
 
     # Next steps
     rich.print("\n[bold]What's next?[/bold]\n")
