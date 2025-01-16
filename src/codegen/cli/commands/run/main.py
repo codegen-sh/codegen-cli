@@ -137,7 +137,7 @@ def run_command(session: CodegenSession, label: str, web: bool = False, apply_lo
 
     # If not found as a stored codemod, look for decorated functions
     functions = CodemodManager.get_decorated()
-    print(f"found some functions", functions)
+    print("found some functions", functions)
     matching = [f for f in functions if f.name == label]
 
     if not matching:

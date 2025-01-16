@@ -1,7 +1,9 @@
 
 from pydantic import BaseModel, Field
+
 import codegen.cli.sdk.decorator
 from codegen.cli.utils.count_functions_2 import NumberType
+
 # from app.codemod.compilation.models.context import CodemodContext
 # from app.codemod.compilation.models.pr_options import PROptions
 # from graph_sitter import PyCodebaseType
@@ -30,7 +32,7 @@ def run(codebase, pr_options, arguments: CountFunctionsArgs):
     # Iterate over all functions in the codebase
     for function in codebase.functions:
         total_functions += 1
-    
+
         # Extract directory from function's file path
         directory = function.file.filepath.split('/')[0]
         functions_by_directory[directory] = functions_by_directory.get(directory, 0) + 1

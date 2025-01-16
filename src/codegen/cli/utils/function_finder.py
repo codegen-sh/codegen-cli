@@ -1,10 +1,9 @@
 import ast
-from dataclasses import dataclass
 import dataclasses
 import importlib
 import importlib.util
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 
 @dataclass
@@ -16,7 +15,7 @@ class DecoratedFunction:
     lint_mode: bool
     lint_user_whitelist: list[str]
     filepath: Path | None = None
-    parameters: list[tuple[str, Optional[str]]] = dataclasses.field(default_factory=list)
+    parameters: list[tuple[str, str | None]] = dataclasses.field(default_factory=list)
     arguments_type_schema: dict | None = None
 
 class CodegenFunctionVisitor(ast.NodeVisitor):
@@ -52,16 +51,16 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 unindented_lines.append("")
 
         return "\n".join(unindented_lines)
-    
+
     def _get_annotation(self, annotation) -> str:
-        """
-        Helper function to retrieve the string representation of an annotation.
+        """Helper function to retrieve the string representation of an annotation.
 
         Args:
             annotation: The annotation node.
 
         Returns:
             str: The string representation of the annotation.
+
         """
         if isinstance(annotation, ast.Name):
             return annotation.id
@@ -73,11 +72,10 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
             return ', '.join(self._get_annotation(elt) for elt in annotation.elts)
         else:
             return "Any"
-        
-    
-    def get_function_parameters(self, node: ast.FunctionDef) -> list[tuple[str, Optional[str]]]:
-        """
-        Extracts the parameters and their types from an AST FunctionDef node.
+
+
+    def get_function_parameters(self, node: ast.FunctionDef) -> list[tuple[str, str | None]]:
+        """Extracts the parameters and their types from an AST FunctionDef node.
 
         Args:
             node (ast.FunctionDef): The AST node of the function.
@@ -85,6 +83,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         Returns:
             List[Tuple[str, Optional[str]]]: A list of tuples containing parameter names and their type annotations.
                                             The type is `None` if no annotation is present.
+
         """
         parameters = []
         for arg in node.args.args:
@@ -94,7 +93,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
             else:
                 param_type = None
             parameters.append((param_name, param_type))
-        
+
         # Handle *args
         if node.args.vararg:
             param_name = f"*{node.args.vararg.arg}"
@@ -103,7 +102,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
             else:
                 param_type = None
             parameters.append((param_name, param_type))
-        
+
         # Handle **kwargs
         if node.args.kwarg:
             param_name = f"**{node.args.kwarg.arg}"
@@ -112,7 +111,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
             else:
                 param_type = None
             parameters.append((param_name, param_type))
-        
+
         return parameters
 
     def visit_FunctionDef(self, node):
@@ -167,7 +166,6 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
 
 def _extract_arguments_type_schema(func: DecoratedFunction) -> dict | None:
     """Extracts the arguments type schema from a DecoratedFunction object."""
-
     try:
         spec=importlib.util.spec_from_file_location('module', func.filepath)
         module = importlib.util.module_from_spec(spec)
@@ -175,8 +173,8 @@ def _extract_arguments_type_schema(func: DecoratedFunction) -> dict | None:
         fn_arguments_param_type = None
         for p in func.parameters:
             if p[0] == "arguments":
-                fn_arguments_param_type = p[1]  
-        
+                fn_arguments_param_type = p[1]
+
         if fn_arguments_param_type is not None:
             spec.loader.exec_module(module)
 

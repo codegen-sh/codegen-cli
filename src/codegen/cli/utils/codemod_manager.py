@@ -1,6 +1,5 @@
 import builtins
 from pathlib import Path
-import traceback
 
 from codegen.cli.utils.function_finder import DecoratedFunction, find_codegen_functions
 
