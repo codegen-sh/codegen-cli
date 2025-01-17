@@ -62,4 +62,3 @@ repos:
     rev: "0.5.20"
     hooks:
       - id: uv-lock
-        entry: bash -c "SETUPTOOLS_SCM_PRETEND_VERSION=0.0.0 uv lock"
