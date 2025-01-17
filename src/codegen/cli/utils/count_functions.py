@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field
 
 import codegen.cli.sdk.decorator
@@ -10,6 +9,7 @@ from codegen.cli.utils.count_functions_2 import NumberType
 
 # context: CodemodContext
 
+
 class CountFunctionsArgs(BaseModel):
     number_attr: NumberType
     string_attr: str
@@ -19,7 +19,7 @@ class CountFunctionsArgs(BaseModel):
     complex_attr: str = Field(default_factory=lambda: "hello")
 
 
-@codegen.cli.sdk.decorator.function('count-functions')
+@codegen.cli.sdk.decorator.function("count-functions")
 def run(codebase, pr_options, arguments: CountFunctionsArgs):
     # Count Functions in Codebase
 
@@ -34,7 +34,7 @@ def run(codebase, pr_options, arguments: CountFunctionsArgs):
         total_functions += 1
 
         # Extract directory from function's file path
-        directory = function.file.filepath.split('/')[0]
+        directory = function.file.filepath.split("/")[0]
         functions_by_directory[directory] = functions_by_directory.get(directory, 0) + 1
 
     # Print the results

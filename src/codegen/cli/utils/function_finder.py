@@ -18,6 +18,7 @@ class DecoratedFunction:
     parameters: list[tuple[str, str | None]] = dataclasses.field(default_factory=list)
     arguments_type_schema: dict | None = None
 
+
 class CodegenFunctionVisitor(ast.NodeVisitor):
     def __init__(self):
         self.functions: list[DecoratedFunction] = []
@@ -69,10 +70,9 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         elif isinstance(annotation, ast.Attribute):
             return f"{self._get_annotation(annotation.value)}.{annotation.attr}"
         elif isinstance(annotation, ast.Tuple):
-            return ', '.join(self._get_annotation(elt) for elt in annotation.elts)
+            return ", ".join(self._get_annotation(elt) for elt in annotation.elts)
         else:
             return "Any"
-
 
     def get_function_parameters(self, node: ast.FunctionDef) -> list[tuple[str, str | None]]:
         """Extracts the parameters and their types from an AST FunctionDef node.
@@ -89,7 +89,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         for arg in node.args.args:
             param_name = arg.arg
             if arg.annotation:
-                param_type = ast.unparse(arg.annotation) if hasattr(ast, 'unparse') else self._get_annotation(arg.annotation)
+                param_type = ast.unparse(arg.annotation) if hasattr(ast, "unparse") else self._get_annotation(arg.annotation)
             else:
                 param_type = None
             parameters.append((param_name, param_type))
@@ -98,7 +98,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         if node.args.vararg:
             param_name = f"*{node.args.vararg.arg}"
             if node.args.vararg.annotation:
-                param_type = ast.unparse(node.args.vararg.annotation) if hasattr(ast, 'unparse') else self._get_annotation(node.args.vararg)
+                param_type = ast.unparse(node.args.vararg.annotation) if hasattr(ast, "unparse") else self._get_annotation(node.args.vararg)
             else:
                 param_type = None
             parameters.append((param_name, param_type))
@@ -107,7 +107,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         if node.args.kwarg:
             param_name = f"**{node.args.kwarg.arg}"
             if node.args.kwarg.annotation:
-                param_type = ast.unparse(node.args.kwarg.annotation) if hasattr(ast, 'unparse') else self._get_annotation(node.args.kwarg)
+                param_type = ast.unparse(node.args.kwarg.annotation) if hasattr(ast, "unparse") else self._get_annotation(node.args.kwarg)
             else:
                 param_type = None
             parameters.append((param_name, param_type))
@@ -164,10 +164,11 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
         self.source = self.file_content
         self.generic_visit(node)
 
+
 def _extract_arguments_type_schema(func: DecoratedFunction) -> dict | None:
     """Extracts the arguments type schema from a DecoratedFunction object."""
     try:
-        spec=importlib.util.spec_from_file_location('module', func.filepath)
+        spec = importlib.util.spec_from_file_location("module", func.filepath)
         module = importlib.util.module_from_spec(spec)
 
         fn_arguments_param_type = None
@@ -178,13 +179,14 @@ def _extract_arguments_type_schema(func: DecoratedFunction) -> dict | None:
         if fn_arguments_param_type is not None:
             spec.loader.exec_module(module)
 
-            schema =  getattr(module, fn_arguments_param_type).model_json_schema()
+            schema = getattr(module, fn_arguments_param_type).model_json_schema()
             return schema
         return None
     except Exception as e:
         print(f"Error parsing {func.filepath}, could not introspect for arguments parameter")
         print(e)
         return None
+
 
 def find_codegen_functions(filepath: Path) -> list[DecoratedFunction]:
     """Find all codegen functions in a Python file.
@@ -213,6 +215,5 @@ def find_codegen_functions(filepath: Path) -> list[DecoratedFunction]:
     for func in visitor.functions:
         func.filepath = filepath
         func.arguments_type_schema = _extract_arguments_type_schema(func)
-
 
     return visitor.functions

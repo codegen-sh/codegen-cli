@@ -187,11 +187,9 @@ class RestAPI:
             IdentifyResponse,
         )
 
-    def deploy(self, codemod_name: str,
-                codemod_source: str, lint_mode: bool = False,
-                lint_user_whitelist: list[str] | None = None,
-                message: str | None = None,
-                arguments_schema: dict | None = None) -> DeployResponse:
+    def deploy(
+        self, codemod_name: str, codemod_source: str, lint_mode: bool = False, lint_user_whitelist: list[str] | None = None, message: str | None = None, arguments_schema: dict | None = None
+    ) -> DeployResponse:
         """Deploy a codemod to the Modal backend."""
         session = CodegenSession()
         return self._make_request(
@@ -205,7 +203,7 @@ class RestAPI:
                     lint_mode=lint_mode,
                     lint_user_whitelist=lint_user_whitelist or [],
                     message=message,
-                    arguments_schema=arguments_schema
+                    arguments_schema=arguments_schema,
                 )
             ),
             DeployResponse,

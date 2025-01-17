@@ -122,8 +122,6 @@ def run_command(session: CodegenSession, label: str, web: bool = False, apply_lo
     # First try to find it as a stored codemod
     codemod = CodemodManager.get(label)
     if codemod:
-
-
         if codemod.arguments_type_schema and not arguments:
             raise click.ClickException(f"This function requires the --arguments parameter. Expected schema: {codemod.arguments_type_schema}")
 

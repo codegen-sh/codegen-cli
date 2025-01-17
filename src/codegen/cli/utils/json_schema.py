@@ -15,10 +15,10 @@ def get_schema(model: BaseModel) -> dict:
 def validate_json(schema: dict, json_data: str) -> bool:
     json_schema = json.dumps(schema)
     exec_scope = {}
-    model_name = schema['title']
+    model_name = schema["title"]
     with TemporaryDirectory() as temporary_directory_name:
         temporary_directory = Path(temporary_directory_name)
-        output = Path(temporary_directory / 'model.py')
+        output = Path(temporary_directory / "model.py")
         generate(
             json_schema,
             input_file_type=InputFileType.JsonSchema,
