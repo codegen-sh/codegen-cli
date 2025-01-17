@@ -168,13 +168,13 @@ class RestAPI:
             AskExpertResponse,
         )
 
-    def create(self, query: str) -> CreateResponse:
+    def create(self, name: str, query: str) -> CreateResponse:
         """Get AI-generated starter code for a codemod."""
         session = CodegenSession()
         return self._make_request(
             "GET",
             CREATE_ENDPOINT,
-            CreateInput(input=CreateInput.BaseCreateInput(query=query, repo_full_name=session.repo_name)),
+            CreateInput(input=CreateInput.BaseCreateInput(name=name, query=query, repo_full_name=session.repo_name)),
             CreateResponse,
         )
 

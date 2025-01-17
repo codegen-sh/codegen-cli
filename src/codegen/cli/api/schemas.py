@@ -91,6 +91,7 @@ class DocsResponse(SafeBaseModel):
 
 class CreateInput(SafeBaseModel):
     class BaseCreateInput(SafeBaseModel):
+        name: str
         query: str | None = None
         repo_full_name: str | None = None
 
