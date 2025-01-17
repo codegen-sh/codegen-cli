@@ -199,7 +199,13 @@ class RestAPI:
             DEPLOY_ENDPOINT,
             DeployInput(
                 input=DeployInput.BaseDeployInput(
-                    codemod_name=codemod_name, codemod_source=codemod_source, repo_full_name=session.repo_name, lint_mode=lint_mode, lint_user_whitelist=lint_user_whitelist or [], message=message, arguments_schema=arguments_schema
+                    codemod_name=codemod_name, 
+                    codemod_source=codemod_source, 
+                    repo_full_name=session.repo_name,
+                    lint_mode=lint_mode,
+                    lint_user_whitelist=lint_user_whitelist or [], 
+                    message=message,
+                    arguments_schema=arguments_schema
                 )
             ),
             DeployResponse,
