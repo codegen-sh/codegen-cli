@@ -26,8 +26,14 @@ def deploy_functions(session: CodegenSession, functions: list[DecoratedFunction]
     for func in functions:
         with create_spinner(f"Deploying function '{func.name}'...") as status:
             start_time = time.time()
-            print(func.arguments_type_schema)
-            response = api_client.deploy(codemod_name=func.name, codemod_source=func.source, lint_mode=func.lint_mode, lint_user_whitelist=func.lint_user_whitelist, message=message)
+            response = api_client.deploy(
+                codemod_name=func.name,
+                codemod_source=func.source,
+                lint_mode=func.lint_mode,
+                lint_user_whitelist=func.lint_user_whitelist,
+                message=message,
+                arguments_schema=func.arguments_type_schema,
+            )
             deploy_time = time.time() - start_time
 
         func_type = "Webhook" if func.lint_mode else "Function"
