@@ -1,5 +1,9 @@
 version = 1
 requires-python = ">=3.13"
+resolution-markers = [
+    "python_full_version < '4.0'",
+    "python_full_version >= '4.0'",
+]
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -118,6 +122,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/35/5d/752690df9ef5b76e169e68d6a129fa6d08a7100ca7f754c89495db3c6019/appnope-0.1.4.tar.gz", hash = "sha256:1de3860566df9caf38f01f86f65e0e13e379af54f9e4bee1e66b48f2efffd1ee", size = 4170 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/81/29/5ecc3a15d5a33e31b26c11426c45c501e439cb865d0bff96315d86443b78/appnope-0.1.4-py2.py3-none-any.whl", hash = "sha256:502575ee11cd7a28c0205f379b525beefebab9d161b7c964670864014ed7213c", size = 4321 },
+]
+
+[[package]]
+name = "argcomplete"
+version = "3.5.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0c/be/6c23d80cb966fb8f83fb1ebfb988351ae6b0554d0c3a613ee4531c026597/argcomplete-3.5.3.tar.gz", hash = "sha256:c12bf50eded8aebb298c7b7da7a5ff3ee24dffd9f5281867dfe1424b58c55392", size = 72999 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c4/08/2a4db06ec3d203124c967fc89295e85a202e5cbbcdc08fd6a64b65217d1e/argcomplete-3.5.3-py3-none-any.whl", hash = "sha256:2ab2c4a215c59fd6caaff41a869480a23e8f6a5f910b266c1808037f4e375b61", size = 43569 },
 ]
 
 [[package]]
@@ -366,12 +379,12 @@ wheels = [
 
 [[package]]
 name = "codegen"
-version = "0.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "algoliasearch" },
     { name = "click" },
     { name = "codegen-types" },
+    { name = "datamodel-code-generator" },
     { name = "giturlparse" },
     { name = "graph-sitter", extra = ["types"] },
     { name = "pathlib" },
@@ -403,6 +416,7 @@ requires-dist = [
     { name = "algoliasearch" },
     { name = "click" },
     { name = "codegen-types", specifier = ">=0.263.0" },
+    { name = "datamodel-code-generator", specifier = ">=0.26.5" },
     { name = "giturlparse" },
     { name = "graph-sitter", extras = ["types"], specifier = ">=6.6.5" },
     { name = "pathlib" },
@@ -574,6 +588,26 @@ wheels = [
 ]
 
 [[package]]
+name = "datamodel-code-generator"
+version = "0.26.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "argcomplete" },
+    { name = "black" },
+    { name = "genson" },
+    { name = "inflect" },
+    { name = "isort" },
+    { name = "jinja2" },
+    { name = "packaging" },
+    { name = "pydantic", extra = ["email"], marker = "python_full_version < '4.0'" },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/63/e4/53153452235a387112df40f67aaf24072d4b5e33aa7bb385004f4c4baf38/datamodel_code_generator-0.26.5.tar.gz", hash = "sha256:c4a94a7dbf7972129882732d9bcee44c9ae090f57c82edd58d237b9d48c40dd0", size = 92586 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5a/d8/ead3e857d4048947fe92a731d6b1f257dcb267cc8b8918d3b72598c9b728/datamodel_code_generator-0.26.5-py3-none-any.whl", hash = "sha256:e32f986b9914a2b45093947043aa0192d704650be93151f78acf5c95676601ce", size = 114982 },
+]
+
+[[package]]
 name = "debugpy"
 version = "1.8.11"
 source = { registry = "https://pypi.org/simple" }
@@ -635,6 +669,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dnspython"
+version = "2.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b5/4a/263763cb2ba3816dd94b08ad3a33d5fdae34ecb856678773cc40a3605829/dnspython-2.7.0.tar.gz", hash = "sha256:ce9c432eda0dc91cf618a5cedf1a4e142651196bbcd2c80e89ed5a907e5cfaf1", size = 345197 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/1b/e0a87d256e40e8c888847551b20a017a6b98139178505dc7ffb96f04e954/dnspython-2.7.0-py3-none-any.whl", hash = "sha256:b4c34b7d10b51bcc3a5071e7b8dee77939f1e878477eeecc965e9835f63c6c86", size = 313632 },
+]
+
+[[package]]
 name = "docstring-parser"
 version = "0.16"
 source = { registry = "https://pypi.org/simple" }
@@ -650,6 +693,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b4/29/785595a0d8b30ab8d2486559cfba1d46487b8dcbd99f74960b6b4cca92a4/editorconfig-0.17.0.tar.gz", hash = "sha256:8739052279699840065d3a9f5c125d7d5a98daeefe53b0e5274261d77cb49aa2", size = 13369 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/af/e5/8dba39ea24ca3de0e954e668107692f4dfc13a85300a531fa9a39e83fde4/EditorConfig-0.17.0-py3-none-any.whl", hash = "sha256:fe491719c5f65959ec00b167d07740e7ffec9a3f362038c72b289330b9991dfc", size = 16276 },
+]
+
+[[package]]
+name = "email-validator"
+version = "2.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython", marker = "python_full_version < '4.0'" },
+    { name = "idna", marker = "python_full_version < '4.0'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/48/ce/13508a1ec3f8bb981ae4ca79ea40384becc868bfae97fd1c942bb3a001b1/email_validator-2.2.0.tar.gz", hash = "sha256:cb690f344c617a714f22e66ae771445a1ceb46821152df8e165c5f9a364582b7", size = 48967 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/ee/bf0adb559ad3c786f12bcbc9296b3f5675f529199bef03e2df281fa1fadb/email_validator-2.2.0-py3-none-any.whl", hash = "sha256:561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631", size = 33521 },
 ]
 
 [[package]]
@@ -728,6 +784,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ee/11/de70dee31455c546fbc88301971ec03c328f3d1138cfba14263f651e9551/fsspec-2024.12.0.tar.gz", hash = "sha256:670700c977ed2fb51e0d9f9253177ed20cbde4a3e5c0283cc5385b5870c8533f", size = 291600 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/86/5486b0188d08aa643e127774a99bac51ffa6cf343e3deb0583956dca5b22/fsspec-2024.12.0-py3-none-any.whl", hash = "sha256:b520aed47ad9804237ff878b504267a3b0b441e97508bd6d2d8774e3db85cee2", size = 183862 },
+]
+
+[[package]]
+name = "genson"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c5/cf/2303c8ad276dcf5ee2ad6cf69c4338fd86ef0f471a5207b069adf7a393cf/genson-1.3.0.tar.gz", hash = "sha256:e02db9ac2e3fd29e65b5286f7135762e2cd8a986537c075b06fc5f1517308e37", size = 34919 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f8/5c/e226de133afd8bb267ec27eead9ae3d784b95b39a287ed404caab39a5f50/genson-1.3.0-py3-none-any.whl", hash = "sha256:468feccd00274cc7e4c09e84b08704270ba8d95232aa280f65b986139cec67f7", size = 21470 },
 ]
 
 [[package]]
@@ -940,6 +1005,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f1/70/7703c29685631f5a7590aa73f1f1d3fa9a380e654b86af429e0934a32f7d/idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9", size = 190490 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3", size = 70442 },
+]
+
+[[package]]
+name = "inflect"
+version = "5.6.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/db/cae5d8524c4b5e574c281895b212062f3b06d0e14186904ed71c538b4e90/inflect-5.6.2.tar.gz", hash = "sha256:aadc7ed73928f5e014129794bbac03058cca35d0a973a5fc4eb45c7fa26005f9", size = 69378 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/d8/3e1a32d305215166f5c32652c473aa766bd7809cd10b34c544dbc31facb5/inflect-5.6.2-py3-none-any.whl", hash = "sha256:b45d91a4a28a4e617ff1821117439b06eaa86e2a4573154af0149e9be6687238", size = 33704 },
 ]
 
 [[package]]
@@ -1922,6 +1996,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/45/0f/27908242621b14e649a84e62b133de45f84c255eecb350ab02979844a788/pydantic-2.10.3.tar.gz", hash = "sha256:cb5ac360ce894ceacd69c403187900a02c4b20b693a9dd1d643e1effab9eadf9", size = 786486 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/51/72c18c55cf2f46ff4f91ebcc8f75aa30f7305f3d726be3f4ebffb4ae972b/pydantic-2.10.3-py3-none-any.whl", hash = "sha256:be04d85bbc7b65651c5f8e6b9976ed9c6f41782a55524cef079a34a0bb82144d", size = 456997 },
+]
+
+[package.optional-dependencies]
+email = [
+    { name = "email-validator", marker = "python_full_version < '4.0'" },
 ]
 
 [[package]]

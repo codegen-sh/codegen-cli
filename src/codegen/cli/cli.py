@@ -19,6 +19,7 @@ install(show_locals=True)
 
 
 @click.group()
+@click.version_option(prog_name="codegen", message="%(version)s")
 def main():
     """Codegen CLI - Transform your code with AI."""
 
@@ -36,6 +37,7 @@ main.add_command(list_command)
 main.add_command(deploy_command)
 main.add_command(style_debug_command)
 main.add_command(run_on_pr_command)
+
 
 if __name__ == "__main__":
     main()
